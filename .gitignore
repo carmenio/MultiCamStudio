@@ -1,0 +1,27 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+.conda/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+.tmp/
+.tmp*
+*.log
+package-lock.json
+
+# Old pre-split local folders should not be committed to the parent.
+Backend/
+Frontend/
+SignalingServer/
+EdgeRelay/
+expo-phone-recording-app/
+supabase/
+cal_code/
+sync_code/
+.tmp_base_model_server/
+.tmp_freemocap/
+.tmp_freemocap_meta/

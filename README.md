@@ -30,3 +30,24 @@ npm run laptop:logs
 ```
 
 Each child repo has its own `.env.example`; copy it to `.env` inside that child before starting its stack.
+
+## Split PC/Laptop Networking
+
+Run the PC backend on an address reachable from the laptop:
+
+```env
+BACKEND_HOST=0.0.0.0
+BACKEND_PORT=5000
+PC_BACKEND_PUBLIC_ORIGIN=https://<pc-tailscale-name-or-ip>:5000
+```
+
+From the laptop, verify the PC backend before opening the frontend:
+
+```powershell
+curl.exe -k https://<pc-tailscale-name-or-ip>:5000/health
+```
+
+For the laptop edge stack, set `PC_API_ORIGIN=https://<pc-tailscale-name-or-ip>:5000`.
+For direct operator-web development without the edge proxy, set
+`VITE_EDGE_MODE=false` and `VITE_API_URL=https://<pc-tailscale-name-or-ip>:5000`.
+Same-machine development still works with the existing localhost fallbacks.

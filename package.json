@@ -4,10 +4,12 @@
     "pc:stop": "npm --prefix pc run stop",
     "pc:restart": "npm --prefix pc run restart",
     "pc:logs": "npm --prefix pc run logs",
+    "pc:build": "npm --prefix pc run build",
     "laptop": "npm --prefix laptop run start",
     "laptop:stop": "npm --prefix laptop run stop",
     "laptop:restart": "npm --prefix laptop run restart",
     "laptop:logs": "npm --prefix laptop run logs",
+    "laptop:build": "npm --prefix laptop run build",
     "test:pc": "npm --prefix pc run test:backend",
     "test:laptop": "npm --prefix laptop run test:signaling && npm --prefix laptop run test:operator"
   },

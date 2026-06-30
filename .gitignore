@@ -12,6 +12,8 @@ __pycache__/
 .tmp*
 *.log
 package-lock.json
+.edge-external-storage-disabled/
+laptop/.edge-external-storage-disabled/
 
 # Old pre-split local folders should not be committed to the parent.
 Backend/
@@ -25,3 +27,5 @@ sync_code/
 .tmp_base_model_server/
 .tmp_freemocap/
 .tmp_freemocap_meta/
+
+graphify-out/*

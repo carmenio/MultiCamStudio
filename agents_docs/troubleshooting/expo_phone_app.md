@@ -29,7 +29,7 @@ The corrected contract is:
 
 The native probe and successful Stop result must report `implementationVersion: ios-finalization-v2`. `npm install` runs `scripts/validate-native-patch.mjs`; a missing marker means the dependency patch did not reach the native source and the build must stop. On-device, a stale or missing marker produces an explicit rebuild error instead of silently using the old stop path.
 
-The JavaScript `NATIVE_STOP_WATCHDOG_TIMEOUT` is a secondary 15-second guard. It does not replace the native deadline; it prevents an outdated or damaged native client from leaving the UI indefinitely in finalizing state.
+The JavaScript `NATIVE_STOP_WATCHDOG_TIMEOUT` is a secondary 17-second guard. It deliberately fires after the native 15-second deadline so native cancellation and its specific error win under normal patched builds, while still preventing an outdated or damaged native client from leaving the UI indefinitely in finalizing state.
 
 Useful phone log timestamps are `stopRequestedAt`, `nativeFinalizedAt`, `queuedAt`, `uploadInitializedAt`, `firstByteSentAt`, and `completedAt`. The operator receives the compatible optional phase values `finalizing`, `queued`, `transferring`, and `processing`.
 

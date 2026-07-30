@@ -12,6 +12,7 @@ When writing Python scripts, do not use argument parsing by default. If code nee
 - Do not move finalized iOS recordings with Expo SDK 55 legacy `moveAsync`; its source-permission check produces a non-standard `<file>/..` path. Keep recording moves behind the Expo recording filesystem adapter, which uses the modern `File.move` API. See `agents_docs/troubleshooting/expo_phone_app.md`.
 - Laptop-local footage storage is controlled by EdgeRelay. Prefer the host storage agent for normal laptop folders that are not Docker-mounted; keep Docker volume storage as fallback/backward compatibility. See `agents_docs/setup/host_storage_agent.md` and `agents_docs/setup/laptop_storage.md`.
 - PC preview recordings are served locally by the recordings nginx container on HTTPS port `8443`. If the UI shows `File unavailable` and the public `/preview-recordings/` URL returns `502`, verify that Tailscale Serve proxies to `https+insecure://127.0.0.1:8443`. See `agents_docs/troubleshooting/recording_playback.md`.
+- Card grids use one Explorer-style ordered-selection contract, while pending-footage deletion is strictly local to the device and recording UUID. Analysis selection is non-destructive, and active transfers must be paused before deletion. See `agents_docs/design/selection_and_pending_footage.md`.
 
 ## graphify
 

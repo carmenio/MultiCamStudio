@@ -37,6 +37,14 @@ Because the primary correction is in `patches/react-native-webrtc+124.0.7.patch`
 
 If a rebuilt app repeatedly reports `readAsStringAsync` against an old `/private/var/mobile/Containers/Data/Application/...` UUID, open Local Recordings and delete that failed historical entry. A newly successful recording must remain Ready even while the historical entry is shown as blocked.
 
+## Finalized recording move fails with `<file>.mp4/.. is not writable`
+
+Expo SDK 55's legacy iOS `moveAsync` checks source write permission by appending `..` to the complete file URL. For a finalized recording, this produces a non-standard path such as `<recording>.mp4/..`, which the Expo permission manager rejects even though the temporary MP4 and its parent directory are inside the app sandbox.
+
+Keep the durable recording move behind `src/services/expoRecordingFileSystem.ts`. The adapter deliberately uses the modern `File.move` API for relocation while retaining the legacy filesystem functions for the existing metadata and directory operations. Do not replace the adapter's move implementation with `expo-file-system/legacy` `moveAsync`.
+
+This repair is TypeScript-only because `expo-file-system` is already part of the Expo development client. Reload Metro and fully restart the app first. Rebuild the development client only if the installed client reports that the modern `File` API is unavailable. This does not replace the separate rebuild requirement for changes to the native `ios-finalization-v2` capture patch.
+
 For acceptance, repeat at least ten recordings at the highest supported profile. Under normal LAN conditions, EdgeRelay should receive `/upload/init` within five seconds after Stop. Also interrupt Wi-Fi during one upload and confirm the persisted queue resumes without creating a duplicate recording.
 
 If TypeScript fails inside the certificate helpers before upload code is reached, confirm `CERTIFICATE_DOWNLOAD_PATH` and `buildCertificateBootstrapUrl` are imported from `src/services/config.ts`, and ensure the certificate-origin fallback expression is assigned and closed correctly.

@@ -2,7 +2,7 @@
 
 ## Laptop edge mode should keep browser API calls same-origin
 
-For the normal split-machine deployment, the laptop operator UI should run in edge mode. In this mode, browser requests use the currently loaded laptop origin for `/api`, `/ws`, and `/upload`, and the laptop edge relay forwards backend API traffic to the PC through `PC_API_ORIGIN`.
+For the normal split-machine deployment, the laptop operator UI should run in edge mode. In this mode, browser requests use the currently loaded laptop origin for `/api`, `/ws`, `/upload`, and `/calibration-viewers`, and the laptop edge relay forwards backend API traffic and generated calibration viewer HTML to the PC through `PC_API_ORIGIN`.
 
 Expected laptop-edge values:
 
@@ -27,6 +27,8 @@ VITE_API_URL=https://<pc-tailnet-host>:5000
 ```
 
 If browser DevTools shows a page loaded from `https://localhost/` making API requests to `https://<pc-tailnet-host>:5000/api/...`, check `VITE_EDGE_MODE` and make sure `VITE_API_URL` is not set in the frontend container. For laptop-edge deployment, recreate the laptop frontend container after changing Vite env values because the dev server reads them at startup.
+
+Calibration camera views use Plotly documents at `/calibration-viewers/<calibration-id>.html`. The PC backend generates each document on request from the normalized calibration intrinsics, extrinsics, and recording-map rows; no viewer HTML file is stored. The laptop nginx proxy must route that prefix to EdgeRelay, and EdgeRelay must forward the same path to the PC. If a camera card or expanded viewer displays a nested copy of the operator website, inspect the viewer response for `/@vite/client`; that means the request fell through to the frontend route instead of reaching the database-backed viewer endpoint. A JSON `Calibration viewer data is incomplete` response means the route is correct but the calibration's structured database rows are missing or invalid.
 
 For phone pairing, QR links should use the current laptop page origin when it
 is not loopback. A stale configured LAN IP should not override a reachable page

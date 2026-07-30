@@ -49,6 +49,11 @@ uploading phone upload blocks storage changes. The default is 30 minutes, which
 prevents mid-upload path changes without letting stale upload rows lock storage
 forever.
 
+`EDGE_ABANDONED_UPLOAD_TTL_HOURS` defaults to 24. EdgeRelay removes incomplete
+`initialized` or `uploading` sessions and their chunks after that period without
+activity, preventing phone-side missing-file failures from leaving permanent
+orphan upload sessions.
+
 Changing the active storage folder only affects new uploads. Existing cached
 recordings keep their original `local_path` in SQLite and can still be played,
 sent to the PC, cleared, or deleted by the normal cleanup flow.

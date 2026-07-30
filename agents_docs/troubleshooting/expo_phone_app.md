@@ -20,14 +20,22 @@ The July 2026 diagnosis found that EdgeRelay received resumable uploads quickly,
 The corrected contract is:
 
 - Process sample buffers directly on the configured capture delegate queue.
-- Mark the writer inputs finished and complete Stop from `finishWritingWithCompletionHandler`; never block the capture queue waiting for that callback.
+- Start the finalization deadline when React Native requests Stop, mark writer inputs finished on the capture queue, and complete from a dedicated finalization queue. Never dispatch writer completion or the deadline back onto the capture queue.
 - Fail finalization after 15 seconds with `SHARED_CAPTURE_RECORDING_FINALIZATION_TIMEOUT`, retain the known local recording as an error entry, and never claim that upload started.
 - Persist upload entries and resumable checkpoints with serialized mutations. Queue processing must recover after a storage error, app foregrounding, or network reconnection.
 - Preserve entries with invalid upload targets as blocked/error entries so the user can inspect, retry, or delete them; do not silently discard them.
+- Move successful native temporary MP4s into the Documents `multicam-recordings` directory and persist only their relative locator. Absolute iOS container paths become invalid after some app rebuilds or updates.
+- Resolve and preflight every local file before `/upload/init`. `LOCAL_RECORDING_FILE_MISSING` is terminal and must not retry or replace the latest recording's successful camera status.
+
+The native probe and successful Stop result must report `implementationVersion: ios-finalization-v2`. `npm install` runs `scripts/validate-native-patch.mjs`; a missing marker means the dependency patch did not reach the native source and the build must stop. On-device, a stale or missing marker produces an explicit rebuild error instead of silently using the old stop path.
+
+The JavaScript `NATIVE_STOP_WATCHDOG_TIMEOUT` is a secondary 15-second guard. It does not replace the native deadline; it prevents an outdated or damaged native client from leaving the UI indefinitely in finalizing state.
 
 Useful phone log timestamps are `stopRequestedAt`, `nativeFinalizedAt`, `queuedAt`, `uploadInitializedAt`, `firstByteSentAt`, and `completedAt`. The operator receives the compatible optional phase values `finalizing`, `queued`, `transferring`, and `processing`.
 
 Because the primary correction is in `patches/react-native-webrtc+124.0.7.patch`, it requires a fresh iOS development-client or EAS build and reinstall. Metro refresh or an over-the-air JavaScript update is insufficient.
+
+If a rebuilt app repeatedly reports `readAsStringAsync` against an old `/private/var/mobile/Containers/Data/Application/...` UUID, open Local Recordings and delete that failed historical entry. A newly successful recording must remain Ready even while the historical entry is shown as blocked.
 
 For acceptance, repeat at least ten recordings at the highest supported profile. Under normal LAN conditions, EdgeRelay should receive `/upload/init` within five seconds after Stop. Also interrupt Wi-Fi during one upload and confirm the persisted queue resumes without creating a duplicate recording.
 

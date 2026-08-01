@@ -113,6 +113,28 @@ raw artifact and then points to the preceding checkpoint. Optional stage,
 method, order, and pipeline-run metadata allows the UI to group checkpoints
 without changing existing consumers.
 
+New post-processing checkpoints are canonical-only: persist them in
+`point_detection_results`, then materialize their immutable playback segments.
+Do not duplicate their full JSON into the legacy `Detections.file_path` text
+column. Historical legacy rows remain readable as fallback data, and raw/model
+plus legacy smoothing writes retain their compatibility behavior.
+
+Large checkpoint inserts use the trusted backend `DATABASE_URL` connection and
+`INSERT ... RETURNING id` with a 120-second statement timeout. The insert must
+not travel through PostgREST's representation response because returning and
+JSON-aggregating a large row can exceed the eight-second gateway role timeout.
+The returned canonical ID owns segment generation. Segment storage remains
+additive, so a segment failure does not delete an otherwise valid checkpoint.
+
+Checkpoint diagnostics are sparse. A point contains `_diagnostics` only when it
+was filtered/missing, predicted, rejected, gap-filled, or rigid-corrected, and
+only true transformation flags plus `gap_fill_method` are retained. Aggregate
+counts live in `postprocess.summary`; never restore a duplicate
+`postprocess.frames` diagnostic tree. Prediction-derived `overlay_points` is a
+catalog with at most one best-confidence sample per label, not a flattened copy
+of every point in every frame. Canonical predictions and five-second segments
+own time-varying coordinates.
+
 If a stage fails, the task stops, reports the failed stage in progress/error
 metadata, and retains checkpoints already saved. On success, the Detections
 page selects the final completed checkpoint.

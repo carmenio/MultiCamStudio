@@ -39,3 +39,23 @@ Large backfill pages can exhaust PostgREST memory because a single page may
 contain several hundred megabytes of canonical JSONB. Use the script's small page
 size and resume behavior instead of increasing server memory or retrying a bulk
 page indefinitely.
+
+## Post-processing fails with statement timeout 57014
+
+Check the failing SQL in the Supabase database logs. If it inserts into
+`Detections`, the worker is running an obsolete post-processing write path: new
+post-processed checkpoints must be canonical-only. Restart the task worker after
+deploying backend source changes so its imported controller and database modules
+are refreshed.
+
+Measure compact JSON size before changing database timeouts. Checkpoint rendering
+must keep sparse changed-point `_diagnostics`, an aggregate
+`postprocess.summary`, and no `postprocess.frames`. Prediction-derived
+`overlay_points` must contain one catalog entry per label. A large canonical
+checkpoint is inserted through `DATABASE_URL` with `RETURNING id`; do not route
+it through a PostgREST representation response or restore the full legacy
+duplicate.
+
+After retrying, verify that every canonical checkpoint has its expected segment
+count, `source_run_id` points to the selected raw run, and the count of legacy
+`Detections` rows did not increase.

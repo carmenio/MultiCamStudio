@@ -34,3 +34,12 @@ Recording tiles automatically retry the same playback URL after transient media 
 Loading video metadata resets the retry budget. Changing the resolved playback URL cancels any pending retry and also starts with a fresh budget. Leaving the recording set cancels pending timers.
 
 After all automatic attempts fail, the tile keeps the `File unavailable` message and shows a `Retry` button. Manual retry remounts the video immediately and starts a new bounded retry cycle. No backend request contract or stored recording path changes as part of this behavior.
+
+## Storage index versus browser video cache
+
+Use the two maintenance actions in **Settings > Storage and cache** for different recovery scopes:
+
+- **Refresh storage index** calls EdgeRelay and refreshes its view of footage on laptop storage. Use it when files or storage destinations changed outside the operator.
+- **Clear browser video cache** deletes cached playback responses in the current browser after confirmation. Use it for stale or corrupt local playback data; it does not rescan storage or delete source recordings.
+
+Both actions report success or failure independently. Do not add either action back to a workflow sidebar or treat one as a fallback for the other.

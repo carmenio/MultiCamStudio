@@ -29,3 +29,5 @@ sync_code/
 .tmp_freemocap_meta/
 
 graphify-out/*
+
+agents_docs/design/assets/ui_ux_audit/*

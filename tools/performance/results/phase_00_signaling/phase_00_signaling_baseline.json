@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T14:13:24.618Z",
+  "created_at_utc": "2026-08-03T14:39:41.187Z",
   "metadata": {
-    "commit": "de9b1c2630a9a9d8d27f5e4a4abf00d2b19b7888",
+    "commit": "3019c02b22f9a87d7cb09542dd5ac8b4392b6f36",
     "source_revisions": {
-      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
+      "laptop": "33e16ddb0968a583145074310c9da72e0b1e64e1"
     },
     "platform": "win32-x64",
     "python": "Python 3.11.5",
@@ -47,26 +47,26 @@
       "name": "signaling_receiver_connection_to_viewer_ready",
       "cache_state": "warm",
       "samples_ms": [
-        1.868,
-        2.109,
-        1.945,
-        2.139,
-        2.062,
-        2.761,
-        1.628,
-        1.61,
-        2.027,
-        1.485
+        2.456,
+        3.578,
+        4.157,
+        2.747,
+        2.956,
+        3.144,
+        2.137,
+        2.186,
+        1.911,
+        2.068
       ],
       "successful_runs": 10,
       "measured_runs": 10,
       "failure_count": 0,
       "failures": [],
-      "median_ms": 1.986,
-      "p50_ms": 1.986,
-      "p95_ms": 2.761,
-      "minimum_ms": 1.485,
-      "maximum_ms": 2.761,
+      "median_ms": 2.6014999999999997,
+      "p50_ms": 2.6014999999999997,
+      "p95_ms": 4.157,
+      "minimum_ms": 1.911,
+      "maximum_ms": 4.157,
       "warmup_runs": 3,
       "minimum_measured_runs": 10,
       "minimum_warmup_runs": 3,
@@ -85,32 +85,32 @@
         1
       ],
       "unit_name": "connections_ready",
-      "throughput_per_second": 509.3205663644698
+      "throughput_per_second": 365.764447695684
     },
     {
       "name": "signaling_canonical_control_round_trip",
       "cache_state": "warm",
       "samples_ms": [
-        0.53,
-        0.592,
-        0.57,
-        0.524,
-        0.593,
-        0.615,
-        0.744,
-        0.673,
-        0.588,
-        0.513
+        0.764,
+        0.703,
+        0.632,
+        0.693,
+        0.839,
+        0.572,
+        0.666,
+        0.697,
+        0.911,
+        0.801
       ],
       "successful_runs": 10,
       "measured_runs": 10,
       "failure_count": 0,
       "failures": [],
-      "median_ms": 0.59,
-      "p50_ms": 0.59,
-      "p95_ms": 0.744,
-      "minimum_ms": 0.513,
-      "maximum_ms": 0.744,
+      "median_ms": 0.7,
+      "p50_ms": 0.7,
+      "p95_ms": 0.911,
+      "minimum_ms": 0.572,
+      "maximum_ms": 0.911,
       "warmup_runs": 3,
       "minimum_measured_runs": 10,
       "minimum_warmup_runs": 3,
@@ -129,32 +129,32 @@
         1
       ],
       "unit_name": "round_trips",
-      "throughput_per_second": 1682.935038707506
+      "throughput_per_second": 1374.0038472107722
     },
     {
       "name": "signaling_legacy_control_round_trip",
       "cache_state": "warm",
       "samples_ms": [
-        0.55,
-        0.496,
-        0.505,
-        1.283,
-        0.509,
-        0.557,
-        0.517,
-        0.517,
+        0.523,
+        0.599,
+        0.607,
         0.616,
-        0.552
+        1.222,
+        0.765,
+        0.663,
+        0.536,
+        0.62,
+        0.601
       ],
       "successful_runs": 10,
       "measured_runs": 10,
       "failure_count": 0,
       "failures": [],
-      "median_ms": 0.534,
-      "p50_ms": 0.534,
-      "p95_ms": 1.283,
-      "minimum_ms": 0.496,
-      "maximum_ms": 1.283,
+      "median_ms": 0.6114999999999999,
+      "p50_ms": 0.6114999999999999,
+      "p95_ms": 1.222,
+      "minimum_ms": 0.523,
+      "maximum_ms": 1.222,
       "warmup_runs": 3,
       "minimum_measured_runs": 10,
       "minimum_warmup_runs": 3,
@@ -173,7 +173,7 @@
         1
       ],
       "unit_name": "round_trips",
-      "throughput_per_second": 1638.8069485414617
+      "throughput_per_second": 1481.042654028436
     }
   ],
   "unavailable": []

@@ -42,7 +42,7 @@ The untouched baseline was:
 - Camera mobile: 53 passed; type-check and native-patch validation passed.
 
 After the latest characterization additions, the complete backend suite passes
-560 tests. This includes the 21-test capture lifecycle suite and eight focused
+564 tests. This includes the 21-test capture lifecycle suite and eight focused
 media-route cases added after the prior complete run. The complete operator suite
 passes with the repository's bounded-worker
 command and includes 7 new RecordingPage contract tests (664 total); its
@@ -73,7 +73,7 @@ device gap.
 | Calibration | Controller, database, generator, service, viewer, and viewer-renderer suites; Calibration page/component/flow suites | Add controlled preflight, fixed-fixture batch processing, status, and viewer-generation baselines plus a live rendered-viewer equivalence capture. |
 | Point detection and post-processing | Controller, catalog database, result persistence, service, post-processing pipeline, segmenter, API, scheduler, hydration, page, sidebar, and toolbar suites | Add controlled summary, first-window, uncached-seek, sequential-window, segment-generation, and post-processing baselines. Live overlay equivalence is not Phase 0 evidence. |
 | Triangulation and 3D | Controller, service, database, API, page, viewer, and training-timeline suites cover mapping, variant resolution, diagnostics, audit, runs, results, assignments, and training transitions | Add result-not-found and remaining training/reference-media error shapes, fixed-fixture output identity, camera-transform/render equivalence, first usable render, playback-start, and seek baselines. |
-| Dataset exports | Export controller plus planner, coordinator, writer, history, service, and ExportWizard suites cover reviewed specifications, explicit sources, mappings, missing sources, history, and synchronous compatibility. A production preflight baseline captures an eligible fixed-source plan with stable semantic and review hashes. | Add malformed/not-found/error response matrices plus writing-throughput and atomic-finalization baselines. |
+| Dataset exports | The 17-test controller suite plus planner, coordinator, writer, history, service, and ExportWizard suites cover reviewed specifications, explicit sources, mappings, missing sources, history, and synchronous compatibility. Exact route contracts now include validation and unexpected preflight errors, missing task service, stale reviews, zero eligible sets, and numeric/opaque missing-job lookups. A production preflight baseline captures an eligible fixed-source plan with stable semantic and review hashes. | Add writing-throughput and atomic-finalization baselines. |
 | All-tab pipeline and task queue | All-tab controller/overview and worker-boot/task-normalization suites | Add full enabled-stage ordering and payload characterization, partial-stage failure, invalid selection, task cancel-request behavior, and live orchestration timing. |
 
 Seven focused RecordingPage contract tests additionally freeze visible-order

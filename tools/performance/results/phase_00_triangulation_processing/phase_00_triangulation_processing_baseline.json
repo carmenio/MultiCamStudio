@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T12:09:59.491284+00:00",
+  "created_at_utc": "2026-08-03T14:09:41.399956+00:00",
   "metadata": {
-    "commit": "e2c857c652c7457cea868e658d4d28a3b1cb1d79",
+    "commit": "e11726e32c5ffc77fa19aaf50ce7ee46384245de",
     "source_revisions": {
-      "pc": "95ca0fb29f38746a4cf6d5754250af75a05f716b",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "24eef3ed5f4f1d0cc3795484f8d631278f2ff39b",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "numpy": "1.26.2"
     },
@@ -22,9 +23,14 @@
     "network_route": "none; in-process production service",
     "database_snapshot": "fixed generated fixture; no database access",
     "build_mode": "local Python production module",
+    "compose_configuration": "not used; in-process local source benchmark",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "complete untimed reference execution followed by three warmups",
     "camera_count": 3,
     "recording_duration_seconds": 60.0,
+    "media_sizes_bytes": [],
     "fixture": {
       "camera_count": 3,
       "frame_count": 1800,
@@ -88,11 +94,11 @@
       "name": "triangulation_three_camera_fixed_fixture",
       "cache_state": "warm",
       "samples_ms": [
-        3915.030799980741,
-        4200.356799992733,
-        4510.4266999987885,
-        4310.144099988975,
-        4316.178100008983
+        3508.2335000042804,
+        3271.053700009361,
+        3443.9838000107557,
+        3607.542600017041,
+        3273.6296000075527
       ],
       "successful_runs": 5,
       "measured_runs": 5,
@@ -103,11 +109,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 4310.144099988975,
-      "p50_ms": 4310.144099988975,
-      "p95_ms": 4510.4266999987885,
-      "minimum_ms": 3915.030799980741,
-      "maximum_ms": 4510.4266999987885,
+      "median_ms": 3443.9838000107557,
+      "p50_ms": 3443.9838000107557,
+      "p95_ms": 3607.542600017041,
+      "minimum_ms": 3271.053700009361,
+      "maximum_ms": 3607.542600017041,
       "work_units": [
         27000.0,
         27000.0,
@@ -116,7 +122,7 @@
         27000.0
       ],
       "unit_name": "accepted_3d_points",
-      "throughput_per_second": 6352.302508511988
+      "throughput_per_second": 7892.686036082913
     }
   ]
 }

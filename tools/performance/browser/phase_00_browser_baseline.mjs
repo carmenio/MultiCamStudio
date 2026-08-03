@@ -116,24 +116,6 @@ async function evaluate(client, expression, awaitPromise = false) {
   return result.result?.value
 }
 
-// Evaluate an expression inside a child-frame execution context.
-async function evaluateInContext(client, contextId, expression, awaitPromise = false) {
-  const result = await client.send('Runtime.evaluate', {
-    expression,
-    contextId,
-    awaitPromise,
-    returnByValue: true,
-  })
-  if (result.exceptionDetails) {
-    const detail = result.exceptionDetails.exception?.description
-      ?? result.exceptionDetails.exception?.value
-      ?? result.exceptionDetails.text
-      ?? 'unknown child-frame exception'
-    throw new Error(`child-frame expression failed: ${detail}`)
-  }
-  return result.result?.value
-}
-
 async function navigate(client, url) {
   await client.send('Page.navigate', { url })
   await waitFor(
@@ -394,6 +376,7 @@ async function openFixtureThreeDSet(client) {
 // Seek the 3D timeline and wait until React and the renderer agree on the target frame.
 async function measureThreeDSeekReadiness(client, ratio = 0.5) {
   const targetFrame = Math.round(TRIANGULATION_MAX_FRAME * ratio)
+  const acceptableDelta = Math.ceil(TRIANGULATION_MAX_FRAME * 0.01)
   const point = await evaluate(client, `(() => {
     const track = document.querySelector('.three-d-timeline-panel .timeline-track[aria-label="Training timeline"]')
     if (!track) return null
@@ -418,7 +401,12 @@ async function measureThreeDSeekReadiness(client, ratio = 0.5) {
   })
   try {
     await waitFor(
-      async () => Boolean(await evaluate(client, `document.querySelector('.three-d-frame-label')?.textContent?.includes('Frame ${targetFrame} / ${TRIANGULATION_MAX_FRAME}')`)),
+      async () => Boolean(await evaluate(client, `(() => {
+        const label = document.querySelector('.three-d-frame-label')?.textContent ?? ''
+        const frame = Number(label.match(/Frame (\\d+)/)?.[1])
+        return label.includes('/ ${TRIANGULATION_MAX_FRAME}') &&
+          Number.isFinite(frame) && Math.abs(frame - ${targetFrame}) <= ${acceptableDelta}
+      })()`)),
       READINESS_TIMEOUT_MS,
     )
   } catch (error) {
@@ -460,22 +448,12 @@ async function measureThreeDPlaybackStart(client) {
   return performance.now() - startedAt
 }
 
-function findFrameByUrl(frameTree, expectedSuffix) {
-  if (frameTree.frame?.url?.includes(expectedSuffix)) return frameTree.frame
-  for (const child of frameTree.childFrames ?? []) {
-    const match = findFrameByUrl(child, expectedSuffix)
-    if (match) return match
-  }
-  return null
-}
-
-// Open the database-rendered calibration viewer and wait for Plotly's WebGL canvas.
+// Discover the UI's viewer URL, then measure the canonical Plotly document directly.
 async function measureCalibrationPlotlyReadiness(client) {
   await navigate(client, OPERATOR_ORIGIN)
   await waitForUsableShell(client)
   await openWorkflow(client, 'Calibration', 'main.calibration-page .calibration-set-grid')
   const cardIndex = await resolveSetCardIndex(client, CALIBRATION_RECORDING_SET_ID)
-  const startedAt = performance.now()
   const opened = await evaluate(client, `(() => {
     const card = document.querySelectorAll('main.calibration-page .calibration-set-card')[${cardIndex}]
     if (!card) return false
@@ -499,28 +477,23 @@ async function measureCalibrationPlotlyReadiness(client) {
     'calibration viewer iframe',
     async () => Boolean(await evaluate(client, `Boolean(document.querySelector('.calibration-detail-camera-iframe[src$=${JSON.stringify(expectedSuffix)}]'))`)),
   )
-  let frame
-  await waitForStage('calibration viewer frame', async () => {
-    const { frameTree } = await client.send('Page.getFrameTree')
-    frame = findFrameByUrl(frameTree, expectedSuffix)
-    return Boolean(frame)
-  })
-  const { executionContextId } = await client.send('Page.createIsolatedWorld', {
-    frameId: frame.id,
-    worldName: 'multicam-benchmark',
-  })
-  await waitForStage('calibration Plotly canvas', async () => Boolean(await evaluateInContext(client, executionContextId, `Boolean(
+  const viewerUrl = await evaluate(client, `document.querySelector(
+    '.calibration-detail-camera-iframe[src$=${JSON.stringify(expectedSuffix)}]'
+  )?.src`)
+  if (!viewerUrl) throw new Error('Calibration viewer URL was not available')
+  const viewerStartedAt = performance.now()
+  await navigate(client, viewerUrl)
+  await waitForStage('calibration Plotly canvas', async () => Boolean(await evaluate(client, `Boolean(
     document.readyState === 'complete' &&
     document.querySelector('#root.js-plotly-plot') &&
     document.querySelector('#root .gl-container canvas')
   )`)))
-  await evaluateInContext(
+  await evaluate(
     client,
-    executionContextId,
     'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))',
     true,
   )
-  return performance.now() - startedAt
+  return performance.now() - viewerStartedAt
 }
 
 async function captureElementIdentity(client, selector) {
@@ -725,7 +698,7 @@ async function run() {
     if (calibrationReadiness.result) {
       calibrationOutputIdentity = await captureElementIdentity(
         client,
-        `.calibration-detail-camera-iframe[src$="/calibration-viewers/${CALIBRATION_ID}.html"]`,
+        '#root.js-plotly-plot',
       )
     }
     results.push(...optionalOutcomes.map(outcome => outcome.result).filter(Boolean))

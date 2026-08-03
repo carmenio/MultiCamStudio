@@ -39,6 +39,7 @@ const EXPECTED_CAMERA_COUNT = FIXTURE_PROVENANCE.camera_count
 const WARMUP_RUNS = 10
 const MEASURED_RUNS = 20
 const READINESS_TIMEOUT_MS = 20_000
+const RESOURCE_QUIET_PERIOD_MS = 1_000
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 const OUTPUT_PATH = join(
   REPOSITORY_ROOT,
@@ -150,6 +151,22 @@ async function waitForUsableShell(client) {
   )
 }
 
+// Keep overview prefetch traffic outside the preview-startup timer so every
+// sample opens the controlled set from the same network-activity boundary.
+async function waitForResourceQuiet(client) {
+  await waitFor(
+    async () => Boolean(await evaluate(client, `(() => {
+      const entries = performance.getEntriesByType('resource')
+      const latestResponseEnd = entries.reduce(
+        (latest, entry) => Math.max(latest, entry.responseEnd),
+        0,
+      )
+      return performance.now() - latestResponseEnd >= ${RESOURCE_QUIET_PERIOD_MS}
+    })()`)),
+    READINESS_TIMEOUT_MS,
+  )
+}
+
 async function prepareOrigin(client) {
   await navigate(client, OPERATOR_ORIGIN)
   await evaluate(
@@ -251,6 +268,7 @@ async function openFixtureRecordingSet(client, cacheState = 'warm', diagnosticCo
   if (!Number.isInteger(cardIndex) || cardIndex < 0) {
     throw new Error(`Recording set ${RECORDING_SET_ID} was not found in the controlled session`)
   }
+  await waitForResourceQuiet(client)
   await evaluate(client, 'performance.clearResourceTimings()')
   const startedAt = performance.now()
   const opened = await evaluate(client, `(() => {

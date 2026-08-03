@@ -1,21 +1,31 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T12:22:10.404696+00:00",
+  "created_at_utc": "2026-08-03T14:03:03.850367+00:00",
   "metadata": {
-    "commit": "1ec7947b88d77e6930a0c57b794041261deca60a",
+    "commit": "82cc86b4581dfdf5c9054a5190e654825e3cbb94",
     "source_revisions": {
-      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "7614b9d5dd7506c1295412471aa04f691ac21017",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
+    "dependency_versions": {
+      "plotly_cdn": "2.35.2"
+    },
     "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
     "power_mode": "Balanced",
     "network_route": "none; in-process production renderer",
     "database_snapshot": "fixed generated calibration row; no database access",
     "build_mode": "local Python production module",
+    "compose_configuration": "not used; in-process local source benchmark",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "complete untimed reference render followed by three warmups",
     "camera_count": 10,
+    "recording_duration_seconds": 0,
+    "media_sizes_bytes": [],
     "fixture": {
       "calibration_id": 90001,
       "camera_count": 10,
@@ -30,16 +40,16 @@
       "name": "calibration_viewer_html_generation",
       "cache_state": "warm",
       "samples_ms": [
-        0.23359997430816293,
-        0.2834999468177557,
-        0.2329999697394669,
-        0.23750000400468707,
-        0.22879999596625566,
-        0.23629999486729503,
-        0.2270000404678285,
-        0.2106999745592475,
-        0.2258999738842249,
-        0.23870001314207911
+        0.14990003546699882,
+        0.13650004984810948,
+        0.12420001439750195,
+        0.14540000120177865,
+        0.13150001177564263,
+        0.14620000729337335,
+        0.11229998199269176,
+        0.235699990298599,
+        0.1818999880924821,
+        0.1175999641418457
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -50,11 +60,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 0.23329997202381492,
-      "p50_ms": 0.23329997202381492,
-      "p95_ms": 0.2834999468177557,
-      "minimum_ms": 0.2106999745592475,
-      "maximum_ms": 0.2834999468177557,
+      "median_ms": 0.14095002552494407,
+      "p50_ms": 0.14095002552494407,
+      "p95_ms": 0.235699990298599,
+      "minimum_ms": 0.11229998199269176,
+      "maximum_ms": 0.235699990298599,
       "work_units": [
         10.0,
         10.0,
@@ -68,7 +78,7 @@
         10.0
       ],
       "unit_name": "cameras",
-      "throughput_per_second": 42462.84703446166
+      "throughput_per_second": 67512.82540849992
     }
   ]
 }

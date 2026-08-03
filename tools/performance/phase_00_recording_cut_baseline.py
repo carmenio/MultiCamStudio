@@ -22,8 +22,8 @@ BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backen
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from Controllers.RecordingsController import RecordingsController
-from Model.PointDetection.PointDetectionService import PointDetectionService
+from Controllers.RecordingsController import RecordingsController  # noqa: E402
+from Model.PointDetection.PointDetectionService import PointDetectionService  # noqa: E402
 
 
 # SDK-style fixed benchmark configuration.

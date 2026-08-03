@@ -21,6 +21,7 @@
     "benchmark:pipeline-dispatch": "python -m tools.performance.phase_00_pipeline_dispatch_baseline",
     "benchmark:pairing": "python -m tools.performance.phase_00_pairing_baseline",
     "benchmark:resumable-upload": "python -m tools.performance.phase_00_resumable_upload_baseline",
+    "benchmark:recording-cut": "python -m tools.performance.phase_00_recording_cut_baseline",
     "benchmark:calibration-viewer": "python -m tools.performance.phase_00_calibration_viewer_baseline",
     "benchmark:signaling": "node tools/performance/phase_00_signaling_baseline.mjs"
   },

@@ -109,13 +109,13 @@ their public locators.
 | Phase | Workflow | Status | Evidence |
 | --- | --- | --- | --- |
 | 0 | Contracts, deterministic tests, benchmarks | In progress | [Phase 0](refactor_phases/phase_00_baseline.md) |
-| 1 | Recordings and sessions | In progress | [Phase 1](refactor_phases/phase_01_recording_sessions.md) |
-| 2 | Capture, EdgeRelay, signaling, phones | Pending | Not started |
-| 3 | Calibration | Pending | Not started |
-| 4 | Point detection and post-processing | Pending | Not started |
-| 5 | Triangulation and 3D | Pending | Not started |
-| 6 | Pipeline, exports, and settings | Pending | Not started |
-| 7 | Cross-cutting cleanup and final hardening | Pending | Not started |
+| 1 | Recordings and sessions | Paused at Phase 0 gate | [Phase 1](refactor_phases/phase_01_recording_sessions.md) |
+| 2 | Capture, EdgeRelay, signaling, phones | Pending | [Phase 2](refactor_phases/phase_02_capture_edge_phone.md) |
+| 3 | Calibration | Pending | [Phase 3](refactor_phases/phase_03_calibration.md) |
+| 4 | Point detection and post-processing | Pending | [Phase 4](refactor_phases/phase_04_point_detection.md) |
+| 5 | Triangulation and 3D | Pending | [Phase 5](refactor_phases/phase_05_triangulation_3d.md) |
+| 6 | Pipeline, exports, and settings | Pending | [Phase 6](refactor_phases/phase_06_pipeline_exports_settings.md) |
+| 7 | Cross-cutting cleanup and final hardening | Pending | [Phase 7](refactor_phases/phase_07_final_hardening.md) |
 
 ## Universal acceptance gate
 

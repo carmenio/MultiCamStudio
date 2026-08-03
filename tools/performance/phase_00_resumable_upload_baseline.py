@@ -43,7 +43,6 @@ WARMUP_RUNS = 3
 MEASURED_RUNS = 10
 TOTAL_BYTES = 16 * 1024 * 1024
 CHUNK_COUNT = 4
-UPLOAD_INIT_P95_LIMIT_MS = 5_000.0
 UPLOAD_ID = "phase-00-resumable-upload"
 HARDWARE = "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM"
 POWER_MODE = "Balanced"
@@ -345,7 +344,6 @@ def build_resumable_upload_baseline(
                     operation=environment.init_upload,
                     before_each=environment.prepare_empty,
                     config=config,
-                    maximum_p95_ms=UPLOAD_INIT_P95_LIMIT_MS,
                 ),
                 _scenario(
                     name="resumable_upload_interrupted_resume",

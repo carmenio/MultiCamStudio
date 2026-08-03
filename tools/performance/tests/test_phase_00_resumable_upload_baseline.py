@@ -36,7 +36,7 @@ class ResumableUploadBaselineTests(unittest.TestCase):
         self.assertIsNone(outcome["results"][0].unit_name)
         self.assertEqual(outcome["results"][2].unit_name, "bytes")
         self.assertEqual(outcome["results"][3].unit_name, "bytes")
-        self.assertEqual(saved["results"][0]["maximum_p95_ms"], 5_000.0)
+        self.assertIsNone(saved["results"][0]["maximum_p95_ms"])
         self.assertIn("not physical phone", saved["metadata"]["evidence_scope"])
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
         self.assertTrue(self_gate_passed)

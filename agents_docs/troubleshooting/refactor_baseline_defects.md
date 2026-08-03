@@ -62,6 +62,19 @@ be defects but cannot be silently changed inside structural commits:
   overall request still returns HTTP 202, including when every set is skipped.
 - Task database construction/probing can fall back independently in controllers
   and workers, creating a risk of separate in-memory stores after database loss.
+- `TaskService.start()` silently replaces a persistent task database with a new
+  in-memory store when startup orphan recovery raises, then starts normally.
+  Producers may therefore continue writing persistent rows that this worker
+  cannot see.
+- Persistent claims inspect only the oldest 200 queued rows. An optimistic
+  claim race returns no task and leaves the row queued for a later poll.
+- Startup orphan recovery marks running parents as errors but does not
+  immediately cascade cancellation to their queued dependents.
+- Queued cancellation leaves progress at zero, while a handler cancellation
+  marks progress as 100. A handler returning `None` completes with `{}`.
+- The database foreign key uses `ON DELETE SET NULL`; deleting a parent can make
+  a persistent child independent, unlike the fallback store's synthetic
+  missing-parent cancellation behavior.
 
 The focused route tests intentionally freeze these results. Any correction needs
 an explicit compatibility decision and tests for the new response and recovery

@@ -14,7 +14,11 @@ from typing import Any
 from flask import Flask
 
 from tools.performance import BenchmarkObservation, BenchmarkRunner, BenchmarkScenario, write_report
-from tools.performance.phase_00_live_baseline import _commit_identity, _repository_revision
+from tools.performance.phase_00_live_baseline import (
+    _command_version,
+    _commit_identity,
+    _repository_revision,
+)
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backend"
 if str(BACKEND_ROOT) not in sys.path:
@@ -219,12 +223,15 @@ def build_pairing_baseline(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "dependency_versions": {"flask": importlib.metadata.version("flask")},
         "hardware": HARDWARE,
         "power_mode": POWER_MODE,
         "network_route": "none; in-process production Flask routes",
         "database_snapshot": "fixed injected camera/session adapters",
         "build_mode": "local Python production controller and HMAC service",
+        "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+        "service_images": {"backend": "local source; no container"},
         "cache_preparation": "pre-created resolve token followed by three warmups",
         "fixture": {
             "session_id": SESSION_ID,
@@ -237,6 +244,9 @@ def build_pairing_baseline(
             "issue_claims": issue_identity,
             "resolve_response": resolve_identity,
         },
+        "camera_count": 1,
+        "recording_duration_seconds": 0,
+        "media_sizes_bytes": [],
         "expiration_shape": "integer Unix epoch",
         "side_effects": "none",
         "evidence_scope": "PC route/HMAC lower bound; not EdgeRelay, QR, network, WebRTC, or physical device evidence",

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance import compare_report_files
 from tools.performance.phase_00_pipeline_dispatch_baseline import (
     PipelineDispatchConfig,
     build_pipeline_dispatch_baseline,
@@ -28,6 +29,7 @@ class PipelineDispatchBaselineTests(unittest.TestCase):
                 )
             )
             saved = json.loads(output_path.read_text(encoding="utf-8"))
+            self_gate_passed = compare_report_files(output_path, output_path).passed
 
         result = outcome["result"]
         self.assertEqual(result.measured_runs, 10)
@@ -38,6 +40,7 @@ class PipelineDispatchBaselineTests(unittest.TestCase):
         self.assertEqual(saved["metadata"]["fixture"]["expected_tasks_per_run"], 10)
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
         self.assertIn("not worker execution", saved["metadata"]["evidence_scope"])
+        self.assertTrue(self_gate_passed)
 
     def test_runner_rejects_empty_recording_set_fixture(self) -> None:
         with self.assertRaisesRegex(ValueError, "recording_set_count must be positive"):

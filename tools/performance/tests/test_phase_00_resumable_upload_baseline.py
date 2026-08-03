@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance import compare_report_files
 from tools.performance.phase_00_resumable_upload_baseline import (
     ResumableUploadConfig,
     build_resumable_upload_baseline,
@@ -27,6 +28,7 @@ class ResumableUploadBaselineTests(unittest.TestCase):
                 )
             )
             saved = json.loads(output_path.read_text(encoding="utf-8"))
+            self_gate_passed = compare_report_files(output_path, output_path).passed
 
         self.assertEqual(len(outcome["results"]), 4)
         self.assertTrue(all(result.measured_runs == 10 for result in outcome["results"]))
@@ -37,6 +39,7 @@ class ResumableUploadBaselineTests(unittest.TestCase):
         self.assertEqual(saved["results"][0]["maximum_p95_ms"], 5_000.0)
         self.assertIn("not physical phone", saved["metadata"]["evidence_scope"])
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
+        self.assertTrue(self_gate_passed)
 
 
 if __name__ == "__main__":

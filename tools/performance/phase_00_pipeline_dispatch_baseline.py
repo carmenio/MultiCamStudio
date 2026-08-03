@@ -19,13 +19,17 @@ from tools.performance import (
     BenchmarkScenario,
     write_report,
 )
-from tools.performance.phase_00_live_baseline import _commit_identity, _repository_revision
+from tools.performance.phase_00_live_baseline import (
+    _command_version,
+    _commit_identity,
+    _repository_revision,
+)
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backend"
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from Controllers.AllTabController import AllTabController
+from Controllers.AllTabController import AllTabController  # noqa: E402
 
 
 # SDK-style fixed benchmark configuration.
@@ -282,12 +286,15 @@ def build_pipeline_dispatch_baseline(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "dependency_versions": {"flask": version("flask")},
         "hardware": HARDWARE,
         "power_mode": POWER_MODE,
         "network_route": "none; in-process production Flask route",
         "database_snapshot": "fixed injected adapters; no database access",
         "build_mode": "local Python production controller",
+        "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+        "service_images": {"backend": "local source; no container"},
         "cache_preparation": "adapters reset before every sample",
         "fixture": {
             "session_id": SESSION_ID,
@@ -296,6 +303,9 @@ def build_pipeline_dispatch_baseline(
             "expected_tasks_per_run": config.recording_set_count * 5,
         },
         "expected_output_identity": expected_output_identity,
+        "camera_count": 0,
+        "recording_duration_seconds": 0,
+        "media_sizes_bytes": [],
         "side_effects": "in-memory adapters only; no workers, database, or filesystem",
         "evidence_scope": "pipeline route validation and task-chain construction lower bound; not worker execution",
     }

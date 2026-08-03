@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 import platform
 import shutil
@@ -21,6 +22,7 @@ from tools.performance import (
     write_report,
 )
 from tools.performance.phase_00_live_baseline import (
+    _command_version,
     _commit_identity,
     _repository_revision,
 )
@@ -30,7 +32,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backen
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from Controllers.RecordingsController import RecordingsController
+from Controllers.RecordingsController import RecordingsController  # noqa: E402
 
 
 # SDK-style fixed benchmark configuration.
@@ -374,11 +376,15 @@ def build_resumable_upload_baseline(
             },
             "platform": platform.platform(),
             "python": platform.python_version(),
+            "node": _command_version(["node", "--version"]),
+            "dependency_versions": {"flask": importlib.metadata.version("flask")},
             "hardware": HARDWARE,
             "power_mode": POWER_MODE,
             "network_route": "in-process Flask route adapter; no device or network transport",
             "database_snapshot": "fixed in-memory upload adapter; no database access",
             "build_mode": "local Python production controller routes",
+            "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+            "service_images": {"backend": "local source; no container"},
             "cache_preparation": "dedicated temp root reset before each sample; three warmups",
             "fixture": {
                 "upload_id": UPLOAD_ID,
@@ -388,6 +394,9 @@ def build_resumable_upload_baseline(
                 "interrupted_uploaded_chunk_indices": [0, 2],
             },
             "expected_output_identity": environment.expected_checksum,
+            "camera_count": 1,
+            "recording_duration_seconds": 0,
+            "media_sizes_bytes": [config.total_bytes],
             "side_effects": "temporary local files only; removed when the run completes",
             "evidence_scope": (
                 "PC server route and filesystem only; not physical phone Stop-to-upload-init, "

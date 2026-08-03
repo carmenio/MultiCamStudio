@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_calibration_processing_baseline import (
     CAMERA_NAMES,
     EXPECTED_RESULT_IDENTITY,
@@ -131,6 +132,9 @@ class CalibrationProcessingBaselineTests(unittest.TestCase):
         self.assertEqual(saved["metadata"]["fixture"]["board"]["columns"], 7)
         self.assertEqual(
             saved["metadata"]["fixture"]["source_frame_range_inclusive"], [500, 619]
+        )
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
         )
 
 

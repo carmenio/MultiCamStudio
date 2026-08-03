@@ -24,6 +24,7 @@ from tools.performance import (
     write_report,
 )
 from tools.performance.phase_00_live_baseline import (
+    _command_version,
     _commit_identity,
     _repository_revision,
 )
@@ -375,6 +376,7 @@ def _benchmark_prepared_fixture(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "dependency_versions": {
             "opencv": cv2.__version__,
             "numpy": np.__version__,
@@ -385,12 +387,15 @@ def _benchmark_prepared_fixture(
         "network_route": "none; local fixed host media and in-process production runner",
         "database_snapshot": "none; fixed host media fixture",
         "build_mode": "local Python production module",
+        "compose_configuration": "not used; in-process local source benchmark",
+        "service_images": {"backend": "local source; no container"},
         "cache_preparation": (
             "clips decoded once outside timing; output cleared and NumPy seed reset "
             "before every run; three solver warmups"
         ),
         "camera_count": len(CAMERA_NAMES),
         "recording_duration_seconds": config.clip_frame_count / 60.0,
+        "media_sizes_bytes": list(fixture.clip_sizes),
         "fixture": {
             "source_directory": str(config.source_directory),
             "source_files": list(config.source_files),
@@ -418,6 +423,10 @@ def _benchmark_prepared_fixture(
         },
         "expected_toml_identity": actual_toml_identity,
         "expected_result_identity": actual_result_identity,
+        "expected_output_identity": {
+            "calibration_toml": actual_toml_identity,
+            "canonical_result": actual_result_identity,
+        },
         "output_artifacts": ["camera_calibration.toml", "camera_calibration.yaml"],
         "side_effects": "temporary clips and solver output removed after report creation",
     }

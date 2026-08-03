@@ -21,6 +21,7 @@ from tools.performance import (
     write_report,
 )
 from tools.performance.phase_00_live_baseline import (
+    _command_version,
     _commit_identity,
     _repository_revision,
 )
@@ -30,7 +31,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backen
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from Model.Triangulation.TriangulationService import (
+from Model.Triangulation.TriangulationService import (  # noqa: E402
     POINT_CONNECTIONS,
     TriangulationService,
 )
@@ -234,6 +235,7 @@ def build_triangulation_processing_baseline(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "dependency_versions": {"numpy": np.__version__},
         "thread_environment": {
             name: os.getenv(name)
@@ -244,9 +246,12 @@ def build_triangulation_processing_baseline(
         "network_route": "none; in-process production service",
         "database_snapshot": "fixed generated fixture; no database access",
         "build_mode": "local Python production module",
+        "compose_configuration": "not used; in-process local source benchmark",
+        "service_images": {"backend": "local source; no container"},
         "cache_preparation": "complete untimed reference execution followed by three warmups",
         "camera_count": CAMERA_COUNT,
         "recording_duration_seconds": config.frame_count / config.fps,
+        "media_sizes_bytes": [],
         "fixture": {
             "camera_count": CAMERA_COUNT,
             "frame_count": config.frame_count,

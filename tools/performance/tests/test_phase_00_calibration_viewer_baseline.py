@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_calibration_viewer_baseline import (
     CalibrationViewerConfig,
     build_calibration_viewer_baseline,
@@ -32,6 +33,9 @@ class CalibrationViewerBaselineTests(unittest.TestCase):
         self.assertEqual(saved["metadata"]["camera_count"], 3)
         self.assertGreater(saved["metadata"]["output_bytes"], 1_000)
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_detection_processing_baseline import (
     DetectionProcessingConfig,
     build_detection_processing_baseline,
@@ -51,6 +52,9 @@ class DetectionProcessingBaselineTests(unittest.TestCase):
                 len(identity) == 64
                 for identity in saved["metadata"]["expected_output_identity"].values()
             )
+        )
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
         )
 
 

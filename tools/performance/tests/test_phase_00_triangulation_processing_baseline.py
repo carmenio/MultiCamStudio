@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_triangulation_processing_baseline import (
     TriangulationProcessingConfig,
     build_triangulation_processing_baseline,
@@ -38,6 +39,9 @@ class TriangulationProcessingBaselineTests(unittest.TestCase):
         self.assertTrue(saved["metadata"]["coordinate_transform"]["applied"])
         self.assertEqual(len(saved["metadata"]["fixture_identity"]), 64)
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
 
 
 if __name__ == "__main__":

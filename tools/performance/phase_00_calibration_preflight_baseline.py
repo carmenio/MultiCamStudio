@@ -14,7 +14,11 @@ from typing import Any, Callable, Protocol
 import cv2
 
 from tools.performance import BenchmarkObservation, BenchmarkRunner, BenchmarkScenario, write_report
-from tools.performance.phase_00_live_baseline import _commit_identity, _repository_revision
+from tools.performance.phase_00_live_baseline import (
+    _command_version,
+    _commit_identity,
+    _repository_revision,
+)
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2] / "pc" / "services" / "backend"
 if str(BACKEND_ROOT) not in sys.path:
@@ -188,6 +192,7 @@ def build_calibration_preflight_baseline(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "dependency_versions": {
             "opencv": cv2.__version__,
             "numpy": importlib.metadata.version("numpy"),
@@ -197,6 +202,8 @@ def build_calibration_preflight_baseline(
         "network_route": "none; local fixed host media and in-process production probes",
         "database_snapshot": "none; fixed host media fixture",
         "build_mode": "local Python production module",
+        "compose_configuration": "not used; in-process local source benchmark",
+        "service_images": {"backend": "local source; no container"},
         "cache_preparation": "source identities read once, followed by three warmups; OS cache not cleared",
         "camera_count": len(paths),
         "recording_duration_seconds": operation.last_payload[0]["metadata"]["duration_seconds"],

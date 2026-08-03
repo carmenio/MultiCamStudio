@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_calibration_preflight_baseline import (
     CalibrationPreflightConfig,
     _canonical_identity,
@@ -68,6 +69,9 @@ class CalibrationPreflightBaselineTests(unittest.TestCase):
         self.assertEqual(result.unit_name, "videos_preflighted")
         self.assertEqual(saved["metadata"]["fixture"]["recording_set_id"], 201)
         self.assertIn("not full calibration", saved["metadata"]["evidence_scope"])
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
 
     def test_runner_rejects_misaligned_source_configuration(self) -> None:
         with self.assertRaisesRegex(ValueError, "must be non-empty and aligned"):

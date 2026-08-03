@@ -173,6 +173,21 @@ cryptographic verification. Resolve freezes the complete response. These are
 in-process server lower bounds, not EdgeRelay, QR, network, WebRTC, or device
 measurements.
 
+EdgeRelay pairing issue, resolve, and fresh issue-to-resolve round trip use the production Flask routes with a
+single fixed camera in an isolated copy of the production SQLite schema:
+
+```powershell
+npm run benchmark:edge-pairing
+```
+
+The runner suppresses only the module's infinite transfer-worker thread,
+forbids PC network calls, verifies signed token claims and the 15-minute expiry
+window, and freezes the complete
+resolve response including forwarded-origin API, signaling, and upload URLs.
+The temporary database is removed after the report is written. This is an
+in-process Edge route/cache/cryptography lower bound; it does not include nginx,
+TLS/LAN, QR rendering, WebRTC, or a physical phone.
+
 The signaling relay benchmark starts the production Node server once on an
 isolated loopback port and uses real `ws` clients:
 

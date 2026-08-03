@@ -266,6 +266,29 @@ the full resolve response retained identity
 This is a PC route/HMAC lower bound, not EdgeRelay, QR, TLS, WebRTC, or physical
 device evidence. Raw evidence is in `tools/performance/results/phase_00_pairing/`.
 
+## EdgeRelay pairing-token baseline
+
+The production EdgeRelay Flask issue and resolve routes ran against an isolated
+SQLite cache containing one fixed session camera. The runner used the real
+timed serializer, cache query, forwarded-origin URL derivation, and response
+serialization while explicitly failing any attempted PC network request.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Edge pairing-token issue | Warm | 1.592 | 3.386 | 1.337 | 3.386 | 0 | 543 tokens/s |
+| Edge pairing-token resolve | Warm | 0.552 | 1.358 | 0.482 | 1.358 | 0 | 1,493 tokens/s |
+| Edge fresh issue-to-resolve round trip | Warm | 2.002 | 3.557 | 1.718 | 3.557 | 0 | 420 round trips/s |
+
+All three scenarios used 3 warmups and 10 measurements at root commit
+`072a6a7fd9b414f2b66c957637c6aabb4dbc7af6` and laptop revision
+`f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`. The normalized issue identity is
+`cc9c38241d5b629d41fcc7a0d11c3f90afb35b02ada6930a9b425a3cef212ac2`;
+the complete resolve identity is
+`523066633931a73ca217dba3236dd0dafe8fb4173dd2e74813cad16ee751c768`.
+The raw report passes the universal comparison self-gate and is stored under
+`tools/performance/results/phase_00_edge_pairing/`. This is an isolated route
+lower bound, not nginx, TLS/LAN, QR, WebRTC, or physical-device evidence.
+
 ## Signaling relay baseline
 
 The production Node signaling server ran once on an isolated unencrypted
@@ -395,7 +418,7 @@ Complete this table before Phase 1 structural changes resume.
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651; five-second cut | 10 each | Preview, first frame, and synchronized start captured; cut 6,123.213 | Preview, first frame, and synchronized start captured; cut 6,380.535 | Captured | Captured | 0 | Cut 2.464 camera-seconds/s | Seek timed out; warm local cut captured; cold cut pending |
-| Pairing/control/upload | Warm local; physical devices pending | Fixed PC pairing, signaling relay, and 16 MiB/4-chunk upload fixtures | 10 each | Pair issue 0.279; resolve 0.284; canonical RTT 0.616; legacy RTT 0.548; upload init 2.019; chunk 58.605; completion 32.828 | Pair issue 0.360; resolve 0.333; canonical RTT 0.727; legacy RTT 1.166; upload init 2.438; chunk 67.493; completion 39.447 | Captured | Captured | 0 | Tokens/s, round trips/s, and upload bytes/s captured | Upload init < 5 s passed; Edge/physical evidence pending |
+| Pairing/control/upload | Warm local; physical devices pending | Fixed PC/Edge pairing, signaling relay, and 16 MiB/4-chunk upload fixtures | 10 each | PC issue 0.279; PC resolve 0.284; Edge issue 1.592; Edge resolve 0.552; Edge RTT 2.002; canonical RTT 0.616; legacy RTT 0.548; upload init 2.019; chunk 58.605; completion 32.828 | PC issue 0.360; PC resolve 0.333; Edge issue 3.386; Edge resolve 1.358; Edge RTT 3.557; canonical RTT 0.727; legacy RTT 1.166; upload init 2.438; chunk 67.493; completion 39.447 | Captured | Captured | 0 | Tokens/s, round trips/s, and upload bytes/s captured | Upload init < 5 s passed; live nginx/TLS/QR/physical evidence pending |
 | Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 589.459; solve 33,878.199; HTML 0.233; Plotly 848.624 | Preflight 678.601; solve 34,656.135; HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,904.354; seek 32.575; playback 29.002; processing 4,310.144 | Render 7,329.336; seek 32.770; playback 31.417; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Relative gate |

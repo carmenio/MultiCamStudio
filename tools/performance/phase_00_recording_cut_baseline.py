@@ -39,6 +39,8 @@ WARMUP_RUNS = 3
 MEASURED_RUNS = 10
 BACKEND_CONTAINER = "multicam-pc-backend-1"
 CONTAINER_STORAGE_ROOT = "/Storage"
+FFMPEG_PRESET = "veryfast"
+AUDIO_BITRATE_KBPS = 96
 HARDWARE = "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM"
 POWER_MODE = "Balanced"
 
@@ -330,8 +332,8 @@ class _ContainerCutExecution:
             "-y", "-hide_banner", "-loglevel", "error",
             "-ss", f"{float(start_seconds):.6f}", "-i", self._container_path(source_path),
             "-t", f"{duration:.6f}", "-map", "0:v:0", "-map", "0:a?",
-            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart", "-c:a", "aac", "-b:a", "128k",
+            "-c:v", "libx264", "-preset", FFMPEG_PRESET, "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart", "-c:a", "aac", "-b:a", f"{AUDIO_BITRATE_KBPS}k",
             self._container_path(output_path),
         ]
         completed = subprocess.run(command, capture_output=True, text=True)
@@ -363,8 +365,8 @@ class _CutEnvironment:
         controller.recordings_dir = self.runtime_root / "Recordings"
         controller.synced_recordings_dir = self.runtime_root / "SyncedVideos"
         controller.preview_recordings_dir = self.runtime_root / "PreviewRecordings"
-        controller.preview_ffmpeg_preset = "veryfast"
-        controller.preview_audio_bitrate_kbps = 128
+        controller.preview_ffmpeg_preset = FFMPEG_PRESET
+        controller.preview_audio_bitrate_kbps = AUDIO_BITRATE_KBPS
         controller._run_ffmpeg_cut = cut_execution
         if timing_probe is not None:
             controller._persist_recording_timing = lambda recording_id, path: self._persist_injected_timing(timing_probe, recording_id, path)
@@ -515,6 +517,8 @@ def build_recording_cut_baseline(
                 "cut_end_seconds": config.cut_end_seconds,
                 "camera_seconds_per_run": len(config.sources) * (config.cut_end_seconds - config.cut_start_seconds),
                 "frames_per_run": int(len(config.sources) * (config.cut_end_seconds - config.cut_start_seconds) * 60),
+                "ffmpeg_preset": FFMPEG_PRESET,
+                "audio_bitrate_kbps": AUDIO_BITRATE_KBPS,
                 "source_bytes_per_run": sum(source.size_bytes for source in config.sources),
                 "sources": source_evidence,
             },

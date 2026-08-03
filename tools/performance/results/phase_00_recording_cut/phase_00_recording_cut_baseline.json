@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T13:37:24.073978+00:00",
+  "created_at_utc": "2026-08-03T13:44:38.358209+00:00",
   "metadata": {
-    "commit": "fff5111484d20e8a45d980dd9b14a84a9227b5b0",
+    "commit": "cad76dcd71564befdc93fd528437ddb3dbff12dd",
     "source_revisions": {
       "pc": "5c9b9088476a9a6ae4fe6326642c928c87712a0a",
       "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "ffmpeg": "ffmpeg version 4.2.2-static https://johnvansickle.com/ffmpeg/  Copyright (c) 2000-2019 the FFmpeg developers",
       "backend_container_image": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
@@ -18,6 +19,10 @@
     "network_route": "none; production ffmpeg reached through docker exec",
     "database_snapshot": "set-178 media snapshot with deterministic in-memory persistence adapters",
     "build_mode": "production backend module and backend-container imageio-ffmpeg binary",
+    "compose_configuration": "pc/docker-compose.yml; existing backend container",
+    "service_images": {
+      "backend": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
+    },
     "cache_preparation": "untimed reference execution, three warmups, isolated output reset per sample",
     "evidence_scope": "complete _cut_recording_set_task_handler including real transcoding, filesystem orchestration, timing probe, naming, progress, preview-task enqueue, and persistence calls; production database and output roots untouched",
     "fixture": {
@@ -77,6 +82,18 @@
     },
     "expected_contract_identity": "f3f347be5e50df4d81c7e93dc3725e6c2dae69938d07a4fec820c9ba5621929b",
     "expected_media_identity": "49750de69f7797f7a255ca26ff79ff5c61c8840aa80a8c7b4b33dc144e730ff9",
+    "camera_count": 3,
+    "recording_duration_seconds": 5.0,
+    "media_sizes_bytes": [
+      158557268,
+      311410416,
+      154844460
+    ],
+    "expected_output_identity": {
+      "task_contract": "f3f347be5e50df4d81c7e93dc3725e6c2dae69938d07a4fec820c9ba5621929b",
+      "media": "49750de69f7797f7a255ca26ff79ff5c61c8840aa80a8c7b4b33dc144e730ff9"
+    },
+    "deployed_public_origin": "https://chris-pc.tailf5b27.ts.net",
     "output_files": [
       {
         "name": "Phase_0_60-65-anna-651.mp4",
@@ -118,7 +135,7 @@
     "bytes_throughput": {
       "output_bytes_per_run": 7414032,
       "aggregate_output_bytes": 74140320,
-      "output_bytes_per_second": 1157879.08870097
+      "output_bytes_per_second": 1217789.4919835993
     }
   },
   "results": [
@@ -126,16 +143,16 @@
       "name": "recording_cut_set_178_three_camera_60_65",
       "cache_state": "warm",
       "samples_ms": [
-        5893.829300010111,
-        6299.113499990199,
-        6796.502000011969,
-        6760.323099966627,
-        6749.620000016876,
-        6435.187900031451,
-        6056.709299969953,
-        6222.347099974286,
-        6585.054599971045,
-        6232.454899989534
+        5980.048600002192,
+        6318.785100011155,
+        5924.159399990458,
+        6148.790700011887,
+        5743.227700004354,
+        6229.2989999987185,
+        6380.535200005397,
+        5909.792300022673,
+        6106.4531999873,
+        6139.972799981479
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -146,11 +163,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 6367.150700010825,
-      "p50_ms": 6367.150700010825,
-      "p95_ms": 6796.502000011969,
-      "minimum_ms": 5893.829300010111,
-      "maximum_ms": 6796.502000011969,
+      "median_ms": 6123.212999984389,
+      "p50_ms": 6123.212999984389,
+      "p95_ms": 6380.535200005397,
+      "minimum_ms": 5743.227700004354,
+      "maximum_ms": 6380.535200005397,
       "work_units": [
         15.0,
         15.0,
@@ -164,7 +181,7 @@
         15.0
       ],
       "unit_name": "camera_seconds",
-      "throughput_per_second": 2.342610111544508
+      "throughput_per_second": 2.4638202775162
     }
   ]
 }

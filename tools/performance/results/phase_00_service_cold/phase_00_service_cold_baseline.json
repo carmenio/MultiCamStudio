@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T11:09:43.690763+00:00",
+  "metadata": {
+    "commit": "85c51c8a4f53d99352f2b8ccaac46999452162ce",
+    "source_revisions": {
+      "pc": "afd9acb47ae424beadb8dd7ea54dab0c4b961343",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "created_at_utc": "2026-08-03T11:09:43.621804+00:00",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "database_snapshot": "live fixture observed 2026-08-03; session 49; recording set 178",
+    "compose_directory": "pc",
+    "compose_service": "backend",
+    "health_url": "https://127.0.0.1:5000/health",
+    "target_url": "https://127.0.0.1:5000/api/sessions-info?profile=ui",
+    "cache_preparation": "docker compose restart backend; health-only readiness polling",
+    "restart_readiness_durations_ms": [
+      5705.510700005107,
+      5329.1957000037655,
+      5431.9427000009455,
+      5205.844799987972,
+      5740.398699999787,
+      5241.018600005191,
+      5221.424299990758,
+      5220.708800014108,
+      5953.130100038834,
+      5432.793900021352,
+      5392.7740000071935,
+      5270.763900014572,
+      5296.766399987973
+    ],
+    "expected_output_identity": "cdf28aa1f87490da059814803ced5733a5060140b9f08420293f2bb6ace6b288",
+    "configuration_hash": "ad066a648d8b74959d5da633eb03f85fd2dd84274e6561beef5e6f7dad283b19"
+  },
+  "results": [
+    {
+      "name": "pc_sessions_ui_first_request_after_backend_restart",
+      "cache_state": "cold",
+      "samples_ms": [
+        78.36220000172034,
+        69.44130000192672,
+        71.18620001710951,
+        72.33509997604415,
+        92.50440000323579,
+        96.22110001510009,
+        74.17060004081577,
+        73.0436000158079,
+        79.14639997761697,
+        87.11870003025979
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 76.26640002126805,
+      "p50_ms": 76.26640002126805,
+      "p95_ms": 96.22110001510009,
+      "minimum_ms": 69.44130000192672,
+      "maximum_ms": 96.22110001510009,
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    }
+  ]
+}

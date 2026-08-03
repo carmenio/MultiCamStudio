@@ -5,8 +5,9 @@
 The reusable benchmark and comparison infrastructure is implemented and tested.
 A first read-only live baseline is committed for the locally available PC and
 laptop stack, including a production browser baseline. Stateful jobs, true
-service/database cold-cache preparation, media-element playback timing, and the
-physical device matrix remain missing; therefore Phase 0 is still **incomplete**.
+database cold-cache preparation, media-element playback timing, and the physical
+device matrix remain missing. Backend service-cold session retrieval is now
+captured; therefore Phase 0 is still **incomplete**.
 
 ## Harness evidence
 
@@ -67,6 +68,25 @@ not represented as a true cold service, operating-system, or database cache.
 Raw timing and identity evidence is in
 `tools/performance/results/phase_00_live/`.
 
+## Backend service-cold baseline
+
+The service-cold runner restarted only the PC Compose `backend` service before
+each sample, polled `/health` without touching session data, and then timed the
+first `/api/sessions-info?profile=ui` request. Restart/readiness time is retained
+as preparation metadata and is excluded from endpoint latency.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Session UI first request after backend restart | Service cold | 76.266 | 96.221 | 69.441 | 96.221 | 0 |
+
+The run used 3 warmups and 10 measurements at root commit
+`85c51c8a4f53d99352f2b8ccaac46999452162ce` and PC revision
+`afd9acb47ae424beadb8dd7ea54dab0c4b961343`. All 13 restarts became healthy;
+median restart-to-health preparation was 5,329.196 ms. Raw evidence is in
+`tools/performance/results/phase_00_service_cold/phase_00_service_cold_baseline.json`.
+This is service-process cold, not an operating-system page-cache or PostgreSQL
+buffer-cache flush.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -105,7 +125,7 @@ Complete this table before Phase 1 structural changes resume.
 
 | Scenario | Cache | Fixture | Runs | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput | Hard limit |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Session/overview retrieval | True cold + warm | Session 49 | 10 each | Header-bypass/warm captured | Header-bypass/warm captured | Captured | Captured | 0 | N/A | Full profile currently 500 |
+| Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Cold + warm | Pending | 10 each | Pending | Pending | Pending | Pending | Pending | Where applicable | Relative gate |
 | Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |

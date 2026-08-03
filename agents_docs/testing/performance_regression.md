@@ -41,6 +41,18 @@ readiness after two animation frames, and cleans up only that isolated profile.
 Media and WebGL scenarios stay unavailable until exact fixture selectors are
 configured; shell readiness is not first-video-frame or first-3D-render evidence.
 
+The backend service-cold runner is intentionally separate because it performs a
+controlled Compose restart before every sample:
+
+```powershell
+python -m tools.performance.phase_00_service_cold_baseline
+```
+
+It restarts only `pc` service `backend`, polls the health endpoint, and then
+times the first session UI request. Do not run it while operators are using the
+PC API. It does not restart PostgreSQL, clear the operating-system page cache,
+or claim database-cold evidence.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

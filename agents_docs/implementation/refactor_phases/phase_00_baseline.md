@@ -89,11 +89,12 @@ and prefetch cleanup across set changes and unmounting.
 | PC runtime | Windows build 10.0.26200, Intel Core i9-11900K, 68,595,343,360 bytes RAM, Balanced power mode; Docker-published backend at `https://localhost:5000`; database snapshot observed 2026-08-03 | Reuse only when candidate metadata confirms the same controlled environment and fixture identity. |
 | Automated backend/web/edge/mobile fixtures | Test-local temporary files, in-memory or mocked adapters, and deterministic response rows owned by the named suites | Contract characterization only; test duration is not application-performance evidence. |
 
-Controlled read-only live baselines now cover session UI retrieval, playback-source
+Controlled read-only live baselines now cover service-cold, header-bypassed, and
+warm session UI retrieval, playback-source
 resolution, one-byte media transport readiness, calibration viewer and batch
 status, detection summary plus first/seeked/sequential five-second segments,
 triangulation metadata/status, and retrieval of a 35,815,719-byte triangulation
-result. They do not cover true service/database cold state, media-element startup
+result. They do not cover database/operating-system cold state, media-element startup
 or seeking, synchronized playback, cutting, stateful processing, pairing/control,
 upload, export, or full-pipeline dispatch. No Phase 0 physical
 iPhone or Android run is recorded for pairing, preview, maximum-profile recording,

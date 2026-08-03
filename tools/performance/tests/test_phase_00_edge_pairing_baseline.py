@@ -35,13 +35,18 @@ class EdgePairingBaselineTests(unittest.TestCase):
 
         self.assertEqual(
             [result.name for result in outcome["results"]],
-            ["edge_pairing_token_issue", "edge_pairing_token_resolve"],
+            [
+                "edge_pairing_token_issue",
+                "edge_pairing_token_resolve",
+                "edge_pairing_issue_resolve_round_trip",
+            ],
         )
         self.assertTrue(all(result.warmup_runs == 3 for result in outcome["results"]))
         self.assertTrue(all(result.measured_runs == 10 for result in outcome["results"]))
         self.assertTrue(all(not result.failures for result in outcome["results"]))
         self.assertEqual(outcome["results"][0].unit_name, "tokens_issued")
         self.assertEqual(outcome["results"][1].unit_name, "tokens_resolved")
+        self.assertEqual(outcome["results"][2].unit_name, "pairing_round_trips")
         self.assertEqual(outcome["results"][0].work_units, (1.0,) * 10)
         self.assertTrue(
             set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])

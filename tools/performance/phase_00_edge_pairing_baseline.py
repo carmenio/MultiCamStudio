@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import gc
 import importlib.metadata
 import importlib.util
 import json
@@ -212,6 +213,12 @@ class _EdgePairingEnvironment:
         expiration = datetime.fromisoformat(expires_at)
         if expiration.tzinfo is None or expiration.utcoffset() != timezone.utc.utcoffset(None):
             raise RuntimeError(f"EdgeRelay pairing expiration is not UTC ISO-8601: {expires_at}")
+        remaining_seconds = (expiration - datetime.now(timezone.utc)).total_seconds()
+        if not 14 * 60 <= remaining_seconds <= 15 * 60:
+            raise RuntimeError(
+                "EdgeRelay pairing expiration changed from its 15-minute contract: "
+                f"{remaining_seconds:.3f} seconds"
+            )
         self.last_token = token
         return BenchmarkObservation(1.0, "tokens_issued")
 
@@ -240,10 +247,24 @@ class _EdgePairingEnvironment:
         self.resolve_token = self.last_token
         self.resolve()
 
+    def round_trip(self) -> BenchmarkObservation:
+        """Issue and immediately resolve one fresh token through both public routes."""
+
+        self.issue()
+        original_resolve_token = self.resolve_token
+        try:
+            self.resolve_token = self.last_token
+            self.resolve()
+        finally:
+            self.resolve_token = original_resolve_token
+        return BenchmarkObservation(1.0, "pairing_round_trips")
+
     def close(self) -> None:
         """Remove the isolated module, restore process environment, and delete SQLite files."""
 
         sys.modules.pop(getattr(self, "module_name", ""), None)
+        self.client = None
+        self.module = None
         for key, previous in getattr(self, "_previous_environment", {}).items():
             if previous is None:
                 os.environ.pop(key, None)
@@ -251,6 +272,9 @@ class _EdgePairingEnvironment:
                 os.environ[key] = previous
         temporary = getattr(self, "_temporary", None)
         if temporary is not None:
+            # EdgeRelay's sqlite context managers commit but rely on object
+            # finalization to close; force finalization before Windows cleanup.
+            gc.collect()
             temporary.cleanup()
 
 
@@ -275,6 +299,13 @@ def build_edge_pairing_baseline(
                     name="edge_pairing_token_resolve",
                     cache_state="warm",
                     operation=environment.resolve,
+                    warmup_runs=config.warmup_runs,
+                    measured_runs=config.measured_runs,
+                ),
+                BenchmarkScenario(
+                    name="edge_pairing_issue_resolve_round_trip",
+                    cache_state="warm",
+                    operation=environment.round_trip,
                     warmup_runs=config.warmup_runs,
                     measured_runs=config.measured_runs,
                 ),

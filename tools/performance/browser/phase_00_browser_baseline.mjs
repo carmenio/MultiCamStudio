@@ -38,6 +38,7 @@ const EXPECTED_CAMERA_COUNT = FIXTURE_PROVENANCE.camera_count
 // from degenerating to the single maximum observed value.
 const WARMUP_RUNS = 10
 const MEASURED_RUNS = 20
+const FAST_MEASURED_RUNS = 50
 const READINESS_TIMEOUT_MS = 20_000
 const RESOURCE_QUIET_PERIOD_MS = 1_000
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
@@ -595,24 +596,33 @@ async function captureElementIdentity(client, selector) {
   return createHash('sha256').update(Buffer.from(screenshot.data, 'base64')).digest('hex')
 }
 
-async function measureScenario(client, operation, scenarioName = 'scenario') {
+async function measureScenario(
+  client,
+  operation,
+  scenarioName = 'scenario',
+  { warmupRuns = WARMUP_RUNS, measuredRuns = MEASURED_RUNS } = {},
+) {
   process.stderr.write(`[browser baseline] ${scenarioName}: starting\n`)
-  for (let index = 0; index < WARMUP_RUNS; index += 1) {
+  for (let index = 0; index < warmupRuns; index += 1) {
     await operation(client, { kind: 'warmup', index })
-    process.stderr.write(`[browser baseline] ${scenarioName}: warm-up ${index + 1}/${WARMUP_RUNS}\n`)
+    process.stderr.write(`[browser baseline] ${scenarioName}: warm-up ${index + 1}/${warmupRuns}\n`)
   }
   const samples = []
-  for (let index = 0; index < MEASURED_RUNS; index += 1) {
+  for (let index = 0; index < measuredRuns; index += 1) {
     samples.push(await operation(client, { kind: 'measured', index }))
-    process.stderr.write(`[browser baseline] ${scenarioName}: measured ${index + 1}/${MEASURED_RUNS}\n`)
+    process.stderr.write(`[browser baseline] ${scenarioName}: measured ${index + 1}/${measuredRuns}\n`)
   }
-  return summarizeSamples(samples)
+  return { ...summarizeSamples(samples), warmup_runs: warmupRuns }
 }
 
-async function measureOptionalScenario(client, name, cacheState, operation) {
+async function measureOptionalScenario(client, name, cacheState, operation, protocol = {}) {
   try {
     return {
-      result: completeResult(name, cacheState, await measureScenario(client, operation, name)),
+      result: completeResult(
+        name,
+        cacheState,
+        await measureScenario(client, operation, name, protocol),
+      ),
       unavailable: null,
     }
   } catch (error) {
@@ -644,9 +654,9 @@ function completeResult(name, cacheState, summary) {
     name,
     cache_state: cacheState,
     ...summary,
-    warmup_runs: WARMUP_RUNS,
-    minimum_measured_runs: MEASURED_RUNS,
-    minimum_warmup_runs: WARMUP_RUNS,
+    warmup_runs: summary.warmup_runs,
+    minimum_measured_runs: summary.measured_runs,
+    minimum_warmup_runs: summary.warmup_runs,
     maximum_p95_ms: null,
     warmup_failures: [],
     work_units: [],
@@ -702,17 +712,17 @@ async function run() {
       completeResult(
         'operator_first_usable',
         'cold',
-        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'cold'), 'operator_first_usable_cold'),
+        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'cold'), 'operator_first_usable_cold', { measuredRuns: FAST_MEASURED_RUNS }),
       ),
       completeResult(
         'operator_first_usable',
         'warm',
-        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'warm'), 'operator_first_usable_warm'),
+        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'warm'), 'operator_first_usable_warm', { measuredRuns: FAST_MEASURED_RUNS }),
       ),
       completeResult(
         'operator_recordings_navigation',
         'warm',
-        await measureScenario(client, measureRecordingNavigation, 'operator_recordings_navigation'),
+        await measureScenario(client, measureRecordingNavigation, 'operator_recordings_navigation', { measuredRuns: FAST_MEASURED_RUNS }),
       ),
     ]
     const outputIdentity = await captureOutputIdentity(client)
@@ -729,6 +739,7 @@ async function run() {
           ? { index: context.index, samples: recordingPreviewResourceSamples }
           : null,
       ),
+      { measuredRuns: FAST_MEASURED_RUNS },
     ))
     await openFixtureRecordingSet(client, 'warm')
     optionalOutcomes.push(await measureOptionalScenario(
@@ -736,6 +747,7 @@ async function run() {
       'recording_first_frame',
       'warm',
       measureRecordingFirstFrame,
+      { measuredRuns: FAST_MEASURED_RUNS },
     ))
     await openFixtureRecordingSet(client, 'warm')
     optionalOutcomes.push(await measureOptionalScenario(
@@ -750,6 +762,7 @@ async function run() {
       'recording_synchronized_playback_start',
       'warm',
       measureSynchronizedPlaybackStart,
+      { measuredRuns: FAST_MEASURED_RUNS },
     ))
     const threeDFirstUsable = await measureOptionalScenario(
       client,
@@ -772,12 +785,14 @@ async function run() {
           await measureThreeDSeekReadiness(activeClient, 0.25)
           return measureThreeDSeekReadiness(activeClient, 0.5)
         },
+        { measuredRuns: FAST_MEASURED_RUNS },
       ))
       optionalOutcomes.push(await measureOptionalScenario(
         client,
         'three_d_playback_start',
         'warm',
         measureThreeDPlaybackStart,
+        { measuredRuns: FAST_MEASURED_RUNS },
       ))
     }
     const calibrationReadiness = await measureOptionalScenario(
@@ -785,6 +800,7 @@ async function run() {
       'calibration_plotly_readiness',
       'warm',
       measureCalibrationPlotlyReadiness,
+      { measuredRuns: FAST_MEASURED_RUNS },
     )
     optionalOutcomes.push(calibrationReadiness)
     let calibrationOutputIdentity = null
@@ -837,6 +853,7 @@ async function run() {
         recording_set_id: RECORDING_SET_ID,
         warmup_runs: WARMUP_RUNS,
         measured_runs: MEASURED_RUNS,
+        fast_measured_runs: FAST_MEASURED_RUNS,
         isolated_profile: true,
         expected_output_identity: outputIdentity,
         three_d_output_identity: threeDOutputIdentity,

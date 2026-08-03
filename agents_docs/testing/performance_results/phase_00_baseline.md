@@ -132,6 +132,30 @@ final manifest integrity is verified separately because its creation timestamp
 is intentionally volatile. Raw evidence is in
 `tools/performance/results/phase_00_export_writing/`.
 
+## Detection processing and segment-generation baseline
+
+The production pipeline processed a fixed 60-second, three-camera fixture at
+30 fps with 33 points per frame. All six stages were enabled in canonical order:
+confidence filtering, motion prediction, outlier rejection, PCHIP gap fill,
+confidence-weighted smoothing, and rigid-body correction. The segmenter then
+created 12 immutable five-second windows per camera. Fixture construction and
+complete canonical output hashing were outside the timed intervals.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Three-camera post-processing | Warm | 10,498.022 | 13,876.066 | 9,067.835 | 13,876.066 | 0 | 16,567 keypoints/s |
+| Three-camera segment generation | Warm | 279.237 | 421.531 | 267.706 | 421.531 | 0 | 581,695 keypoints/s |
+
+Each approved long-workflow scenario used 3 warmups and 5 measurements at root
+commit `87ef10b70ac32c99b7006a6adde4abab84e82a7f` and PC revision
+`95ca0fb29f38746a4cf6d5754250af75a05f716b`. Every execution processed
+178,200 input keypoints; the six stages represent 1,069,200 nominal point-stage
+evaluations. Full checkpoint output retained identity
+`6c7c4019c604fd66713fd15395f75ef08b6784eb83ab24077169d54a2edde1b6`,
+and all 36 segments retained identity
+`a3d57f5211f8e483c24d172efb1adc753e3042d5dd09b3e0d5cb8fb71a7d4db3`.
+Raw evidence is in `tools/performance/results/phase_00_detection_processing/`.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -180,7 +204,7 @@ Complete this table before Phase 1 structural changes resume.
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
 | Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
-| Detection summary/segments/post-processing | Header-bypass + warm | Set 178, raw:1053, recordings 649-651 | 10 each | Summary and three segment cases captured | Summary and three segment cases captured | Captured | Captured | 0 | Segment bytes/s captured | Summary/segment < 500 ms passed; post-processing pending |
+| Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Set 178, run 100 | 10 | Metadata/status/result retrieval captured | Metadata/status/result retrieval captured | Captured | Captured | 0 | Result bytes/s captured | Processing and browser 3D readiness pending |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |
 

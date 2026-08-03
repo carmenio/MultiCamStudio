@@ -357,7 +357,7 @@ if __name__ == "__main__":
                     "name": result.name,
                     "median_ms": result.median_ms,
                     "p95_ms": result.p95_ms,
-                    "throughput_frames_per_second": result.throughput_per_second,
+                    "throughput_keypoints_per_second": result.throughput_per_second,
                     "failures": list(result.failures),
                 }
                 for result in outcome["results"]

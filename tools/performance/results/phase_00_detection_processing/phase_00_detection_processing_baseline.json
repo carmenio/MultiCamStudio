@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T12:06:21.384955+00:00",
+  "metadata": {
+    "commit": "87ef10b70ac32c99b7006a6adde4abab84e82a7f",
+    "source_revisions": {
+      "pc": "95ca0fb29f38746a4cf6d5754250af75a05f716b",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "none; in-process production modules",
+    "database_snapshot": "fixed generated fixture; no database access",
+    "build_mode": "local Python production modules",
+    "cache_preparation": "complete untimed equivalence pass followed by three warmups",
+    "camera_count": 3,
+    "recording_duration_seconds": 60.0,
+    "fixture": {
+      "camera_count": 3,
+      "frame_count_per_camera": 1800,
+      "point_count": 33,
+      "fps": 30.0,
+      "postprocess_settings": {
+        "schema_version": 2,
+        "confidence_filter": {
+          "enabled": true,
+          "min_confidence": 0.25
+        },
+        "motion_prediction": {
+          "enabled": true,
+          "model_type": "constant_velocity",
+          "max_gap_frames": 8,
+          "predicted_trust_score": 0.35
+        },
+        "outlier_rejection": {
+          "enabled": true,
+          "max_displacement_px": 180.0,
+          "max_velocity_px_per_frame": 90.0,
+          "max_acceleration_px_per_frame2": 60.0,
+          "enable_club_length_ratio_gate": true,
+          "club_head_label": "club_head",
+          "club_grip_label": "club_grip",
+          "club_length_min_ratio": 0.7,
+          "club_length_max_ratio": 1.35
+        },
+        "gap_fill": {
+          "method": "pchip",
+          "max_gap_frames": 8
+        },
+        "smoothing": {
+          "method": "confidence_weighted",
+          "params": {
+            "alpha_min": 0.08,
+            "alpha_max": 0.65
+          }
+        },
+        "rigid_body_correction": {
+          "enabled": true,
+          "stable_confidence_threshold": 0.75,
+          "club_head_label": "club_head",
+          "club_grip_label": "club_grip",
+          "max_fill_frames_from_last_direction": 18
+        },
+        "confidence_weighted_smoothing": {
+          "enabled": true,
+          "alpha_min": 0.08,
+          "alpha_max": 0.65
+        },
+        "pchip_fill": {
+          "enabled": true,
+          "max_gap_frames": 8
+        }
+      }
+    },
+    "expected_output_identity": {
+      "postprocessing": "6c7c4019c604fd66713fd15395f75ef08b6784eb83ab24077169d54a2edde1b6",
+      "segments": "a3d57f5211f8e483c24d172efb1adc753e3042d5dd09b3e0d5cb8fb71a7d4db3"
+    },
+    "stage_order": [
+      "confidence_filter",
+      "motion_prediction",
+      "outlier_rejection",
+      "gap_fill",
+      "smoothing",
+      "rigid_body_correction"
+    ],
+    "segments_per_camera": [
+      12,
+      12,
+      12
+    ],
+    "input_keypoints_per_run": 178200,
+    "nominal_point_stage_evaluations": 1069200,
+    "side_effects": "none"
+  },
+  "results": [
+    {
+      "name": "point_detection_postprocessing_three_cameras",
+      "cache_state": "warm",
+      "samples_ms": [
+        10498.022400017362,
+        13876.0657000239,
+        9724.085499998182,
+        10616.752600006294,
+        9067.835199995898
+      ],
+      "successful_runs": 5,
+      "measured_runs": 5,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 5,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 10498.022400017362,
+      "p50_ms": 10498.022400017362,
+      "p95_ms": 13876.0657000239,
+      "minimum_ms": 9067.835199995898,
+      "maximum_ms": 13876.0657000239,
+      "work_units": [
+        178200.0,
+        178200.0,
+        178200.0,
+        178200.0,
+        178200.0
+      ],
+      "unit_name": "keypoints",
+      "throughput_per_second": 16566.646576077634
+    },
+    {
+      "name": "point_detection_segment_generation_three_cameras",
+      "cache_state": "warm",
+      "samples_ms": [
+        268.78510002279654,
+        279.2372000403702,
+        421.53110000072047,
+        267.70580001175404,
+        294.47099997196347
+      ],
+      "successful_runs": 5,
+      "measured_runs": 5,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 5,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 279.2372000403702,
+      "p50_ms": 279.2372000403702,
+      "p95_ms": 421.53110000072047,
+      "minimum_ms": 267.70580001175404,
+      "maximum_ms": 421.53110000072047,
+      "work_units": [
+        178200.0,
+        178200.0,
+        178200.0,
+        178200.0,
+        178200.0
+      ],
+      "unit_name": "keypoints",
+      "throughput_per_second": 581695.1314091141
+    }
+  ]
+}

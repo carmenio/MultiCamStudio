@@ -80,6 +80,18 @@ and atomically finalizes the directory. Prior-output cleanup and post-run
 manifest verification occur outside the timed interval. All files are confined
 to a dedicated temporary directory and removed when the command exits.
 
+Point-detection processing uses fixed in-memory canonical results and the
+production post-processing pipeline and segmenter:
+
+```powershell
+python -m tools.performance.phase_00_detection_processing_baseline
+```
+
+The fixture has three cameras, 1,800 frames per camera, 33 points, and all six
+ordered post-processing stages. Checkpoint generators are consumed stage-major,
+matching controller execution. Complete output hashes are captured before and
+after the timed suite; canonical JSON serialization is excluded from latency.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

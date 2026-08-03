@@ -235,25 +235,39 @@ animation frames. Navigation requires `main.recording-page` plus two frames.
 
 | Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Operator first usable | Isolated cold | 312.745 | 397.122 | 298.205 | 397.122 | 0 |
-| Operator first usable | Warm | 214.532 | 313.553 | 196.530 | 313.553 | 0 |
-| Recordings navigation | Warm | 33.909 | 42.461 | 33.275 | 42.461 | 0 |
-| Three-camera preview startup | Isolated cold | 1,012.461 | 1,351.285 | 435.312 | 1,351.285 | 0 |
-| Primary first decoded frame | Warm | 28.950 | 30.700 | 21.700 | 30.700 | 0 |
-| Three-camera synchronized playback start | Warm | 29.800 | 42.000 | 21.400 | 42.000 | 0 |
+| Operator first usable | Isolated cold | 328.012 | 390.260 | 296.474 | 390.260 | 0 |
+| Operator first usable | Warm | 198.199 | 247.219 | 180.713 | 247.219 | 0 |
+| Recordings navigation | Warm | 33.470 | 37.118 | 32.977 | 37.118 | 0 |
+| Three-camera preview startup | Isolated cold | 880.340 | 1,148.172 | 703.461 | 1,148.172 | 0 |
+| Primary first decoded frame | Warm | 28.050 | 31.700 | 23.900 | 31.700 | 0 |
+| Three-camera synchronized playback start | Warm | 29.750 | 46.400 | 22.200 | 46.400 | 0 |
+| 3D first usable WebGL render | Warm | 6,904.354 | 7,329.336 | 6,719.366 | 7,329.336 | 0 |
+| 3D timeline seek readiness | Warm | 32.575 | 32.770 | 32.330 | 32.770 | 0 |
+| 3D playback start | Warm | 29.002 | 31.417 | 27.694 | 31.417 | 0 |
+| Calibration Plotly readiness | Warm | 848.624 | 978.702 | 774.550 | 978.702 | 0 |
 
-The current run used root commit `06e4e11dd06b313fc1cbc9a2166693e1987cdb0a`
+The current run used root commit `d97f4d7720f8f15647d520d643c4bb99347b4a13`
 and laptop revision `f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`.
 The rendered shell signature hash was
-`89cad48c52fc47d44b8b1e7324f6b8fb74bd6bc050694b375be0cfaba15ef0c6`.
+`39b54bd26de715778c0ead6a67a50dcb98413fed488e8487d0037279c6daa2c9`.
+The 3D canvas screenshot identity was
+`bcc9f2c6072963e1acbbd87be6788443d187451ac66490c9d3e86fdae6ddcf6d`;
+the calibration Plotly screenshot identity was
+`158bdfd86032941095a4342339eed5428efad7ca910b815077b321ed7b9e8053`.
 Raw evidence is in
 `tools/performance/results/phase_00_browser/phase_00_browser_baseline.json`.
 The controlled browser fixture is session 49, recording set 178, recordings
 649-651. The runner resolves the exact card from backend summary ordering rather
 than a display label. Multi-camera seek readiness remains unavailable because at
 least one real media element did not emit `seeked` within 20 seconds. The run
-retains that exact timeout instead of reporting partial-camera timing. 3D WebGL
-readiness remains unavailable until its exact visible result selector is configured.
+retains that exact timeout instead of reporting partial-camera timing. The 3D
+fixture is set 178/run 100 with 11,464 timeline frames. Its first-render timer
+starts at card activation and ends after a connected, non-lost WebGL canvas,
+the full frame range, and two animation frames are visible. Seek uses native
+browser input and accepts the rendered position within one percent of the
+requested track coordinate. Calibration discovers viewer 113 through the UI,
+then times its canonical viewer route until Plotly's WebGL canvas and two
+animation frames are ready.
 
 `GET /api/sessions-info?profile=full` returned HTTP 500 and is intentionally
 recorded unavailable. The live database rejected the nested legacy response with
@@ -271,9 +285,9 @@ Complete this table before Phase 1 structural changes resume.
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
 | Pairing/control/upload | Warm server route; physical devices pending | Fixed 16 MiB/4-chunk PC fixture | 10 each | Server init 2.019; resume 0.511; chunk write 58.605; completion 32.828 | Server init 2.438; resume 0.665; chunk write 67.493; completion 39.447 | Captured | Captured | 0 | Chunk 277,664,628 bytes/s; completion 493,783,883 bytes/s | Server init < 5 s passed; physical Stop-to-init pending |
-| Calibration workflow | Warm renderer; processing pending | Fixed 10-camera geometry | 10 renderer | Viewer HTML 0.233 | Viewer HTML 0.283 | Viewer HTML 0.211 | Viewer HTML 0.283 | 0 | 42,463 cameras/s | Solver/video processing pending |
+| Calibration workflow | Warm renderer/browser; processing pending | Fixed 10-camera geometry; live viewer 113 | 10 each | HTML 0.233; Plotly 848.624 | HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | 42,463 cameras/s | Solver/video processing pending |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
-| Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Live retrieval captured; processing 4,310.144 | Live retrieval captured; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Browser 3D readiness pending |
+| Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,904.354; seek 32.575; playback 29.002; processing 4,310.144 | Render 7,329.336; seek 32.770; playback 31.417; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Relative gate |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |
 
 ## Rollback

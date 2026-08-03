@@ -39,9 +39,12 @@ It builds the operator web with the configured direct-PC origin, launches a
 headed Chrome process with an isolated temporary profile, records semantic DOM
 readiness after two animation frames, and cleans up only that isolated profile.
 The fixed recording-set fixture captures preview startup, first decoded frame,
-and synchronized playback start. Multi-camera seek and WebGL readiness remain
-unavailable until their exact readiness conditions succeed; shell readiness is
-not first-video-frame or first-3D-render evidence.
+and synchronized playback start. The same run loads triangulation run 100 into
+the production WebGL viewer, exercises native timeline input and playback, and
+loads calibration viewer 113 through its canonical Plotly route. Screenshot
+hashes freeze rendered-output identity. Multi-camera recording seek remains an
+explicit unavailable result when any camera misses the bounded `seeked` gate;
+shell readiness is not first-video-frame or first-3D-render evidence.
 
 The backend service-cold runner is intentionally separate because it performs a
 controlled Compose restart before every sample:
@@ -122,8 +125,9 @@ python -m tools.performance.phase_00_calibration_viewer_baseline
 ```
 
 The renderer returns its self-contained Plotly document without writing a file.
-The full HTML identity is checked outside timing. This does not replace solver,
-video-detection, or live browser Plotly-readiness measurements.
+The full HTML identity is checked outside timing. This does not replace solver
+or video-detection measurements; live browser Plotly readiness is captured by
+the separate production browser runner.
 
 ## Controlled environment
 

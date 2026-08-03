@@ -33,6 +33,19 @@ newer selective PostgREST projections returning HTTP 400 before compatibility
 fallback queries succeed. This adds latency and log noise. Preserve the fallback
 until the live database schema and response contracts are migrated deliberately.
 
+## Multi-camera browser seek intermittently stalls
+
+The production-browser baseline can prepare and seek all three set-178 videos,
+but repeated synchronized seeks are not reliable. On 2026-08-03 one controlled
+run completed three warm-ups and three measured seeks before at least one media
+element failed to emit `seeked` within 20 seconds. Other runs failed earlier.
+
+The benchmark records the entire scenario as unavailable rather than reporting
+partial-camera or partial-run timing. Preview startup, first decoded frame, and
+synchronized playback-start measurements remain valid independent scenarios.
+Do not loosen the all-camera readiness condition during structural refactoring;
+diagnose and repair media seeking as an explicit behavior change.
+
 ## Task and All-page pipeline compatibility behavior
 
 Characterization on 2026-08-03 confirmed several observable behaviors that may

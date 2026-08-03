@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T13:50:54.244085+00:00",
+  "metadata": {
+    "commit": "edf7653add203a7834f518e470da5b4c9c5acb0f",
+    "source_revisions": {
+      "pc": "5c9b9088476a9a6ae4fe6326642c928c87712a0a",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "node": "v24.11.1",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "none; in-process production EdgeRelay Flask routes",
+    "database_snapshot": "isolated SQLite cache with one fixed session and camera",
+    "fixture": {
+      "session_id": 49,
+      "camera_id": "phase-00-edge-camera",
+      "camera_label": "Phase 00 Edge Camera",
+      "room_id": "phase-00-edge-room",
+      "request_origin": "https://phase-00-laptop.tailnet.ts.net",
+      "transport": "webrtc"
+    },
+    "build_mode": "local Python production EdgeRelay module",
+    "dependency_versions": {
+      "flask": "3.0.2",
+      "flask-cors": "6.0.2",
+      "itsdangerous": "2.1.2"
+    },
+    "compose_configuration": "laptop/docker-compose.yml route semantics; isolated process fixture",
+    "service_images": {
+      "edge-relay": "local source; no container"
+    },
+    "cache_preparation": "fixed SQLite cache and resolve token, then three warmups",
+    "camera_count": 1,
+    "recording_duration_seconds": 0,
+    "media_sizes_bytes": [],
+    "expected_output_identity": {
+      "issue_normalized": "cc9c38241d5b629d41fcc7a0d11c3f90afb35b02ada6930a9b425a3cef212ac2",
+      "resolve_response": "523066633931a73ca217dba3236dd0dafe8fb4173dd2e74813cad16ee751c768"
+    },
+    "side_effects": "isolated temporary SQLite files removed after the report is written",
+    "evidence_scope": "EdgeRelay Flask route, SQLite cache lookup, token signing, token verification, and forwarded-origin URL derivation; not PC network, nginx, QR rendering, WebRTC, or physical-device evidence"
+  },
+  "results": [
+    {
+      "name": "edge_pairing_token_issue",
+      "cache_state": "warm",
+      "samples_ms": [
+        2.7211999986320734,
+        2.823400020133704,
+        5.243099993094802,
+        2.8030999819748104,
+        2.734400040935725,
+        2.9285000055097044,
+        3.610900021158159,
+        2.8640999807976186,
+        6.1799000250175595,
+        3.1519000185653567
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 2.8962999931536615,
+      "p50_ms": 2.8962999931536615,
+      "p95_ms": 6.1799000250175595,
+      "minimum_ms": 2.7211999986320734,
+      "maximum_ms": 6.1799000250175595,
+      "work_units": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "unit_name": "tokens_issued",
+      "throughput_per_second": 285.2212596945979
+    },
+    {
+      "name": "edge_pairing_token_resolve",
+      "cache_state": "warm",
+      "samples_ms": [
+        0.948999950196594,
+        0.9663000237196684,
+        2.2755000391043723,
+        1.2717999634332955,
+        1.3125999830663204,
+        1.0563000105321407,
+        0.8965000160969794,
+        0.8591999649070203,
+        0.9185000089928508,
+        1.9046000088565052
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 1.0113000171259046,
+      "p50_ms": 1.0113000171259046,
+      "p95_ms": 2.2755000391043723,
+      "minimum_ms": 0.8591999649070203,
+      "maximum_ms": 2.2755000391043723,
+      "work_units": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "unit_name": "tokens_resolved",
+      "throughput_per_second": 805.782295758781
+    }
+  ]
+}

@@ -63,6 +63,12 @@ node tools/performance/browser/phase_00_browser_baseline.mjs
 It builds the operator web with the configured direct-PC origin, launches a
 headed Chrome process with an isolated temporary profile, records semantic DOM
 readiness after two animation frames, and cleans up only that isolated profile.
+Chrome background/occluded-window throttling is disabled because the automation
+window is not guaranteed to own foreground focus. The browser suite uses 10
+warmups, 50 measured executions for sub-second scenarios, and 20 for the real
+3D render. Before preview timing starts, the runner requires a one-second
+resource-quiet period so overview prefetch cannot compete with the controlled
+recording set; resource diagnostics are collected only after the timer stops.
 The fixed recording-set fixture captures preview startup, first decoded frame,
 and synchronized playback start. The same run loads triangulation run 100 into
 the production WebGL viewer, exercises native timeline input and playback, and
@@ -260,7 +266,7 @@ Run baseline and candidate on the same host without unrelated workloads. Do not 
 
 ## Measurement and acceptance
 
-1. Run three warmups, then ten measured executions. Fixed-input calibration, detection, triangulation, and export jobs may use five only through the explicit approved-long-workflow configuration.
+1. Run at least three warmups, then at least ten measured executions. Fixed-input calibration, detection, triangulation, and export jobs may use five only through the explicit approved-long-workflow configuration. Scenario-specific protocols may require higher counts, such as the browser runner above.
 2. Retain raw samples and report median, nearest-rank p95, minimum, maximum, failures, and throughput where meaningful.
 3. Pass only when controlled metadata and output identity match, required run counts are met, candidate median and p95 are each no more than 3% slower than baseline, throughput is no more than 3% lower for identical work, and candidate measured failures do not exceed baseline failures.
 4. Treat changes from -3% through +3% as measurement noise. Claim an improvement only when median or p95 improves by at least 3% and the other metric does not regress beyond the gate.

@@ -170,10 +170,12 @@ data, or deployment configuration is changed by these baseline repairs.
 - Capture live host-folder transfer/recovery, nginx/TLS pairing, reliable
   all-camera seek, synchronization processing, cold recording cutting, overlay
   equivalence, and explicit 3D camera-transform equivalence.
-- Stabilize the production browser benchmark. Consecutive controlled captures
-  currently exceed the 3% repeatability band for shell, preview, first-frame,
-  and Plotly metrics, so the browser report is not yet a reliable before/after
-  gate despite having valid raw samples and output identities.
+- Stabilize the production browser benchmark. Resource-quiet preview setup and
+  disabled Chrome background throttling removed a measured prefetch confounder,
+  and the long 3D/Plotly scenarios now repeat within the 3% band. Consecutive
+  controlled captures still exceed the band for several short-operation p95s,
+  so the browser report is not yet a reliable before/after gate despite having
+  valid raw samples and output identities.
 - The full sessions profile remains HTTP 500 on the current snapshot; its exact
   outward body is frozen with an injected `54000` adapter failure.
 - An early playback-session extraction exists only on dangling history and is

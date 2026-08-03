@@ -186,6 +186,26 @@ and legacy two-relay control round trips. Correlation IDs are normalized only
 after exact message assertions. The result excludes TLS/LAN routing, WebRTC,
 media, native control execution, and physical devices.
 
+Recording cutting uses the complete production task handler with deterministic
+persistence/task adapters and the backend container's production ffmpeg binary:
+
+```powershell
+python -m tools.performance.phase_00_recording_cut_baseline
+```
+
+The fixed set-178 fixture cuts seconds 60 through 65 from three synchronized
+recordings. Each sample performs the real H.264 `veryfast`/96 kbps AAC
+transcodes, output naming, media probing, persistence calls, progress updates,
+and preview-task enqueue. Source hashing and an untimed reference run happen
+before measurement; scratch-directory reset and complete output hash/probe
+verification happen outside each timed interval. The runner writes only under
+the verified benchmark-owned `.performance/recording-cut` root and removes all
+per-run directories when it exits. It resolves the deployed container's
+encoding settings and public recording origin and fails before timing if the
+runner encoding differs. The measured path includes one `docker exec` launch
+per camera, unlike an in-container task worker; cold-cut evidence remains
+pending and must not be inferred from this warm result.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

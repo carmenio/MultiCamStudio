@@ -45,8 +45,8 @@ The untouched baseline was:
 - Camera mobile: 53 passed; type-check and native-patch validation passed.
 
 After the latest characterization additions, the complete backend suite passes
-588 tests. This includes the 21-test capture lifecycle suite and eight focused
-media-route cases added after the prior complete run. The complete operator suite
+593 tests. This includes the 21-test capture lifecycle suite, focused media-route
+cases, and the expanded cut validation/ffmpeg contract matrix. The complete operator suite
 passes with the repository's bounded-worker
 command and includes 7 new RecordingPage contract tests (664 total); its
 production build also passes. The expanded EdgeRelay suite passes 48 tests.
@@ -67,7 +67,7 @@ device gap.
 | --- | --- | --- |
 | Sessions | `test_sessions_controller.py`; operator session persistence and SessionResourceContext suites | Add a live session/overview latency pair and retain exact full-versus-UI profile response identities. |
 | Cameras and pairing | `test_session_cameras_controller.py`; Filming camera/page suites; camera-mobile config, signaling, selection, and pairing-presentation suites. A deterministic production-route baseline now freezes PC HMAC token issue/resolve latency and semantic identities. | EdgeRelay and physical iOS/Android pairing, reconnect, certificate, and transport-mismatch recovery remain unavailable. |
-| Recording media and playback source | Recording controller tests cover original, synchronized, and preview media headers; byte ranges and exact `206`/`Content-Range` behavior; exact missing-file responses; adaptive headers, traversal rejection, file-scheme fallback, original/synced selection, preview precedence, HLS-ready/warmup paths, missing local media, and the `200` warning fallback after database or adaptive-preparation failures. Playback hooks, cache, timeline, and viewer suites cover browser orchestration. A real three-camera browser run captures cold preview startup, first decoded frame, and synchronized playback start. | Multi-camera seek readiness currently times out after 20 seconds and is retained as unavailable; cutting remains unmeasured. |
+| Recording media and playback source | Recording controller tests cover original, synchronized, and preview media headers; byte ranges and exact `206`/`Content-Range` behavior; exact missing-file responses; adaptive headers, traversal rejection, file-scheme fallback, original/synced selection, preview precedence, HLS-ready/warmup paths, missing local media, and the `200` warning fallback after database or adaptive-preparation failures. The expanded cut matrix freezes validation, normalization, exact task payloads, production ffmpeg defaults/commands, error propagation, and nonfatal metadata persistence. Playback hooks, cache, timeline, and viewer suites cover browser orchestration. A real three-camera browser run captures cold preview startup, first decoded frame, and synchronized playback start; a deterministic full-handler baseline captures warm three-camera transcoding, probing, persistence, progress, and preview enqueue with complete per-sample output identities and deployed-setting parity. | Multi-camera seek readiness currently times out after 20 seconds and is retained as unavailable; cold cutting and live database/worker cut orchestration remain unmeasured. |
 | Playback-session lifecycle | Ten focused route tests cover create validation, all-row and filtered selection, database ordering, distinct empty-result errors, signaling precedence/fallback, five offset aliases, direct/probed/zero duration, join tokens, stats, and repeated delete | The extraction is an early Phase 1 slice, not Phase 0 completion. Cold-cache and browser-consumer evidence remain unavailable. |
 | Resumable and multipart uploads | Recording controller tests cover required fields, sorted resume state, chunk index behavior, checksum conflict/mismatch, incomplete and missing chunks, partial-output retention, repeated completion/collision suffixes, post-assembly persistence failure, task enqueueing, imported signaling files, and finalize partial/all-failure behavior. A deterministic production-route baseline now captures server initialization/resume plus 16 MiB chunk-write and assembly/checksum throughput with exact output identity. | Physical Stop-to-upload-init and interrupted-network recovery remain unavailable; current permissive out-of-range index and repeated-completion behavior are frozen until separately changed. |
 | Capture sessions | Twenty-one focused tests cover start/create/reuse, no-active and stale-active behavior, owner-protected status/PATCH/stop/abort, unknown state and invalid snapshot normalization, repeatable abort, idempotent finalize, no-success and all-import-failed completion, empty-set cleanup, shared ingest, partial import, invalid session identity, and unexpected finalize errors | Add a true concurrent-finalize race test plus physical Stop-to-upload-init and interrupted-network validation. |
@@ -102,10 +102,12 @@ result, and fixed-fixture production triangulation. Browser evidence covers
 three-camera preview startup, first decoded frame, synchronized playback start,
 3D first usable render/timeline seek/playback start, and live calibration Plotly
 readiness. It does not cover database/operating-system cold state, reliable
-multi-camera recording seeking, cutting, pairing/control, physical upload,
+multi-camera recording seeking, live database/worker cutting, Edge control, physical upload,
 live export task dispatch, or full-pipeline worker execution. Deterministic PC upload
 route/filesystem behavior and production export writing/finalization are captured
-independently of the live database and configured export root. No Phase 0 physical
+independently of the live database and configured export root. The production
+cut handler is also captured with real three-camera ffmpeg processing and
+deterministic infrastructure adapters. No Phase 0 physical
 iPhone or Android run is recorded for pairing, preview, maximum-profile recording,
 asynchronous finalization, upload recovery, background/foreground behavior,
 Dynamic Type, or Android font scaling. A previously rebuilt client or older UI

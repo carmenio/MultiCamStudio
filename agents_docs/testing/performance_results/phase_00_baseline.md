@@ -288,6 +288,32 @@ are retained in the raw report. These are warm local relay lower bounds, not
 TLS/LAN, WebRTC, preview, device execution, or physical control evidence. Raw
 evidence is in `tools/performance/results/phase_00_signaling/`.
 
+## Recording-cut baseline
+
+The complete production `_cut_recording_set_task_handler` cut seconds 60
+through 65 from the three synchronized set-178 recordings using the backend
+container's ffmpeg binary, H.264 `veryfast`, and the production-default 96 kbps
+AAC audio setting. Deterministic adapters captured the exact persistence,
+progress, and preview-task contracts while all real media work remained active.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Three-camera five-second cut | Warm | 6,123.213 | 6,380.535 | 5,743.228 | 6,380.535 | 0 | 2.464 camera-seconds/s |
+
+The run used 3 warmups and 10 measurements at root commit
+`cad76dcd71564befdc93fd528437ddb3dbff12dd` and PC revision
+`5c9b9088476a9a6ae4fe6326642c928c87712a0a`. Every run produced 900
+frames across three five-second files and 7,414,032 output bytes. The complete
+media identity is
+`49750de69f7797f7a255ca26ff79ff5c61c8840aa80a8c7b4b33dc144e730ff9`;
+individual file sizes, hashes, frame counts, dimensions, and durations are in
+the raw report. The report passes the universal metadata/output self-gate and
+freezes the deployed public recording origin. The benchmark owns and removes
+only its verified scratch directories. This is warm local processing evidence
+and includes per-camera `docker exec` launch overhead; it is not cold-cut,
+browser seek readiness, or live database/worker evidence. Raw evidence is in
+`tools/performance/results/phase_00_recording_cut/`.
+
 ## Calibration viewer generation baseline
 
 The production database-backed renderer generated a self-contained Plotly HTML
@@ -368,7 +394,7 @@ Complete this table before Phase 1 structural changes resume.
 | Scenario | Cache | Fixture | Runs | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput | Hard limit |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
-| Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
+| Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651; five-second cut | 10 each | Preview, first frame, and synchronized start captured; cut 6,123.213 | Preview, first frame, and synchronized start captured; cut 6,380.535 | Captured | Captured | 0 | Cut 2.464 camera-seconds/s | Seek timed out; warm local cut captured; cold cut pending |
 | Pairing/control/upload | Warm local; physical devices pending | Fixed PC pairing, signaling relay, and 16 MiB/4-chunk upload fixtures | 10 each | Pair issue 0.279; resolve 0.284; canonical RTT 0.616; legacy RTT 0.548; upload init 2.019; chunk 58.605; completion 32.828 | Pair issue 0.360; resolve 0.333; canonical RTT 0.727; legacy RTT 1.166; upload init 2.438; chunk 67.493; completion 39.447 | Captured | Captured | 0 | Tokens/s, round trips/s, and upload bytes/s captured | Upload init < 5 s passed; Edge/physical evidence pending |
 | Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 589.459; solve 33,878.199; HTML 0.233; Plotly 848.624 | Preflight 678.601; solve 34,656.135; HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |

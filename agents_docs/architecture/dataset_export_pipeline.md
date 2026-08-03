@@ -12,7 +12,7 @@ The current page publishes its ordered recording-set selection to the shell. A p
 
 ## Range semantics
 
-The base is either the full common usable timeline or merged, clamped training segments. Enabled confidence qualification intersects the base. It considers confidence threshold, minimum duration, selected-point percentage, minimum 2D cameras, and tolerated present-but-low-quality frames. Missing source frame numbers always break continuity. For `two_d_3d`, the 2D and 3D qualifying sets are intersected and the 3D run must declare lineage to the chosen 2D variant.
+The base is either the full common usable timeline or merged, clamped training segments. Available frame numbers are intersected across every paired point source and synchronized-video frame counts before optional confidence qualification is applied. It considers confidence threshold, minimum duration, selected-point percentage, minimum 2D cameras, and tolerated present-but-low-quality frames. Missing source frame numbers always break continuity. For `two_d_3d`, the 2D and 3D qualifying sets are intersected and the 3D run must declare lineage to the chosen 2D variant. The reviewed range plan and probed media timing are included in the preflight fingerprint.
 
 ## Artifacts and failure behavior
 
@@ -22,7 +22,7 @@ Filtered video rendering requires `ffmpeg` on the backend container or host `PAT
 
 Each job writes inside a hidden temporary directory and atomically renames it on success. Cancellation or total failure removes only that temporary directory. A failed set is removed from the pending output while completed sets remain; the export result is `completed_with_warnings` unless no valid set was produced.
 
-`manifest.json`, `manifest.sha256`, per-set `schema.json`, and `frame_map.json` provide source lineage, point order, optional skeleton mapping, coordinate spaces, original/exported frame indices, artifact paths, shapes, warnings, and SHA-256 checksums. Artifacts remain in the configured PC/server root; there is no archive or download endpoint.
+`manifest.json`, `manifest.sha256`, per-set `schema.json`, and `frame_map.json` provide source lineage, point order, source or overridden skeleton mapping, coordinate spaces, original/exported frame indices, serialization-independent tensor shapes, artifact paths, warnings, and SHA-256 checksums. Artifacts remain in the configured PC/server root; there is no archive or download endpoint. Completed summaries are persisted separately from Activity task rows so clearing finished Activity items does not erase export history.
 
 ## Compatibility
 

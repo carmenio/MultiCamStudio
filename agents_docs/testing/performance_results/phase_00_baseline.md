@@ -245,6 +245,27 @@ The run used 3 warmups and 10 measurements at root commit
 construction lower bound, not database persistence or worker execution. Raw
 evidence is in `tools/performance/results/phase_00_pipeline_dispatch/`.
 
+## PC pairing-token baseline
+
+The production PC pairing routes ran through an in-process Flask adapter with
+fixed session/camera rows and the real HMAC-SHA256 token implementation. Issue
+cryptographically verifies each token and freezes normalized claims while
+excluding only volatile expiration/signature bytes. Resolve uses a pre-created
+valid token and freezes the complete response, including recording settings.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| PC pairing-token issue | Warm | 0.279 | 0.360 | 0.260 | 0.360 | 0 | 3,439 tokens/s |
+| PC pairing-token resolve | Warm | 0.284 | 0.333 | 0.262 | 0.333 | 0 | 3,407 tokens/s |
+
+Both scenarios used 3 warmups and 10 measurements at root commit
+`aa531623b0a92f06d12880d74c821c643851edae`. Normalized issue claims retained
+identity `c61c2901c77465676dda1f9209d3948c0d37db527c8a0beee3d97fd30f9c09e3`;
+the full resolve response retained identity
+`0a53d9c2aff7282ff45cb58bb76d143ebf657ea20ac56d4bd3cf8b62afe2d025`.
+This is a PC route/HMAC lower bound, not EdgeRelay, QR, TLS, WebRTC, or physical
+device evidence. Raw evidence is in `tools/performance/results/phase_00_pairing/`.
+
 ## Calibration viewer generation baseline
 
 The production database-backed renderer generated a self-contained Plotly HTML
@@ -326,7 +347,7 @@ Complete this table before Phase 1 structural changes resume.
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
-| Pairing/control/upload | Warm server route; physical devices pending | Fixed 16 MiB/4-chunk PC fixture | 10 each | Server init 2.019; resume 0.511; chunk write 58.605; completion 32.828 | Server init 2.438; resume 0.665; chunk write 67.493; completion 39.447 | Captured | Captured | 0 | Chunk 277,664,628 bytes/s; completion 493,783,883 bytes/s | Server init < 5 s passed; physical Stop-to-init pending |
+| Pairing/control/upload | Warm server route; physical devices pending | Fixed PC pairing and 16 MiB/4-chunk upload fixtures | 10 each | Pair issue 0.279; resolve 0.284; upload init 2.019; resume 0.511; chunk 58.605; completion 32.828 | Pair issue 0.360; resolve 0.333; upload init 2.438; resume 0.665; chunk 67.493; completion 39.447 | Captured | Captured | 0 | Token/s and upload bytes/s captured | Upload init < 5 s passed; Edge/physical evidence pending |
 | Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 589.459; solve 33,878.199; HTML 0.233; Plotly 848.624 | Preflight 678.601; solve 34,656.135; HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,904.354; seek 32.575; playback 29.002; processing 4,310.144 | Render 7,329.336; seek 32.770; playback 31.417; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Relative gate |

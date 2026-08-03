@@ -161,6 +161,18 @@ python -m tools.performance.phase_00_pipeline_dispatch_baseline
 The fixed request dispatches all five stages for ten sets. It is a route and
 task-construction lower bound; it does not measure database latency or workers.
 
+PC pairing-token issue and resolve use the production controller and HMAC token
+service with fixed camera/session adapters:
+
+```powershell
+python -m tools.performance.phase_00_pairing_baseline
+```
+
+The issue identity excludes only the volatile token expiration/signature after
+cryptographic verification. Resolve freezes the complete response. These are
+in-process server lower bounds, not EdgeRelay, QR, network, WebRTC, or device
+measurements.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

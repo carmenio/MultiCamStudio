@@ -14,7 +14,8 @@
     "test:laptop": "npm --prefix laptop run test:signaling && npm --prefix laptop run test:operator",
     "benchmark:export-planning": "python -m tools.performance.phase_00_export_planning_baseline",
     "benchmark:export-writing": "python -m tools.performance.phase_00_export_writing_baseline",
-    "benchmark:detection-processing": "python -m tools.performance.phase_00_detection_processing_baseline"
+    "benchmark:detection-processing": "python -m tools.performance.phase_00_detection_processing_baseline",
+    "benchmark:triangulation-processing": "python -m tools.performance.phase_00_triangulation_processing_baseline"
   },
   "private": true
 }

@@ -41,6 +41,12 @@ The untouched baseline was:
 - EdgeRelay: 43 passed.
 - Camera mobile: 53 passed; type-check and native-patch validation passed.
 
+After adding characterization coverage, the complete backend suite passes 537
+tests. The complete operator suite passes with the repository's bounded-worker
+command and includes 7 new RecordingPage contract tests (664 total); its
+production build also passes. Existing React `act(...)`, duplicate-key,
+missing-Expo-base-config, and large-chunk warnings remain baseline noise.
+
 One high-severity npm advisory is present in the signaling dependency tree. It is
 not changed in this refactor because an upgrade requires a separate compatibility
 and security review.

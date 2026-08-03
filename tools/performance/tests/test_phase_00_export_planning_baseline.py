@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_export_planning_baseline import (
     ExportPlanningConfig,
     JsonResponse,
@@ -55,6 +56,12 @@ class ExportPlanningBaselineTests(unittest.TestCase):
         self.assertEqual(outcome["result"].measured_runs, 10)
         self.assertEqual(saved["results"][0]["failure_count"], 0)
         self.assertEqual(saved["metadata"]["preflight_hash"], "reviewed-hash")
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
+        self.assertEqual(saved["metadata"]["camera_count"], 3)
+        self.assertEqual(len(saved["metadata"]["recording_duration_seconds"]), 3)
+        self.assertEqual(len(saved["metadata"]["media_sizes_bytes"]), 3)
 
     def test_semantic_identity_excludes_only_volatile_free_space(self) -> None:
         first = {

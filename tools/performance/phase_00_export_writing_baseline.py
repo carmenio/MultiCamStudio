@@ -22,6 +22,7 @@ from tools.performance import (
     write_report,
 )
 from tools.performance.phase_00_live_baseline import (
+    _command_version,
     _commit_identity,
     _repository_revision,
 )
@@ -42,6 +43,7 @@ WARMUP_RUNS = 3
 MEASURED_RUNS = 5
 FRAME_COUNT = 1_800
 POINT_COUNT = 33
+CAMERA_COUNT = 3
 FPS = 30.0
 SESSION_ID = 9_001
 RECORDING_SET_ID = 9_002
@@ -319,7 +321,7 @@ def build_export_writing_baseline(
                 config.frame_count, config.point_count, camera_index, config.fps
             ),
         }
-        for camera_index in range(3)
+        for camera_index in range(CAMERA_COUNT)
     ]
     specification = _specification(config.point_count)
     with tempfile.TemporaryDirectory(prefix="mcs-export-writing-benchmark-") as temporary:
@@ -354,16 +356,22 @@ def build_export_writing_baseline(
             },
             "platform": platform.platform(),
             "python": platform.python_version(),
+            "node": _command_version(["node", "--version"]),
             "dependency_versions": {"numpy": np.__version__},
             "hardware": HARDWARE,
             "power_mode": POWER_MODE,
             "network_route": "none; in-process production coordinator",
             "database_snapshot": "fixed in-memory adapters; no live database reads or writes",
             "build_mode": "local Python production modules",
+            "compose_configuration": "not used; in-process local source benchmark",
+            "service_images": {"backend": "local source; no container"},
             "cache_preparation": "prior output removed outside timing; three warm-up exports",
+            "camera_count": CAMERA_COUNT,
+            "recording_duration_seconds": config.frame_count / config.fps,
+            "media_sizes_bytes": [],
             "fixture": {
                 "recipe": "two_d_3d",
-                "camera_count": 3,
+                "camera_count": CAMERA_COUNT,
                 "frame_count": config.frame_count,
                 "point_count": config.point_count,
                 "fps": config.fps,

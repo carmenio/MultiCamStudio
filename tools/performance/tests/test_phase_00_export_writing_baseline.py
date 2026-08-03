@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_export_writing_baseline import (
     ExportWritingConfig,
     build_export_writing_baseline,
@@ -34,6 +35,12 @@ class ExportWritingBaselineTests(unittest.TestCase):
         self.assertGreater(result.throughput_per_second or 0, 0)
         self.assertEqual(saved["metadata"]["fixture"]["frame_count"], 3)
         self.assertEqual(len(saved["metadata"]["expected_output_identity"]), 64)
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
+        self.assertEqual(saved["metadata"]["camera_count"], 3)
+        self.assertEqual(saved["metadata"]["recording_duration_seconds"], 0.1)
+        self.assertEqual(saved["metadata"]["media_sizes_bytes"], [])
 
     def test_fixture_output_is_identical_across_independent_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

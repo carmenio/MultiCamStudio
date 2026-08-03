@@ -14,6 +14,13 @@ from urllib.request import Request, urlopen
 
 from tools.performance import BenchmarkRunner, BenchmarkScenario, write_report
 from tools.performance.phase_00_live_baseline import (
+    CAMERA_COUNT,
+    COMPOSE_CONFIGURATION,
+    DEPENDENCY_VERSIONS,
+    MEDIA_SIZES_BYTES,
+    RECORDING_DURATION_SECONDS,
+    SERVICE_IMAGES,
+    _command_version,
     _commit_identity,
     _repository_revision,
 )
@@ -191,12 +198,19 @@ def build_export_planning_baseline(
         },
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
+        "dependency_versions": DEPENDENCY_VERSIONS,
         "hardware": HARDWARE,
         "power_mode": POWER_MODE,
         "database_snapshot": DATABASE_SNAPSHOT,
         "network_route": config.preflight_url,
         "build_mode": "bind-mounted Docker backend",
+        "compose_configuration": COMPOSE_CONFIGURATION,
+        "service_images": SERVICE_IMAGES,
         "cache_preparation": "same live database snapshot; three warm-up preflights",
+        "camera_count": CAMERA_COUNT,
+        "recording_duration_seconds": RECORDING_DURATION_SECONDS,
+        "media_sizes_bytes": MEDIA_SIZES_BYTES,
         "fixture": config.specification,
         "expected_output_identity": operation.identity,
         "preflight_hash": operation.preflight_hash,

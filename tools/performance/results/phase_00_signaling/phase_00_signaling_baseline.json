@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T13:27:07.788Z",
+  "metadata": {
+    "commit": "19434c97e4d6519b69f1db1becd3dfbaa673509c",
+    "source_revisions": {
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "win32-x64",
+    "node": "v24.11.1",
+    "dependency_versions": {
+      "ws": "8.19.0"
+    },
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "unencrypted loopback WebSocket to one production relay process",
+    "database_snapshot": "none",
+    "build_mode": "production Node entrypoint; no transpilation",
+    "cache_preparation": "one warm server process and three warmups per scenario",
+    "fixture": {
+      "room_id": "phase-00-signaling-room",
+      "device_id": "phase-00-camera"
+    },
+    "expected_output_identity": {
+      "viewer_ready": "b393995fb31d7619db4158c3523da9cfd7af5d5ee15f2189b3c2175789edd61c",
+      "canonical_device_hello": "abdef813e0fd636b0da1617eb97f4ac6457244b36bfecc9dd7685fc9738f4854",
+      "canonical_device_status": "73dacd378facf5e299e8a0077db66286f7ed119dc7a01011b963b6caf39e671f",
+      "legacy_request_device_info": "4c39aed5c143f03d114209f508d6b8910cef8fd038b7057f216916f8b692db83",
+      "legacy_device_info": "5b0683b63cc965fa5d88f74f7917b58b895bbccd6751fe62badcaffd0e8b33e8"
+    },
+    "evidence_scope": "Warm loopback signaling-relay lower bound only; excludes physical devices, network routing, WebRTC negotiation, media readiness, and camera behavior.",
+    "server_entrypoint": "laptop/services/signaling/server.js",
+    "transport": "unencrypted loopback WebSocket using deliberately nonexistent certificate paths",
+    "warmup_runs": 3,
+    "measured_runs": 10
+  },
+  "results": [
+    {
+      "name": "signaling_receiver_connection_to_viewer_ready",
+      "cache_state": "warm",
+      "samples_ms": [
+        1.79,
+        2.098,
+        1.843,
+        2.353,
+        2.42,
+        2.309,
+        2.187,
+        2.027,
+        2.179,
+        1.857
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 2.138,
+      "p50_ms": 2.138,
+      "p95_ms": 2.42,
+      "minimum_ms": 1.79,
+      "maximum_ms": 2.42,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "unit_name": "connections_ready",
+      "throughput_per_second": 474.76617765750376
+    },
+    {
+      "name": "signaling_canonical_control_round_trip",
+      "cache_state": "warm",
+      "samples_ms": [
+        0.652,
+        0.623,
+        0.482,
+        0.531,
+        0.692,
+        0.649,
+        0.727,
+        0.608,
+        0.598,
+        0.6
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 0.616,
+      "p50_ms": 0.616,
+      "p95_ms": 0.727,
+      "minimum_ms": 0.482,
+      "maximum_ms": 0.727,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "unit_name": "round_trips",
+      "throughput_per_second": 1622.8497241155471
+    },
+    {
+      "name": "signaling_legacy_control_round_trip",
+      "cache_state": "warm",
+      "samples_ms": [
+        0.551,
+        0.545,
+        0.557,
+        0.51,
+        1.166,
+        0.596,
+        0.483,
+        0.448,
+        0.551,
+        0.511
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 0.548,
+      "p50_ms": 0.548,
+      "p95_ms": 1.166,
+      "minimum_ms": 0.448,
+      "maximum_ms": 1.166,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "unit_name": "round_trips",
+      "throughput_per_second": 1689.7600540723215
+    }
+  ],
+  "unavailable": []
+}

@@ -4,7 +4,8 @@
 
 The reusable benchmark and comparison infrastructure is implemented and tested.
 A first read-only live baseline is committed for the locally available PC and
-laptop stack, including a production browser baseline. Stateful jobs, true
+laptop stack, including a production browser baseline. Deterministic production
+export writing and atomic finalization are also captured. Other stateful jobs, true
 database cold-cache preparation, media-element playback timing, and the physical
 device matrix remain missing. Backend service-cold session retrieval and several
 media-element timings are now captured; therefore Phase 0 is still **incomplete**.
@@ -107,6 +108,30 @@ identity `ff6712d285c531b97919d0f9c30fb881b68ad54130fff56ba2cd2630833be461`
 and review hash `bcdcea8bd9fa313d4b4c895d576852a6cc7e6b81f7853aa255483f46bc3ad8b5`.
 Raw evidence is in `tools/performance/results/phase_00_export_planning/`.
 
+## Dataset export writing and finalization baseline
+
+The writing runner uses the real `DatasetExportCoordinator` and
+`DatasetExportWriter` with fixed in-memory persistence adapters. Its reviewed
+fixture contains three 2D cameras plus one 3D result, 1,800 frames at 30 fps,
+33 points, and NPY, CSV, and JSONL output. Preflight and prior-output cleanup are
+outside the timed interval. Each sample includes artifact construction,
+production SHA-256 calculation, frame-map and schema writing, manifest creation,
+and atomic directory finalization.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Export writing and atomic finalization | Warm | 3,108.076 | 3,157.991 | 2,969.702 | 3,157.991 | 0 | 12,787,583 bytes/s |
+
+The approved long-workflow run used 3 warmups and 5 measurements at root commit
+`f56373e64739a29ee12a16412059d757693b6fc4` and PC revision
+`ff2fad2cd05c9dc03743719214fd938d8cd8cbcf`. Every run produced 14 artifacts
+and 39,288,534 artifact bytes with semantic identity
+`96889e6aff65f4d037d88ad4e021d8d46a9cf69efabeae289c4e9706d03edfc9`.
+The identity covers production artifact checksums and stable completion fields;
+final manifest integrity is verified separately because its creation timestamp
+is intentionally volatile. Raw evidence is in
+`tools/performance/results/phase_00_export_writing/`.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -157,7 +182,7 @@ Complete this table before Phase 1 structural changes resume.
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Set 178, raw:1053, recordings 649-651 | 10 each | Summary and three segment cases captured | Summary and three segment cases captured | Captured | Captured | 0 | Segment bytes/s captured | Summary/segment < 500 ms passed; post-processing pending |
 | Triangulation/3D readiness | Warm | Set 178, run 100 | 10 | Metadata/status/result retrieval captured | Metadata/status/result retrieval captured | Captured | Captured | 0 | Result bytes/s captured | Processing and browser 3D readiness pending |
-| Export planning/finalization | Warm | Session 49, set 178, triangulation run 100 | 10 | Planning 3,967.282; finalization pending | Planning 4,670.150; finalization pending | Planning 3,683.326 | Planning 4,670.150 | 0 | Artifact writing pending | Relative gate |
+| Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |
 
 ## Rollback
 

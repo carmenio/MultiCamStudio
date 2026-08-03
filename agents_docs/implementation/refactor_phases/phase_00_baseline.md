@@ -73,7 +73,7 @@ device gap.
 | Calibration | Controller, database, generator, service, viewer, and viewer-renderer suites; Calibration page/component/flow suites | Add controlled preflight, fixed-fixture batch processing, status, and viewer-generation baselines plus a live rendered-viewer equivalence capture. |
 | Point detection and post-processing | Controller, catalog database, result persistence, service, post-processing pipeline, segmenter, API, scheduler, hydration, page, sidebar, and toolbar suites | Add controlled summary, first-window, uncached-seek, sequential-window, segment-generation, and post-processing baselines. Live overlay equivalence is not Phase 0 evidence. |
 | Triangulation and 3D | Controller, service, database, API, page, viewer, and training-timeline suites cover mapping, variant resolution, diagnostics, audit, runs, results, assignments, and training transitions | Add result-not-found and remaining training/reference-media error shapes, fixed-fixture output identity, camera-transform/render equivalence, first usable render, playback-start, and seek baselines. |
-| Dataset exports | The 17-test controller suite plus planner, coordinator, writer, history, service, and ExportWizard suites cover reviewed specifications, explicit sources, mappings, missing sources, history, and synchronous compatibility. Exact route contracts now include validation and unexpected preflight errors, missing task service, stale reviews, zero eligible sets, and numeric/opaque missing-job lookups. A production preflight baseline captures an eligible fixed-source plan with stable semantic and review hashes. | Add writing-throughput and atomic-finalization baselines. |
+| Dataset exports | The 17-test controller suite plus planner, coordinator, writer, history, service, and ExportWizard suites cover reviewed specifications, explicit sources, mappings, missing sources, history, and synchronous compatibility. Exact route contracts now include validation and unexpected preflight errors, missing task service, stale reviews, zero eligible sets, and numeric/opaque missing-job lookups. A production preflight baseline captures an eligible fixed-source plan with stable semantic and review hashes. A separate fixed three-camera `two_d_3d` baseline exercises production artifact writing, checksums, manifest integrity, and atomic finalization across five measured exports with stable output identity. | Live server-side export task dispatch and history polling remain uncaptured; writer/finalization throughput is now frozen. |
 | All-tab pipeline and task queue | All-tab controller/overview and worker-boot/task-normalization suites | Add full enabled-stage ordering and payload characterization, partial-stage failure, invalid selection, task cancel-request behavior, and live orchestration timing. |
 
 Seven focused RecordingPage contract tests additionally freeze visible-order
@@ -97,7 +97,9 @@ triangulation metadata/status, and retrieval of a 35,815,719-byte triangulation
 result. Browser evidence covers three-camera preview startup, first decoded frame,
 and synchronized playback start. They do not cover database/operating-system cold
 state, successful multi-camera seeking, cutting, stateful processing, pairing/control,
-upload, export, or full-pipeline dispatch. No Phase 0 physical
+upload, live export task dispatch, or full-pipeline dispatch. Deterministic
+production export writing/finalization is captured independently of the live
+database and configured export root. No Phase 0 physical
 iPhone or Android run is recorded for pairing, preview, maximum-profile recording,
 asynchronous finalization, upload recovery, background/foreground behavior,
 Dynamic Type, or Android font scaling. A previously rebuilt client or older UI

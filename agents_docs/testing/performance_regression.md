@@ -38,8 +38,10 @@ node tools/performance/browser/phase_00_browser_baseline.mjs
 It builds the operator web with the configured direct-PC origin, launches a
 headed Chrome process with an isolated temporary profile, records semantic DOM
 readiness after two animation frames, and cleans up only that isolated profile.
-Media and WebGL scenarios stay unavailable until exact fixture selectors are
-configured; shell readiness is not first-video-frame or first-3D-render evidence.
+The fixed recording-set fixture captures preview startup, first decoded frame,
+and synchronized playback start. Multi-camera seek and WebGL readiness remain
+unavailable until their exact readiness conditions succeed; shell readiness is
+not first-video-frame or first-3D-render evidence.
 
 The backend service-cold runner is intentionally separate because it performs a
 controlled Compose restart before every sample:
@@ -63,6 +65,20 @@ Its fixture is configured at the top of the module. The semantic identity
 excludes only destination free space, which can change between consecutive
 requests without changing the reviewed export plan. Running an export job is
 not part of this command.
+
+Dataset writing and atomic finalization use the production coordinator with a
+fixed three-camera `two_d_3d` fixture and in-memory persistence adapters:
+
+```powershell
+python -m tools.performance.phase_00_export_writing_baseline
+```
+
+The runner freezes the reviewed preflight before timing because planning has a
+separate baseline. Each sample writes NPY, CSV, and JSONL artifacts, computes
+the production checksums, writes the schema and frame map, creates the manifest,
+and atomically finalizes the directory. Prior-output cleanup and post-run
+manifest verification occur outside the timed interval. All files are confined
+to a dedicated temporary directory and removed when the command exits.
 
 ## Controlled environment
 

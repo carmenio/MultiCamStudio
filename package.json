@@ -11,7 +11,9 @@
     "laptop:logs": "npm --prefix laptop run logs",
     "laptop:build": "npm --prefix laptop run build",
     "test:pc": "npm --prefix pc run test:backend",
-    "test:laptop": "npm --prefix laptop run test:signaling && npm --prefix laptop run test:operator"
+    "test:laptop": "npm --prefix laptop run test:signaling && npm --prefix laptop run test:operator",
+    "benchmark:export-planning": "python -m tools.performance.phase_00_export_planning_baseline",
+    "benchmark:export-writing": "python -m tools.performance.phase_00_export_writing_baseline"
   },
   "private": true
 }

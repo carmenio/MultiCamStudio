@@ -99,6 +99,19 @@ be defects but cannot be silently changed inside structural commits:
   not during ffmpeg or persistence. Rollback removes partial media and persisted
   cut rows, but timing updates may already exist and an already-enqueued
   `build_recording_preview` task remains queued rather than being canceled.
+- Recording-upload and preview-build handlers never poll running cancellation
+  requests, so a requested cancel does not interrupt those handlers.
+- Calibration cancellation after solver output persists the run as `error` and
+  retains generated TOML/YAML. A still-later request can mark the batch canceled
+  while leaving a completed run, viewer URL, canonical camera saves, and solver
+  artifacts intact.
+- Point-detection and post-processing cancellation retains artifacts or ordered
+  checkpoints completed before the next boundary; later stages do not erase
+  earlier canonical checkpoints.
+- Triangulation's post-build cancellation check discards an otherwise complete
+  result before persistence. Export removes partial artifacts at its observed
+  boundaries, but a request arriving only after the final check does not stop
+  atomic finalization.
 
 The focused route tests intentionally freeze these results. Any correction needs
 an explicit compatibility decision and tests for the new response and recovery

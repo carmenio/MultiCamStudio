@@ -1,20 +1,40 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T11:40:59.474455+00:00",
+  "created_at_utc": "2026-08-03T14:14:13.594889+00:00",
   "metadata": {
-    "commit": "0bfb136feebc68b5706e505e73c6c5098bc298ac",
+    "commit": "de9b1c2630a9a9d8d27f5e4a4abf00d2b19b7888",
     "source_revisions": {
-      "pc": "afd9acb47ae424beadb8dd7ea54dab0c4b961343",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "24eef3ed5f4f1d0cc3795484f8d631278f2ff39b",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
+    "dependency_versions": {
+      "backend": "tools/performance/environments/phase_01_backend_pip_freeze.txt",
+      "operator_lockfile": "laptop/package-lock.json"
+    },
     "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
     "power_mode": "Balanced",
     "database_snapshot": "live fixture observed 2026-08-03; session 49; recording set 178",
     "network_route": "https://127.0.0.1:5000/api/exports/preflight",
     "build_mode": "bind-mounted Docker backend",
+    "compose_configuration": "3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251",
+    "service_images": {
+      "backend": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
+    },
     "cache_preparation": "same live database snapshot; three warm-up preflights",
+    "camera_count": 3,
+    "recording_duration_seconds": [
+      196.1,
+      195.8,
+      195.766666666667
+    ],
+    "media_sizes_bytes": [
+      450821959,
+      445290517,
+      448855126
+    ],
     "fixture": {
       "recipe": "three_d_only",
       "sets": [
@@ -50,16 +70,16 @@
       "name": "dataset_export_preflight",
       "cache_state": "warm",
       "samples_ms": [
-        4621.5614000102505,
-        4670.15049996553,
-        4258.390199975111,
-        4262.029799981974,
-        4031.0152000165544,
-        3689.364599995315,
-        3878.680700028781,
-        3793.04509999929,
-        3683.326099999249,
-        3903.5482999752276
+        3424.4185999850743,
+        3396.6619000420906,
+        3525.442700018175,
+        3335.027299996,
+        3395.523100043647,
+        3596.0469999699853,
+        3324.01869999012,
+        3420.0729000149295,
+        3575.936699984595,
+        3341.1176999798045
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -70,11 +90,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 3967.281749995891,
-      "p50_ms": 3967.281749995891,
-      "p95_ms": 4670.15049996553,
-      "minimum_ms": 3683.326099999249,
-      "maximum_ms": 4670.15049996553,
+      "median_ms": 3408.36740002851,
+      "p50_ms": 3408.36740002851,
+      "p95_ms": 3596.0469999699853,
+      "minimum_ms": 3324.01869999012,
+      "maximum_ms": 3596.0469999699853,
       "work_units": [],
       "unit_name": null,
       "throughput_per_second": null

@@ -16,6 +16,8 @@ const OPERATOR_ORIGIN = 'http://127.0.0.1:4173'
 const PREVIEW_PORT = 4173
 const DEBUG_PORT = 9223
 const SESSION_ID = '49'
+const RECORDING_SET_ID = '178'
+const EXPECTED_CAMERA_COUNT = 3
 const WARMUP_RUNS = 3
 const MEASURED_RUNS = 10
 const READINESS_TIMEOUT_MS = 20_000
@@ -156,6 +158,117 @@ async function measureRecordingNavigation(client) {
   return performance.now() - startedAt
 }
 
+async function openFixtureRecordingSet(client, cacheState = 'warm') {
+  await client.send('Network.setCacheDisabled', { cacheDisabled: cacheState === 'cold' })
+  if (cacheState === 'cold') await client.send('Network.clearBrowserCache')
+  await navigate(client, OPERATOR_ORIGIN)
+  await waitForUsableShell(client)
+  const clicked = await evaluate(client, `(() => {
+    const button = [...document.querySelectorAll('nav[aria-label="Primary"] button')]
+      .find(item => item.textContent?.trim() === 'Recordings')
+    if (!button) return false
+    button.click()
+    return true
+  })()`)
+  if (!clicked) throw new Error('Recordings navigation button was not found')
+  await waitFor(
+    async () => Boolean(await evaluate(client, "Boolean(document.querySelector('main.recording-page .recording-set-grid'))")),
+    READINESS_TIMEOUT_MS,
+  )
+  const cardIndex = await evaluate(client, `(async () => {
+    const response = await fetch('https://127.0.0.1:5000/api/sessions-info?profile=ui')
+    const payload = await response.json()
+    const summaries = payload?.data?.[${JSON.stringify(SESSION_ID)}]?.Recording_Set_Summaries ?? {}
+    return Object.entries(summaries)
+      .sort((left, right) => Date.parse(right[1]?.created_at ?? '') - Date.parse(left[1]?.created_at ?? ''))
+      .findIndex(([id]) => id === ${JSON.stringify(RECORDING_SET_ID)})
+  })()`, true)
+  if (!Number.isInteger(cardIndex) || cardIndex < 0) {
+    throw new Error(`Recording set ${RECORDING_SET_ID} was not found in the controlled session`)
+  }
+  const startedAt = performance.now()
+  const opened = await evaluate(client, `(() => {
+    const card = document.querySelectorAll('.recording-set-card')[${cardIndex}]
+    if (!card) return false
+    card.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }))
+    return true
+  })()`)
+  if (!opened) throw new Error(`Recording set card index ${cardIndex} was not rendered`)
+  await waitFor(
+    async () => Boolean(await evaluate(client, `(() => {
+      const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
+      return videos.length === ${EXPECTED_CAMERA_COUNT} &&
+        videos.every(video => video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+    })()`)),
+    READINESS_TIMEOUT_MS,
+  )
+  return performance.now() - startedAt
+}
+
+async function measureRecordingPreviewStartup(client, cacheState) {
+  return openFixtureRecordingSet(client, cacheState)
+}
+
+async function measureRecordingFirstFrame(client) {
+  await openFixtureRecordingSet(client, 'warm')
+  return evaluate(client, `new Promise((resolve, reject) => {
+    const video = document.querySelector('section.recording-set-open video.recording-tile-video')
+    if (!video) return reject(new Error('primary recording video is missing'))
+    const startedAt = performance.now()
+    const timeout = setTimeout(() => reject(new Error('first video frame timed out')), ${READINESS_TIMEOUT_MS})
+    const finish = () => {
+      clearTimeout(timeout)
+      video.pause()
+      resolve(performance.now() - startedAt)
+    }
+    if (typeof video.requestVideoFrameCallback === 'function') video.requestVideoFrameCallback(finish)
+    else video.addEventListener('playing', finish, { once: true })
+    video.play().catch(reject)
+  })`, true)
+}
+
+async function measureRecordingSeekReadiness(client) {
+  await openFixtureRecordingSet(client, 'warm')
+  return evaluate(client, `new Promise((resolve, reject) => {
+    const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
+    if (videos.length !== ${EXPECTED_CAMERA_COUNT}) return reject(new Error('recording videos are missing'))
+    const startedAt = performance.now()
+    const timeout = setTimeout(() => reject(new Error('recording seek timed out')), ${READINESS_TIMEOUT_MS})
+    Promise.all(videos.map(video => new Promise((resolveVideo, rejectVideo) => {
+      video.addEventListener('seeked', resolveVideo, { once: true })
+      video.addEventListener('error', rejectVideo, { once: true })
+      video.currentTime = 10
+    }))).then(() => {
+      clearTimeout(timeout)
+      resolve(performance.now() - startedAt)
+    }, reject)
+  })`, true)
+}
+
+async function measureSynchronizedPlaybackStart(client) {
+  await openFixtureRecordingSet(client, 'warm')
+  return evaluate(client, `new Promise((resolve, reject) => {
+    const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
+    const playButton = [...document.querySelectorAll('footer button')]
+      .find(button => button.textContent?.trim() === 'Play')
+    if (videos.length !== ${EXPECTED_CAMERA_COUNT} || !playButton) {
+      return reject(new Error('synchronized playback controls are missing'))
+    }
+    const startedAt = performance.now()
+    const timeout = setTimeout(() => reject(new Error('synchronized playback timed out')), ${READINESS_TIMEOUT_MS})
+    const frames = videos.map(video => new Promise(resolveVideo => {
+      if (typeof video.requestVideoFrameCallback === 'function') video.requestVideoFrameCallback(resolveVideo)
+      else video.addEventListener('playing', resolveVideo, { once: true })
+    }))
+    playButton.click()
+    Promise.all(frames).then(() => {
+      clearTimeout(timeout)
+      videos.forEach(video => video.pause())
+      resolve(performance.now() - startedAt)
+    }, reject)
+  })`, true)
+}
+
 async function measureScenario(client, operation) {
   for (let index = 0; index < WARMUP_RUNS; index += 1) await operation(client)
   const samples = []
@@ -218,6 +331,7 @@ async function run() {
       `--user-data-dir=${profileDirectory}`,
       `--remote-debugging-port=${DEBUG_PORT}`,
       '--ignore-certificate-errors',
+      '--autoplay-policy=no-user-gesture-required',
       '--no-first-run',
       '--disable-default-apps',
       '--window-size=1440,1000',
@@ -245,13 +359,29 @@ async function run() {
         'warm',
         await measureScenario(client, measureRecordingNavigation),
       ),
+      completeResult(
+        'recording_preview_startup',
+        'cold',
+        await measureScenario(client, (activeClient) => measureRecordingPreviewStartup(activeClient, 'cold')),
+      ),
+      completeResult(
+        'recording_first_frame',
+        'warm',
+        await measureScenario(client, measureRecordingFirstFrame),
+      ),
+      completeResult(
+        'recording_seek_readiness',
+        'warm',
+        await measureScenario(client, measureRecordingSeekReadiness),
+      ),
+      completeResult(
+        'recording_synchronized_playback_start',
+        'warm',
+        await measureScenario(client, measureSynchronizedPlaybackStart),
+      ),
     ]
     const outputIdentity = await captureOutputIdentity(client)
     const unavailable = [
-      'recording_preview_startup',
-      'recording_first_frame',
-      'recording_seek_readiness',
-      'recording_synchronization',
       'three_d_first_usable_render',
     ].map((name) => ({
       name,
@@ -289,6 +419,7 @@ async function run() {
         origin: OPERATOR_ORIGIN,
         viewport: [1440, 1000],
         session_id: SESSION_ID,
+        recording_set_id: RECORDING_SET_ID,
         warmup_runs: WARMUP_RUNS,
         measured_runs: MEASURED_RUNS,
         isolated_profile: true,

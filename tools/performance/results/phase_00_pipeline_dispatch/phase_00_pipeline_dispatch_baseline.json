@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T13:10:58.913568+00:00",
+  "created_at_utc": "2026-08-03T14:01:28.104279+00:00",
   "metadata": {
-    "commit": "eff3343b3cecb7183beaf88a460c4f2ae92db63c",
+    "commit": "0de6323ae1ade5182a43f13467f94bb79c3624a2",
     "source_revisions": {
-      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "52b9c4f528311a885be8a1bff67d16bb6e932639",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "flask": "3.0.2"
     },
@@ -17,6 +18,10 @@
     "network_route": "none; in-process production Flask route",
     "database_snapshot": "fixed injected adapters; no database access",
     "build_mode": "local Python production controller",
+    "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "adapters reset before every sample",
     "fixture": {
       "session_id": 49,
@@ -25,6 +30,9 @@
       "expected_tasks_per_run": 50
     },
     "expected_output_identity": "02058072ab6f3f7f6274f6ea4e7ff5a4102e3a50e3ac17a9954f9da2023efe06",
+    "camera_count": 0,
+    "recording_duration_seconds": 0,
+    "media_sizes_bytes": [],
     "side_effects": "in-memory adapters only; no workers, database, or filesystem",
     "evidence_scope": "pipeline route validation and task-chain construction lower bound; not worker execution"
   },
@@ -33,16 +41,16 @@
       "name": "all_page_five_stage_pipeline_dispatch",
       "cache_state": "warm",
       "samples_ms": [
-        0.963800004683435,
-        0.9615000453777611,
-        0.8886000141501427,
-        0.9145999792963266,
-        0.8012999896891415,
-        0.7386000361293554,
-        0.7246999884955585,
-        0.729600025806576,
-        0.7701999857090414,
-        0.7454000297002494
+        0.47849997645244,
+        0.5561999860219657,
+        0.5421999958343804,
+        0.687299994751811,
+        0.8466000435873866,
+        0.9151999838650227,
+        0.6585000082850456,
+        0.63699996098876,
+        0.5906999576836824,
+        0.5970000056549907
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -53,11 +61,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 0.7857499876990914,
-      "p50_ms": 0.7857499876990914,
-      "p95_ms": 0.963800004683435,
-      "minimum_ms": 0.7246999884955585,
-      "maximum_ms": 0.963800004683435,
+      "median_ms": 0.6169999833218753,
+      "p50_ms": 0.6169999833218753,
+      "p95_ms": 0.9151999838650227,
+      "minimum_ms": 0.47849997645244,
+      "maximum_ms": 0.9151999838650227,
       "work_units": [
         50.0,
         50.0,
@@ -71,7 +79,7 @@
         50.0
       ],
       "unit_name": "tasks_dispatched",
-      "throughput_per_second": 60692.132356092596
+      "throughput_per_second": 76814.3560918715
     }
   ]
 }

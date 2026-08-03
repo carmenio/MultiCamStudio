@@ -33,8 +33,11 @@ const CALIBRATION_ID = String(BROWSER_BENCHMARK_FIXTURE.calibrationId)
 const TRIANGULATION_RUN_ID = String(BROWSER_BENCHMARK_FIXTURE.triangulationRunId)
 const TRIANGULATION_MAX_FRAME = BROWSER_BENCHMARK_FIXTURE.triangulationMaxFrame
 const EXPECTED_CAMERA_COUNT = FIXTURE_PROVENANCE.camera_count
-const WARMUP_RUNS = 3
-const MEASURED_RUNS = 10
+// Browser/GPU/media caches need more than the universal minimum to converge
+// across isolated Chrome processes. Twenty samples also keep nearest-rank p95
+// from degenerating to the single maximum observed value.
+const WARMUP_RUNS = 10
+const MEASURED_RUNS = 20
 const READINESS_TIMEOUT_MS = 20_000
 const CHROME_PATH = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 const OUTPUT_PATH = join(

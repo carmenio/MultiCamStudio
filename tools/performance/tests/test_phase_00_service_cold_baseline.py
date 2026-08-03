@@ -7,6 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.performance import compare_report_files
+from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS
 from tools.performance.phase_00_live_baseline import ReadOnlyResponse
 from tools.performance.phase_00_service_cold_baseline import (
     ServiceColdConfig,
@@ -60,6 +62,7 @@ class ServiceColdBaselineTests(unittest.TestCase):
                 restarter=restarter,
             )
             saved = json.loads(output.read_text(encoding="utf-8"))
+            self_gate_passed = compare_report_files(output, output).passed
 
         self.assertEqual(restarter.calls, 13)
         self.assertEqual(len(client.target_headers), 13)
@@ -73,6 +76,10 @@ class ServiceColdBaselineTests(unittest.TestCase):
         self.assertEqual(len(outcome["metadata"]["restart_readiness_durations_ms"]), 13)
         self.assertEqual(saved["results"][0]["cache_state"], "cold")
         self.assertTrue(saved["metadata"]["expected_output_identity"])
+        self.assertTrue(
+            set(DEFAULT_COMPARISON_METADATA_KEYS).issubset(saved["metadata"])
+        )
+        self.assertTrue(self_gate_passed)
 
 
 if __name__ == "__main__":

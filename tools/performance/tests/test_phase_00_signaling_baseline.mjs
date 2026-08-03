@@ -1,12 +1,26 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { test } from 'node:test'
 
 import {
+  COMPARISON_METADATA_KEYS,
   normalizedMessageIdentity,
   runSignalingBenchmark,
   stableStringify,
   summarizeSamples,
 } from '../phase_00_signaling_baseline.mjs'
+
+test('Node runner mirrors the Python universal comparison metadata contract', () => {
+  const pythonKeys = JSON.parse(execFileSync(
+    'python',
+    [
+      '-c',
+      'import json; from tools.performance.config import DEFAULT_COMPARISON_METADATA_KEYS; print(json.dumps(DEFAULT_COMPARISON_METADATA_KEYS))',
+    ],
+    { encoding: 'utf8' },
+  ))
+  assert.deepEqual(COMPARISON_METADATA_KEYS, pythonKeys)
+})
 
 test('summarizeSamples reports median, nearest-rank p95, and bounds', () => {
   assert.deepEqual(summarizeSamples([5, 1, 4, 2, 3]), {
@@ -40,6 +54,10 @@ test('production signaling benchmark preserves canonical and legacy normalizatio
   assert.equal(result.schema_version, 1)
   assert.equal(result.metadata.measured_runs, 1)
   assert.match(result.metadata.evidence_scope, /lower bound only/i)
+  assert.deepEqual(
+    COMPARISON_METADATA_KEYS.filter((key) => !(key in result.metadata)),
+    [],
+  )
   assert.deepEqual(result.results.map((item) => item.name), [
     'signaling_receiver_connection_to_viewer_ready',
     'signaling_canonical_control_round_trip',

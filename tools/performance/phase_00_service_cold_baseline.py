@@ -12,10 +12,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Protocol
 
-from tools.performance import BenchmarkRunner, BenchmarkScenario, write_report
+from tools.performance import (
+    BenchmarkRunner,
+    BenchmarkScenario,
+    compare_report_files,
+    write_report,
+)
 from tools.performance.phase_00_live_baseline import (
+    CAMERA_COUNT,
+    COMPOSE_CONFIGURATION,
+    FIXTURE_RECORDING_IDS,
+    FIXTURE_RECORDING_SET_ID,
+    FIXTURE_SESSION_ID,
+    MEDIA_SIZES_BYTES,
+    RECORDING_DURATION_SECONDS,
+    SERVICE_IMAGES,
     ReadOnlyClient,
     UrllibReadOnlyClient,
+    _command_version,
     _commit_identity,
     _repository_revision,
     _response_identity,
@@ -178,14 +192,30 @@ def build_service_cold_baseline(
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "platform": platform.platform(),
         "python": platform.python_version(),
+        "node": _command_version(["node", "--version"]),
         "hardware": HARDWARE,
         "power_mode": POWER_MODE,
+        "network_route": "PC HTTPS loopback at https://127.0.0.1:5000",
         "database_snapshot": DATABASE_SNAPSHOT,
+        "fixture": {
+            "session_id": FIXTURE_SESSION_ID,
+            "recording_set_id": FIXTURE_RECORDING_SET_ID,
+            "recording_ids": list(FIXTURE_RECORDING_IDS),
+        },
+        "build_mode": "bind-mounted Docker backend service",
+        "dependency_versions": {
+            "backend": "tools/performance/environments/phase_01_backend_pip_freeze.txt"
+        },
+        "compose_configuration": COMPOSE_CONFIGURATION,
+        "service_images": SERVICE_IMAGES,
         "compose_directory": str(PC_COMPOSE_DIRECTORY),
         "compose_service": BACKEND_SERVICE_NAME,
         "health_url": config.health_url,
         "target_url": config.target_url,
         "cache_preparation": "docker compose restart backend; health-only readiness polling",
+        "camera_count": CAMERA_COUNT,
+        "recording_duration_seconds": RECORDING_DURATION_SECONDS,
+        "media_sizes_bytes": MEDIA_SIZES_BYTES,
         "restart_readiness_durations_ms": preparation.restart_durations_ms,
         "expected_output_identity": operation.identity,
         "configuration_hash": hashlib.sha256(
@@ -201,6 +231,12 @@ def build_service_cold_baseline(
         ).hexdigest(),
     }
     write_report(config.output_path, (result,), metadata)
+    self_comparison = compare_report_files(config.output_path, config.output_path)
+    if not self_comparison.passed:
+        raise RuntimeError(
+            "service-cold report failed its universal comparison self-gate: "
+            + "; ".join(self_comparison.context_reasons)
+        )
     return {"result": result, "metadata": metadata}
 
 

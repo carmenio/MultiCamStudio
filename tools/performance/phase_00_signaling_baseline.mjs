@@ -30,6 +30,27 @@ const DEVICE_ID = 'phase-00-camera'
 const HARDWARE = '11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM'
 const POWER_MODE = 'Balanced'
 
+// Mirror the universal report comparison contract for this Node-owned runner.
+export const COMPARISON_METADATA_KEYS = Object.freeze([
+  'platform',
+  'python',
+  'node',
+  'hardware',
+  'power_mode',
+  'network_route',
+  'database_snapshot',
+  'fixture',
+  'build_mode',
+  'dependency_versions',
+  'compose_configuration',
+  'service_images',
+  'cache_preparation',
+  'camera_count',
+  'recording_duration_seconds',
+  'media_sizes_bytes',
+  'expected_output_identity',
+])
+
 const requireFromSignaling = createRequire(join(SIGNALING_ROOT, 'package.json'))
 const { WebSocket } = requireFromSignaling('ws')
 const { version: WS_VERSION } = requireFromSignaling('ws/package.json')
@@ -277,6 +298,11 @@ function completeResult(name, summary, unitName, warmupRuns, measuredRuns) {
   }
 }
 
+function assertCompleteComparisonMetadata(metadata) {
+  const missingKeys = COMPARISON_METADATA_KEYS.filter((key) => !(key in metadata))
+  assert.deepEqual(missingKeys, [], `Missing universal comparison metadata: ${missingKeys.join(', ')}`)
+}
+
 // Run all three lower-bound relay scenarios against one real production server process.
 export async function runSignalingBenchmark({
   warmupRuns = WARMUP_RUNS,
@@ -405,6 +431,7 @@ export async function runSignalingBenchmark({
           laptop: execFileSync('git', ['-C', 'laptop', 'rev-parse', 'HEAD'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim(),
         },
         platform: `${process.platform}-${process.arch}`,
+        python: execFileSync('python', ['--version'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim(),
         node: process.version,
         dependency_versions: { ws: WS_VERSION },
         hardware: HARDWARE,
@@ -412,8 +439,13 @@ export async function runSignalingBenchmark({
         network_route: 'unencrypted loopback WebSocket to one production relay process',
         database_snapshot: 'none',
         build_mode: 'production Node entrypoint; no transpilation',
+        compose_configuration: 'laptop/docker-compose.yml signaling route semantics; isolated local source process',
+        service_images: { signaling: 'local source; no container' },
         cache_preparation: 'one warm server process and three warmups per scenario',
         fixture: { room_id: ROOM_ID, device_id: DEVICE_ID },
+        camera_count: 1,
+        recording_duration_seconds: 0,
+        media_sizes_bytes: [],
         expected_output_identity: Object.fromEntries(
           [...identities].map(([name, values]) => [name, [...values][0]]),
         ),
@@ -430,6 +462,7 @@ export async function runSignalingBenchmark({
       ],
       unavailable: [],
     }
+    assertCompleteComparisonMetadata(result.metadata)
     if (writeResult) {
       await mkdir(dirname(outputPath), { recursive: true })
       await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8')

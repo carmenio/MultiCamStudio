@@ -40,7 +40,7 @@ extraction:
 - Application worker boot suite: 6 passed.
 - Python compilation passed for the controller and new module.
 
-## Performance
+## Preliminary performance evidence
 
 Environment: live local PC backend over HTTPS, unchanged database and recording
 set 177, three warmups and ten measured create-session calls, with every transient
@@ -48,13 +48,17 @@ session deleted immediately.
 
 | Metric | Before | After | Change | Gate |
 | --- | ---: | ---: | ---: | --- |
-| Median | 26.484 ms | 20.212 ms | 23.7% faster | Pass |
-| Nearest-rank p95 | 34.277 ms | 31.336 ms | 8.6% faster | Pass |
-| Failures | 0 | 0 | unchanged | Pass |
+| Median | 26.484 ms | 20.212 ms | 23.7% faster | Preliminary pass |
+| Nearest-rank p95 | 34.277 ms | 31.336 ms | 8.6% faster | Preliminary pass |
+| Failures | 0 | 0 | unchanged | Preliminary pass |
 
 Raw samples and controlled-environment metadata are retained in
 `tools/performance/results/phase_01_playback_{before,after}.json`; the automated
 comparison gate passes with no context or scenario reasons.
+
+This pair covers only the warm-cache lifecycle. The required cold-cache pair is
+not yet available, so the Phase 1 performance gate and phase remain incomplete.
+See `agents_docs/testing/performance_results/phase_01_recording_sessions.md`.
 
 ## Rollback
 

@@ -112,7 +112,16 @@ def compare_report_files(
 
     baseline_metadata, baseline_results = read_report(baseline_path)
     candidate_metadata, candidate_results = read_report(candidate_path)
-    context_reasons = _compare_metadata(
+    provenance_reasons = tuple(
+        reason
+        for label, metadata in (
+            ("baseline", baseline_metadata),
+            ("candidate", candidate_metadata),
+        )
+        if not str(metadata.get("commit", "")).strip()
+        for reason in (f"{label} source commit is missing",)
+    )
+    context_reasons = provenance_reasons + _compare_metadata(
         baseline_metadata, candidate_metadata, required_metadata_keys
     )
     result_comparison = compare_reports(

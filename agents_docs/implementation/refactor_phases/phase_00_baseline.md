@@ -52,5 +52,9 @@ data, or deployment configuration is changed by these baseline repairs.
 
 ## Remaining work
 
-- Complete and validate the reusable performance harness.
-- Capture the required live workflow baselines.
+- Capture the required untouched live workflow baselines. This phase is **not
+  complete**, and no later structural phase may be accepted until that evidence
+  is committed.
+- The playback-session extraction was discovered during independent review to
+  have started early. It remains an unaccepted Phase 1 slice; its evidence does
+  not substitute for the Phase 0 workflow matrix.

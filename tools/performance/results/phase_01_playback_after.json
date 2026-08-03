@@ -2,6 +2,7 @@
   "schema_version": 1,
   "created_at_utc": "2026-08-03T07:27:16.534961+00:00",
   "metadata": {
+    "commit": "cb1353e3b6d3f1e19d24ac181190bc100528b4ed",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
     "node": "v24.11.1",
@@ -12,7 +13,8 @@
     "fixture": "recording set 177; recording ids 646,647,648",
     "build_mode": "bind-mounted backend container; Flask production service process",
     "dependency_versions": {
-      "requirements_sha256": "3b0a35fb149de4b0aac3b095adf114a7ebc5510e6bb0e6b9bf749b4123a982f2"
+      "requirements_sha256": "3b0a35fb149de4b0aac3b095adf114a7ebc5510e6bb0e6b9bf749b4123a982f2",
+      "resolved_manifest": "tools/performance/environments/phase_01_backend_pip_freeze.txt"
     },
     "compose_configuration": "3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251",
     "service_images": {

@@ -279,10 +279,17 @@ class ReportingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             report_path = Path(temporary_directory) / "baseline.json"
 
-            write_report(report_path, (result,), {"fixture": "recording-set-1"})
+            write_report(
+                report_path,
+                (result,),
+                {"fixture": "recording-set-1", "commit": "baseline-sha"},
+            )
             metadata, restored_results = read_report(report_path)
 
-        self.assertEqual(metadata, {"fixture": "recording-set-1"})
+        self.assertEqual(
+            metadata,
+            {"fixture": "recording-set-1", "commit": "baseline-sha"},
+        )
         self.assertEqual(restored_results, (result,))
 
     def test_file_comparison_rejects_changed_environment(self) -> None:
@@ -290,8 +297,12 @@ class ReportingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             baseline_path = Path(temporary_directory) / "baseline.json"
             candidate_path = Path(temporary_directory) / "candidate.json"
-            write_report(baseline_path, (result,), {"fixture": "set-1"})
-            write_report(candidate_path, (result,), {"fixture": "set-2"})
+            write_report(
+                baseline_path, (result,), {"fixture": "set-1", "commit": "before"}
+            )
+            write_report(
+                candidate_path, (result,), {"fixture": "set-2", "commit": "after"}
+            )
 
             report = compare_report_files(
                 baseline_path,
@@ -301,6 +312,26 @@ class ReportingTests(unittest.TestCase):
 
         self.assertFalse(report.passed)
         self.assertEqual(report.context_reasons, ("comparison metadata differs: fixture",))
+
+    def test_file_comparison_requires_source_commit_evidence(self) -> None:
+        result = complete_result("summary", "warm", (10.0,) * 10)
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            baseline_path = Path(temporary_directory) / "baseline.json"
+            candidate_path = Path(temporary_directory) / "candidate.json"
+            write_report(baseline_path, (result,), {"fixture": "set-1"})
+            write_report(candidate_path, (result,), {"fixture": "set-1"})
+
+            report = compare_report_files(
+                baseline_path,
+                candidate_path,
+                required_metadata_keys=("fixture",),
+            )
+
+        self.assertFalse(report.passed)
+        self.assertEqual(
+            report.context_reasons,
+            ("baseline source commit is missing", "candidate source commit is missing"),
+        )
 
 
 class HttpRunnerTests(unittest.TestCase):

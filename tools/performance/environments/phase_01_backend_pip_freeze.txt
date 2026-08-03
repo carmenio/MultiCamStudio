@@ -1,0 +1,20 @@
+# Resolved packages from multicam-pc-backend-1 during the Phase 1 playback-session benchmark.
+Flask==3.0.3
+Flask-Compress==1.15
+Flask-Cors==4.0.1
+Werkzeug==3.1.7
+httpx==0.27.2
+numpy==1.26.2
+opencv-python==4.11.0.86
+postgrest==0.18.0
+psycopg==3.2.5
+psycopg-binary==3.2.5
+pytest==9.0.2
+python-dotenv==1.0.1
+requests==2.32.3
+supabase==2.10.0
+torch==2.8.0
+torchvision==0.23.0
+urllib3==2.6.3
+websockets==15.0.1
+zstandard==0.25.0

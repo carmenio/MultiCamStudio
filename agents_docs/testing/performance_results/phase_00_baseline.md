@@ -6,8 +6,8 @@ The reusable benchmark and comparison infrastructure is implemented and tested.
 A first read-only live baseline is committed for the locally available PC and
 laptop stack, including a production browser baseline. Stateful jobs, true
 database cold-cache preparation, media-element playback timing, and the physical
-device matrix remain missing. Backend service-cold session retrieval is now
-captured; therefore Phase 0 is still **incomplete**.
+device matrix remain missing. Backend service-cold session retrieval and several
+media-element timings are now captured; therefore Phase 0 is still **incomplete**.
 
 ## Harness evidence
 
@@ -98,19 +98,25 @@ animation frames. Navigation requires `main.recording-page` plus two frames.
 
 | Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Operator first usable | Isolated cold | 304.414 | 314.121 | 292.143 | 314.121 | 0 |
-| Operator first usable | Warm | 198.080 | 198.664 | 181.214 | 198.664 | 0 |
-| Recordings navigation | Warm | 33.409 | 46.880 | 32.734 | 46.880 | 0 |
+| Operator first usable | Isolated cold | 312.745 | 397.122 | 298.205 | 397.122 | 0 |
+| Operator first usable | Warm | 214.532 | 313.553 | 196.530 | 313.553 | 0 |
+| Recordings navigation | Warm | 33.909 | 42.461 | 33.275 | 42.461 | 0 |
+| Three-camera preview startup | Isolated cold | 1,012.461 | 1,351.285 | 435.312 | 1,351.285 | 0 |
+| Primary first decoded frame | Warm | 28.950 | 30.700 | 21.700 | 30.700 | 0 |
+| Three-camera synchronized playback start | Warm | 29.800 | 42.000 | 21.400 | 42.000 | 0 |
 
-The run used root commit `4175bee9540d7b1a74b71cf7fc5ab15344c59f4e`
-and laptop revision `6257c61274b700262e781c58507cce257f9232fd`.
+The current run used root commit `06e4e11dd06b313fc1cbc9a2166693e1987cdb0a`
+and laptop revision `f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`.
 The rendered shell signature hash was
 `89cad48c52fc47d44b8b1e7324f6b8fb74bd6bc050694b375be0cfaba15ef0c6`.
 Raw evidence is in
 `tools/performance/results/phase_00_browser/phase_00_browser_baseline.json`.
-Preview startup, first video frame, seeking, synchronization, and 3D WebGL
-readiness remain explicit unavailable scenarios until their fixture selectors
-are configured.
+The controlled browser fixture is session 49, recording set 178, recordings
+649-651. The runner resolves the exact card from backend summary ordering rather
+than a display label. Multi-camera seek readiness remains unavailable because at
+least one real media element did not emit `seeked` within 20 seconds. The run
+retains that exact timeout instead of reporting partial-camera timing. 3D WebGL
+readiness remains unavailable until its exact visible result selector is configured.
 
 `GET /api/sessions-info?profile=full` returned HTTP 500 and is intentionally
 recorded unavailable. The live database rejected the nested legacy response with
@@ -126,7 +132,7 @@ Complete this table before Phase 1 structural changes resume.
 | Scenario | Cache | Fixture | Runs | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput | Hard limit |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
-| Recording preview/seek/sync/cut | Cold + warm | Pending | 10 each | Pending | Pending | Pending | Pending | Pending | Where applicable | Relative gate |
+| Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
 | Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Set 178, raw:1053, recordings 649-651 | 10 each | Summary and three segment cases captured | Summary and three segment cases captured | Captured | Captured | 0 | Segment bytes/s captured | Summary/segment < 500 ms passed; post-processing pending |

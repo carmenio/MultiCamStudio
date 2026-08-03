@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T13:24:13.708235+00:00",
+  "created_at_utc": "2026-08-03T14:01:25.864947+00:00",
   "metadata": {
-    "commit": "aa531623b0a92f06d12880d74c821c643851edae",
+    "commit": "0de6323ae1ade5182a43f13467f94bb79c3624a2",
     "source_revisions": {
-      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "52b9c4f528311a885be8a1bff67d16bb6e932639",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "flask": "3.0.2"
     },
@@ -17,6 +18,10 @@
     "network_route": "none; in-process production Flask routes",
     "database_snapshot": "fixed injected camera/session adapters",
     "build_mode": "local Python production controller and HMAC service",
+    "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "pre-created resolve token followed by three warmups",
     "fixture": {
       "session_id": 49,
@@ -29,6 +34,9 @@
       "issue_claims": "c61c2901c77465676dda1f9209d3948c0d37db527c8a0beee3d97fd30f9c09e3",
       "resolve_response": "0a53d9c2aff7282ff45cb58bb76d143ebf657ea20ac56d4bd3cf8b62afe2d025"
     },
+    "camera_count": 1,
+    "recording_duration_seconds": 0,
+    "media_sizes_bytes": [],
     "expiration_shape": "integer Unix epoch",
     "side_effects": "none",
     "evidence_scope": "PC route/HMAC lower bound; not EdgeRelay, QR, network, WebRTC, or physical device evidence"
@@ -38,16 +46,16 @@
       "name": "pc_pairing_token_issue",
       "cache_state": "warm",
       "samples_ms": [
-        0.28989999555051327,
-        0.2870000316761434,
-        0.3560000332072377,
-        0.28420001035556197,
-        0.3603000077418983,
-        0.2734999870881438,
-        0.27050002245232463,
-        0.26320002507418394,
-        0.26329996762797236,
-        0.26020000223070383
+        0.33599999733269215,
+        0.328300055116415,
+        0.424700032453984,
+        0.327400048263371,
+        0.41640002746134996,
+        0.28929999098181725,
+        0.29170000925660133,
+        0.33900002017617226,
+        0.31480001052841544,
+        0.2644999767653644
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -58,11 +66,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 0.2788499987218529,
-      "p50_ms": 0.2788499987218529,
-      "p95_ms": 0.3603000077418983,
-      "minimum_ms": 0.26020000223070383,
-      "maximum_ms": 0.3603000077418983,
+      "median_ms": 0.327850051689893,
+      "p50_ms": 0.327850051689893,
+      "p95_ms": 0.424700032453984,
+      "minimum_ms": 0.2644999767653644,
+      "maximum_ms": 0.424700032453984,
       "work_units": [
         1.0,
         1.0,
@@ -76,22 +84,22 @@
         1.0
       ],
       "unit_name": "tokens_issued",
-      "throughput_per_second": 3438.6711992621254
+      "throughput_per_second": 3001.110259237284
     },
     {
       "name": "pc_pairing_token_resolve",
       "cache_state": "warm",
       "samples_ms": [
-        0.311699986923486,
-        0.3173999721184373,
-        0.28440001187846065,
-        0.33179996535182,
-        0.33250002888962626,
-        0.2679999452084303,
-        0.2825999981723726,
-        0.277700019069016,
-        0.26729999808594584,
-        0.26159995468333364
+        0.2812999882735312,
+        0.264400034211576,
+        0.28629996813833714,
+        0.3223000094294548,
+        0.2975000534206629,
+        0.2878000377677381,
+        0.29099994571879506,
+        0.30670000705868006,
+        0.2742999931797385,
+        0.4358000005595386
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -102,11 +110,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 0.2835000050254166,
-      "p50_ms": 0.2835000050254166,
-      "p95_ms": 0.33250002888962626,
-      "minimum_ms": 0.26159995468333364,
-      "maximum_ms": 0.33250002888962626,
+      "median_ms": 0.2893999917432666,
+      "p50_ms": 0.2893999917432666,
+      "p95_ms": 0.4358000005595386,
+      "minimum_ms": 0.264400034211576,
+      "maximum_ms": 0.4358000005595386,
       "work_units": [
         1.0,
         1.0,
@@ -120,7 +128,7 @@
         1.0
       ],
       "unit_name": "tokens_resolved",
-      "throughput_per_second": 3407.155164415924
+      "throughput_per_second": 3281.4858161375228
     }
   ]
 }

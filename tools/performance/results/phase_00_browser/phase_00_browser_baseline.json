@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T10:44:06.415Z",
+  "metadata": {
+    "commit": "4175bee9540d7b1a74b71cf7fc5ab15344c59f4e",
+    "source_revisions": {
+      "laptop": "6257c61274b700262e781c58507cce257f9232fd"
+    },
+    "platform": "win32-x64",
+    "python": "Python 3.11.5",
+    "node": "v24.11.1",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "production Vite preview http://127.0.0.1:4173 -> backend https://127.0.0.1:5000",
+    "database_snapshot": "live fixture observed 2026-08-03; session 49",
+    "fixture": {
+      "session_id": 49
+    },
+    "build_mode": "Vite production build served by vite preview; headed Chrome with GPU enabled",
+    "dependency_versions": {
+      "operator_lockfile": "laptop/package-lock.json"
+    },
+    "compose_configuration": "3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251",
+    "service_images": {
+      "backend": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
+    },
+    "cache_preparation": {
+      "cold": "isolated profile plus Network.clearBrowserCache and cache disabled",
+      "warm": "same isolated profile with browser cache enabled after warmups"
+    },
+    "camera_count": 3,
+    "recording_duration_seconds": [
+      196.1,
+      195.8,
+      195.766666666667
+    ],
+    "media_sizes_bytes": [
+      450821959,
+      445290517,
+      448855126
+    ],
+    "chrome_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "origin": "http://127.0.0.1:4173",
+    "viewport": [
+      1440,
+      1000
+    ],
+    "session_id": "49",
+    "warmup_runs": 3,
+    "measured_runs": 10,
+    "isolated_profile": true,
+    "expected_output_identity": "89cad48c52fc47d44b8b1e7324f6b8fb74bd6bc050694b375be0cfaba15ef0c6"
+  },
+  "results": [
+    {
+      "name": "operator_first_usable",
+      "cache_state": "cold",
+      "samples_ms": [
+        313.09289999999964,
+        311.92009999999937,
+        309.8863999999994,
+        296.1186999999991,
+        312.40979999999945,
+        298.9424999999992,
+        292.1430999999993,
+        297.71610000000146,
+        314.1213000000007,
+        297.9923999999992
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 304.4144499999993,
+      "p50_ms": 304.4144499999993,
+      "p95_ms": 314.1213000000007,
+      "minimum_ms": 292.1430999999993,
+      "maximum_ms": 314.1213000000007,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    },
+    {
+      "name": "operator_first_usable",
+      "cache_state": "warm",
+      "samples_ms": [
+        198.30289999999877,
+        197.58880000000136,
+        198.15300000000025,
+        198.66399999999885,
+        198.00780000000304,
+        198.1972999999998,
+        192.36840000000302,
+        198.4411,
+        196.85289999999804,
+        181.21379999999772
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 198.08040000000165,
+      "p50_ms": 198.08040000000165,
+      "p95_ms": 198.66399999999885,
+      "minimum_ms": 181.21379999999772,
+      "maximum_ms": 198.66399999999885,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    },
+    {
+      "name": "operator_recordings_navigation",
+      "cache_state": "warm",
+      "samples_ms": [
+        33.26469999999972,
+        33.51369999999952,
+        46.87960000000021,
+        38.189399999999296,
+        33.27720000000045,
+        33.343300000000454,
+        33.422600000001694,
+        32.73359999999957,
+        33.39459999999963,
+        37.73689999999988
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "failure_count": 0,
+      "failures": [],
+      "median_ms": 33.40860000000066,
+      "p50_ms": 33.40860000000066,
+      "p95_ms": 46.87960000000021,
+      "minimum_ms": 32.73359999999957,
+      "maximum_ms": 46.87960000000021,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "warmup_failures": [],
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    }
+  ],
+  "unavailable": [
+    {
+      "name": "recording_preview_startup",
+      "status": "unavailable",
+      "reason": "requires an explicitly configured visible card/media/result fixture"
+    },
+    {
+      "name": "recording_first_frame",
+      "status": "unavailable",
+      "reason": "requires an explicitly configured visible card/media/result fixture"
+    },
+    {
+      "name": "recording_seek_readiness",
+      "status": "unavailable",
+      "reason": "requires an explicitly configured visible card/media/result fixture"
+    },
+    {
+      "name": "recording_synchronization",
+      "status": "unavailable",
+      "reason": "requires an explicitly configured visible card/media/result fixture"
+    },
+    {
+      "name": "three_d_first_usable_render",
+      "status": "unavailable",
+      "reason": "requires an explicitly configured visible card/media/result fixture"
+    }
+  ]
+}

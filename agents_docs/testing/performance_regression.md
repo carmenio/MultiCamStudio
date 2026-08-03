@@ -27,6 +27,20 @@ Use `write_report(path, results, metadata)` and `read_report(path)` for the vers
 
 `tools/performance/run_http_benchmarks.py` is the SDK-style executable for read-only HTTP scenarios. Set its constants, `BENCHMARK_METADATA`, and `HTTP_SCENARIOS` at the top of the file; it deliberately has no command-line parser. Run it from the repository root with `python -m tools.performance.run_http_benchmarks`. Service-specific suites may import the public API directly instead of changing that shared runner.
 
+The production browser runner is dependency-free and uses Node's built-in
+WebSocket plus Chrome DevTools Protocol:
+
+```powershell
+node --test tools/performance/browser/tests/*.test.mjs
+node tools/performance/browser/phase_00_browser_baseline.mjs
+```
+
+It builds the operator web with the configured direct-PC origin, launches a
+headed Chrome process with an isolated temporary profile, records semantic DOM
+readiness after two animation frames, and cleans up only that isolated profile.
+Media and WebGL scenarios stay unavailable until exact fixture selectors are
+configured; shell readiness is not first-video-frame or first-3D-render evidence.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

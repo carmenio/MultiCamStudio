@@ -60,6 +60,31 @@ not represented as a true cold service, operating-system, or database cache.
 Raw timing and identity evidence is in
 `tools/performance/results/phase_00_live/`.
 
+## Production browser baseline
+
+The dependency-free CDP runner rebuilt the operator web with
+`VITE_EDGE_MODE=false` and `VITE_API_URL=https://127.0.0.1:5000`, served the
+production output on `http://127.0.0.1:4173`, and used headed Chrome at
+1440 x 1000 with an isolated profile. First usable requires the shell, primary
+navigation, loaded session tree, workspace, no sidebar loading state, and two
+animation frames. Navigation requires `main.recording-page` plus two frames.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Operator first usable | Isolated cold | 304.414 | 314.121 | 292.143 | 314.121 | 0 |
+| Operator first usable | Warm | 198.080 | 198.664 | 181.214 | 198.664 | 0 |
+| Recordings navigation | Warm | 33.409 | 46.880 | 32.734 | 46.880 | 0 |
+
+The run used root commit `4175bee9540d7b1a74b71cf7fc5ab15344c59f4e`
+and laptop revision `6257c61274b700262e781c58507cce257f9232fd`.
+The rendered shell signature hash was
+`89cad48c52fc47d44b8b1e7324f6b8fb74bd6bc050694b375be0cfaba15ef0c6`.
+Raw evidence is in
+`tools/performance/results/phase_00_browser/phase_00_browser_baseline.json`.
+Preview startup, first video frame, seeking, synchronization, and 3D WebGL
+readiness remain explicit unavailable scenarios until their fixture selectors
+are configured.
+
 `GET /api/sessions-info?profile=full` returned HTTP 500 and is intentionally
 recorded unavailable. The live database rejected the nested legacy response with
 PostgreSQL/PostgREST code `54000`: `Cannot enlarge string buffer containing

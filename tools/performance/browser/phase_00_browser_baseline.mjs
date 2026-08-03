@@ -394,21 +394,37 @@ async function openFixtureThreeDSet(client) {
 // Seek the 3D timeline and wait until React and the renderer agree on the target frame.
 async function measureThreeDSeekReadiness(client, ratio = 0.5) {
   const targetFrame = Math.round(TRIANGULATION_MAX_FRAME * ratio)
-  const startedAt = performance.now()
-  const sought = await evaluate(client, `(() => {
+  const point = await evaluate(client, `(() => {
     const track = document.querySelector('.three-d-timeline-panel .timeline-track[aria-label="Training timeline"]')
-    if (!track) return false
+    if (!track) return null
     const rect = track.getBoundingClientRect()
-    const clientX = rect.left + rect.width * ${ratio}
-    track.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX }))
-    track.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX }))
-    return true
+    return { x: rect.left + rect.width * ${ratio}, y: rect.top + rect.height / 2 }
   })()`)
-  if (!sought) throw new Error('3D training timeline was not rendered')
-  await waitFor(
-    async () => Boolean(await evaluate(client, `document.querySelector('.three-d-frame-label')?.textContent?.includes('Frame ${targetFrame} / ${TRIANGULATION_MAX_FRAME}')`)),
-    READINESS_TIMEOUT_MS,
-  )
+  if (!point) throw new Error('3D training timeline was not rendered')
+  const startedAt = performance.now()
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed',
+    x: point.x,
+    y: point.y,
+    button: 'left',
+    clickCount: 1,
+  })
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased',
+    x: point.x,
+    y: point.y,
+    button: 'left',
+    clickCount: 1,
+  })
+  try {
+    await waitFor(
+      async () => Boolean(await evaluate(client, `document.querySelector('.three-d-frame-label')?.textContent?.includes('Frame ${targetFrame} / ${TRIANGULATION_MAX_FRAME}')`)),
+      READINESS_TIMEOUT_MS,
+    )
+  } catch (error) {
+    const label = await evaluate(client, "document.querySelector('.three-d-frame-label')?.textContent")
+    throw new Error(`3D seek target ${targetFrame} was not reached; observed ${String(label)}`)
+  }
   await evaluate(
     client,
     'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))',
@@ -445,7 +461,7 @@ async function measureThreeDPlaybackStart(client) {
 }
 
 function findFrameByUrl(frameTree, expectedSuffix) {
-  if (frameTree.frame?.url?.endsWith(expectedSuffix)) return frameTree.frame
+  if (frameTree.frame?.url?.includes(expectedSuffix)) return frameTree.frame
   for (const child of frameTree.childFrames ?? []) {
     const match = findFrameByUrl(child, expectedSuffix)
     if (match) return match

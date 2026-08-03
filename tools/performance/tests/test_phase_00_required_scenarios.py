@@ -8,6 +8,7 @@ REGISTRY_PATH = Path("tools/performance/phase_00_required_scenarios.json")
 REQUIRED_SCENARIO_IDS = {
     "session_overview_cold_warm",
     "operator_render_navigation",
+    "browser_benchmark_repeatability",
     "pairing_control_round_trip",
     "stop_to_upload_init",
     "upload_recovery_throughput",

@@ -16,6 +16,12 @@
       "blocker": null
     },
     {
+      "id": "browser_benchmark_repeatability",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_browser/phase_00_browser_baseline.json", "agents_docs/testing/performance_results/phase_00_baseline.md"],
+      "blocker": "Repeated controlled captures exceed the 3 percent noise band for cold shell p95, preview, first frame, and Plotly readiness."
+    },
+    {
       "id": "pairing_control_round_trip",
       "status": "partial",
       "evidence": ["tools/performance/results/phase_00_pairing/phase_00_pairing_baseline.json", "tools/performance/results/phase_00_edge_pairing/phase_00_edge_pairing_baseline.json", "tools/performance/results/phase_00_signaling/phase_00_signaling_baseline.json"],

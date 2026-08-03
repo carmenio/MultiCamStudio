@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 
 import { CdpClient, summarizeSamples, waitFor } from './cdp_client.mjs'
+import { hashOperatorShellSignature } from './output_identity.mjs'
 
 const REPOSITORY_ROOT = resolve(import.meta.dirname, '..', '..', '..')
 const OPERATOR_ROOT = join(REPOSITORY_ROOT, 'laptop', 'apps', 'operator-web')
@@ -555,7 +556,7 @@ async function captureOutputIdentity(client) {
       .map(item => item.textContent?.trim()),
     activeMain: document.querySelector('main')?.className,
   })`)
-  return createHash('sha256').update(String(signature)).digest('hex')
+  return hashOperatorShellSignature(signature)
 }
 
 function completeResult(name, cacheState, summary) {
@@ -630,6 +631,7 @@ async function run() {
         await measureScenario(client, measureRecordingNavigation, 'operator_recordings_navigation'),
       ),
     ]
+    const outputIdentity = await captureOutputIdentity(client)
     const optionalOutcomes = []
     optionalOutcomes.push(await measureOptionalScenario(
       client,
@@ -702,7 +704,6 @@ async function run() {
       )
     }
     results.push(...optionalOutcomes.map(outcome => outcome.result).filter(Boolean))
-    const outputIdentity = await captureOutputIdentity(client)
     const unavailable = optionalOutcomes.map(outcome => outcome.unavailable).filter(Boolean)
     const payload = {
       schema_version: 1,

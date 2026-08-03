@@ -1,9 +1,10 @@
 """Read-only live baseline runner for currently available MultiCamStudio workflows.
 
-The runner never clears server caches or invokes workflow mutations. A "cold"
-sample uses standard cache-bypass request headers; a "warm" sample primes the
-same read-only URL before measurements. Scenarios that cannot be safely derived
-from the selected fixture remain explicit in the manifest.
+The runner never clears server caches or invokes workflow mutations. A
+"header-bypass" sample uses standard cache-bypass request headers; a "warm"
+sample primes the same read-only URL before measurements. Header bypass is not
+cold-cache evidence. Scenarios that cannot be safely derived from the selected
+fixture remain explicit in the manifest.
 """
 
 from __future__ import annotations
@@ -185,7 +186,7 @@ def _request_headers(definition: _ScenarioDefinition) -> dict[str, str]:
 
     headers = dict(definition.headers or {})
     headers["X-MCS-Benchmark-Cache"] = definition.cache_state
-    if definition.cache_state == "cold":
+    if definition.cache_state == "header-bypass":
         headers["Cache-Control"] = "no-cache"
         headers["Pragma"] = "no-cache"
     return headers
@@ -417,11 +418,11 @@ def _benchmark_definitions(
     pc = config.pc_base_url
     laptop = config.laptop_base_url
     definitions = [
-        _ScenarioDefinition("pc_sessions_ui", _url(pc, "/api/sessions-info?profile=ui"), "cold"),
+        _ScenarioDefinition("pc_sessions_ui", _url(pc, "/api/sessions-info?profile=ui"), "header-bypass"),
         _ScenarioDefinition("pc_sessions_ui", _url(pc, "/api/sessions-info?profile=ui"), "warm"),
         _ScenarioDefinition("pc_sessions_overview_full", _url(pc, "/api/sessions-info?profile=full"), "warm"),
         _ScenarioDefinition("laptop_health", _url(laptop, "/health"), "warm"),
-        _ScenarioDefinition("operator_frontend", _url(laptop, "/"), "cold"),
+        _ScenarioDefinition("operator_frontend", _url(laptop, "/"), "header-bypass"),
         _ScenarioDefinition("operator_frontend", _url(laptop, "/"), "warm"),
         _ScenarioDefinition("laptop_proxy_sessions_ui", _url(laptop, "/api/sessions-info?profile=ui"), "warm"),
     ]
@@ -508,7 +509,7 @@ def _benchmark_definitions(
                 _ScenarioDefinition(
                     "detection_uncached_seek_segment",
                     segment_url.replace("segment_index=0", "segment_index=1"),
-                    "cold",
+                    "header-bypass",
                     maximum_p95_ms=500.0,
                     unit_name="bytes",
                 ),
@@ -674,7 +675,7 @@ def build_live_baseline(
     sessions_payload = _read_json_if_available(
         transport,
         ui_sessions_url,
-        {"Cache-Control": "no-cache", "Pragma": "no-cache", "X-MCS-Benchmark-Cache": "cold"},
+        {"Cache-Control": "no-cache", "Pragma": "no-cache", "X-MCS-Benchmark-Cache": "header-bypass"},
     )
     fixture = _discover_fixture(sessions_payload, config)
 
@@ -783,7 +784,7 @@ def build_live_baseline(
         "pc_base_url": config.pc_base_url,
         "laptop_base_url": config.laptop_base_url,
         "cache_preparation": {
-            "cold": "GET with Cache-Control: no-cache and Pragma: no-cache; no cache deletion",
+            "header-bypass": "GET with Cache-Control: no-cache and Pragma: no-cache; no cache deletion",
             "warm": "read-only availability probe and three warm-up GETs",
         },
         "fixture": fixture,
@@ -800,7 +801,7 @@ def build_live_baseline(
         "safety": {
             "http_methods": ["GET"],
             "server_cache_mutations": False,
-            "cold_preparation": metadata["cache_preparation"]["cold"],
+            "header_bypass_preparation": metadata["cache_preparation"]["header-bypass"],
             "warm_preparation": metadata["cache_preparation"]["warm"],
         },
         "scenarios": manifest_items,

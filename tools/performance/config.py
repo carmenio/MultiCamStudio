@@ -8,7 +8,10 @@ DEFAULT_WARMUP_RUNS = 3
 DEFAULT_MEASURED_RUNS = 10
 LONG_WORKFLOW_MEASURED_RUNS = 5
 DEFAULT_ALLOWED_REGRESSION_PERCENT = 3.0
-SUPPORTED_CACHE_STATES = frozenset({"cold", "warm"})
+# `header-bypass` is diagnostic evidence only. It must never satisfy a required
+# cold-cache gate, but keeping the label explicit prevents request headers from
+# being misrepresented as process, database, browser, or operating-system cold.
+SUPPORTED_CACHE_STATES = frozenset({"cold", "warm", "header-bypass"})
 REPORT_SCHEMA_VERSION = 1
 DEFAULT_COMPARISON_METADATA_KEYS = (
     "platform",

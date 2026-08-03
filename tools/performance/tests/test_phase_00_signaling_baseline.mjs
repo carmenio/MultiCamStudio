@@ -37,6 +37,14 @@ test('summarizeSamples reports median, nearest-rank p95, and bounds', () => {
   })
 })
 
+test('summarizeSamples derives statistics from the committed sample precision', () => {
+  const summary = summarizeSamples([0.5166, 0.5496])
+
+  assert.deepEqual(summary.samples_ms, [0.517, 0.55])
+  assert.equal(summary.median_ms, 0.5335000000000001)
+  assert.equal(summary.p50_ms, 0.5335000000000001)
+})
+
 test('message identities ignore correlation tokens but retain protocol fields', () => {
   const first = { type: 'device.hello', roomId: 'room', protocolVersion: 2, benchmarkCorrelationId: 'a' }
   const second = { protocolVersion: 2, benchmarkCorrelationId: 'b', roomId: 'room', type: 'device.hello' }

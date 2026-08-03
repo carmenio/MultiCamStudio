@@ -50,7 +50,7 @@ class BenchmarkScenario:
         if not self.name.strip():
             raise ValueError("name must not be empty")
         if self.cache_state not in SUPPORTED_CACHE_STATES:
-            raise ValueError("cache_state must be either 'cold' or 'warm'")
+            raise ValueError("cache_state must be 'cold', 'warm', or diagnostic 'header-bypass'")
         if self.warmup_runs < DEFAULT_WARMUP_RUNS:
             raise ValueError(f"warmup_runs must be at least {DEFAULT_WARMUP_RUNS}")
         minimum_runs = (

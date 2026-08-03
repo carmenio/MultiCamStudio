@@ -58,20 +58,21 @@ const { version: WS_VERSION } = requireFromSignaling('ws/package.json')
 // Return percentile values using the nearest-rank convention used by the other baseline runners.
 export function summarizeSamples(samples) {
   assert.ok(samples.length > 0, 'At least one measured sample is required')
-  const sorted = [...samples].sort((left, right) => left - right)
+  const roundedSamples = samples.map(roundMilliseconds)
+  const sorted = [...roundedSamples].sort((left, right) => left - right)
   const medianIndex = Math.floor(sorted.length / 2)
   const median = sorted.length % 2
     ? sorted[medianIndex]
     : (sorted[medianIndex - 1] + sorted[medianIndex]) / 2
   const p95Index = Math.max(0, Math.ceil(sorted.length * 0.95) - 1)
   return {
-    samples_ms: samples.map(roundMilliseconds),
+    samples_ms: roundedSamples,
     successful_runs: samples.length,
     measured_runs: samples.length,
     failure_count: 0,
     failures: [],
-    median_ms: roundMilliseconds(median),
-    p50_ms: roundMilliseconds(median),
+    median_ms: median,
+    p50_ms: median,
     p95_ms: roundMilliseconds(sorted[p95Index]),
     minimum_ms: roundMilliseconds(sorted[0]),
     maximum_ms: roundMilliseconds(sorted.at(-1)),

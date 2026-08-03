@@ -150,7 +150,10 @@ class LiveBaselineTests(unittest.TestCase):
         self.assertEqual(run_id, 100)
         self.assertIn("segment_index=0", by_name["detection_first_segment"].url)
         self.assertIn("segment_index=1", by_name["detection_uncached_seek_segment"].url)
-        self.assertEqual(by_name["detection_uncached_seek_segment"].cache_state, "cold")
+        self.assertEqual(
+            by_name["detection_uncached_seek_segment"].cache_state,
+            "header-bypass",
+        )
         self.assertIn("segment_index=2", by_name["detection_sequential_segment"].url)
         self.assertEqual(
             by_name["triangulation_result_retrieval"].url,
@@ -189,9 +192,15 @@ class LiveBaselineTests(unittest.TestCase):
                 client=client,
             )
 
-        cold_requests = [headers for _, _, headers in client.requests if headers.get("X-MCS-Benchmark-Cache") == "cold"]
-        self.assertTrue(cold_requests)
-        self.assertTrue(all(item["Cache-Control"] == "no-cache" for item in cold_requests))
+        bypass_requests = [
+            headers
+            for _, _, headers in client.requests
+            if headers.get("X-MCS-Benchmark-Cache") == "header-bypass"
+        ]
+        self.assertTrue(bypass_requests)
+        self.assertTrue(
+            all(item["Cache-Control"] == "no-cache" for item in bypass_requests)
+        )
 
     def test_response_identity_change_is_reported_as_a_measurement_failure(self) -> None:
         class ChangingClient(FakeReadOnlyClient):

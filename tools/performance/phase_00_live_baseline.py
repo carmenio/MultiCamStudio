@@ -351,6 +351,26 @@ def _find_variant_key(value: object) -> str | None:
     return None
 
 
+def _find_completed_triangulation_run_id(value: object) -> int | None:
+    """Find the first completed run identifier in the lightweight runs response."""
+
+    if isinstance(value, dict):
+        status = str(value.get("status") or "").strip().lower()
+        run_id = _as_positive_int(value.get("id"))
+        if status == "done" and run_id is not None:
+            return run_id
+        for nested in value.values():
+            found = _find_completed_triangulation_run_id(nested)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for nested in value:
+            found = _find_completed_triangulation_run_id(nested)
+            if found is not None:
+                return found
+    return None
+
+
 def _discover_playback_media_url(
     payload: dict[str, Any] | None, pc_base_url: str
 ) -> str | None:
@@ -390,6 +410,7 @@ def _benchmark_definitions(
     fixture: Mapping[str, Any],
     playback_media_url: str | None,
     variant_key: str | None,
+    triangulation_run_id: int | None,
 ) -> tuple[list[_ScenarioDefinition], list[dict[str, Any]]]:
     """Build available candidates and explicit unavailable optional workflow records."""
 
@@ -471,20 +492,45 @@ def _benchmark_definitions(
                 for item in recording_ids
                 if _as_positive_int(item) is not None
             )
-        definitions.append(
-            _ScenarioDefinition(
-                "detection_first_segment",
-                _url(
-                    pc,
-                    f"/api/recording-sets/{set_id}/point-detection/segments?{urlencode(query_items)}",
+        segment_url = _url(
+            pc,
+            f"/api/recording-sets/{set_id}/point-detection/segments?{urlencode(query_items)}",
+        )
+        definitions.extend(
+            [
+                _ScenarioDefinition(
+                    "detection_first_segment",
+                    segment_url,
+                    "warm",
+                    maximum_p95_ms=500.0,
+                    unit_name="bytes",
                 ),
-                "warm",
-                maximum_p95_ms=500.0,
-                unit_name="bytes",
-            )
+                _ScenarioDefinition(
+                    "detection_uncached_seek_segment",
+                    segment_url.replace("segment_index=0", "segment_index=1"),
+                    "cold",
+                    maximum_p95_ms=500.0,
+                    unit_name="bytes",
+                ),
+                _ScenarioDefinition(
+                    "detection_sequential_segment",
+                    segment_url.replace("segment_index=0", "segment_index=2"),
+                    "warm",
+                    maximum_p95_ms=500.0,
+                    unit_name="bytes",
+                ),
+            ]
         )
     else:
-        unavailable.append(_unavailable("detection_first_segment", "no stored detection variant was discovered"))
+        reason = "no stored detection variant was discovered"
+        unavailable.extend(
+            _unavailable(name, reason)
+            for name in (
+                "detection_first_segment",
+                "detection_uncached_seek_segment",
+                "detection_sequential_segment",
+            )
+        )
 
     if session_id is not None:
         definitions.append(
@@ -516,6 +562,22 @@ def _benchmark_definitions(
         )
     else:
         unavailable.append(_unavailable("calibration_batch_status", "no calibration batch fixture was configured"))
+    if triangulation_run_id is not None:
+        definitions.append(
+            _ScenarioDefinition(
+                "triangulation_result_retrieval",
+                _url(pc, f"/api/3d/triangulation-runs/{triangulation_run_id}/result"),
+                "warm",
+                unit_name="bytes",
+            )
+        )
+    else:
+        unavailable.append(
+            _unavailable(
+                "triangulation_result_retrieval",
+                "no completed triangulation run was discovered",
+            )
+        )
     return definitions, unavailable
 
 
@@ -638,8 +700,29 @@ def build_live_baseline(
             ),
         )
     variant_key = _find_variant_key(detection_payload)
+    triangulation_runs_payload: dict[str, Any] | None = None
+    if set_id is not None:
+        triangulation_runs_payload = _read_json_if_available(
+            transport,
+            _url(
+                config.pc_base_url,
+                f"/api/3d/recording-sets/{set_id}/triangulations/runs-lite",
+            ),
+        )
+    triangulation_run_id = _find_completed_triangulation_run_id(
+        triangulation_runs_payload
+    )
+    fixture = {
+        **fixture,
+        "variant_key": variant_key,
+        "triangulation_run_id": triangulation_run_id,
+    }
     definitions, manifest_items = _benchmark_definitions(
-        config, fixture, playback_media_url, variant_key
+        config,
+        fixture,
+        playback_media_url,
+        variant_key,
+        triangulation_run_id,
     )
 
     available_definitions: list[_ScenarioDefinition] = []

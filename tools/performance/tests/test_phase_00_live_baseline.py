@@ -10,6 +10,8 @@ from pathlib import Path
 from tools.performance.phase_00_live_baseline import (
     LiveBaselineConfig,
     ReadOnlyResponse,
+    _benchmark_definitions,
+    _find_completed_triangulation_run_id,
     build_live_baseline,
 )
 
@@ -112,6 +114,60 @@ class LiveBaselineTests(unittest.TestCase):
         self.assertEqual(manifest["fixture"]["session_id"], 49)
         self.assertEqual(manifest["fixture"]["recording_set_id"], 177)
         self.assertEqual(manifest["fixture"]["recording_id"], 646)
+
+    def test_detection_windows_and_completed_triangulation_result_are_defined(self) -> None:
+        config = LiveBaselineConfig(
+            pc_base_url="http://pc",
+            laptop_base_url="https://laptop",
+        )
+        run_id = _find_completed_triangulation_run_id(
+            {
+                "data": {
+                    "runs": [
+                        {"id": 101, "status": "failed"},
+                        {"id": 100, "status": "done"},
+                    ]
+                }
+            }
+        )
+
+        definitions, unavailable = _benchmark_definitions(
+            config,
+            {
+                "session_id": 49,
+                "recording_set_id": 178,
+                "recording_id": 649,
+                "recording_ids": [649, 650, 651],
+                "calibration_id": None,
+                "calibration_batch_id": None,
+            },
+            None,
+            "raw:1053",
+            run_id,
+        )
+
+        by_name = {definition.name: definition for definition in definitions}
+        self.assertEqual(run_id, 100)
+        self.assertIn("segment_index=0", by_name["detection_first_segment"].url)
+        self.assertIn("segment_index=1", by_name["detection_uncached_seek_segment"].url)
+        self.assertEqual(by_name["detection_uncached_seek_segment"].cache_state, "cold")
+        self.assertIn("segment_index=2", by_name["detection_sequential_segment"].url)
+        self.assertEqual(
+            by_name["triangulation_result_retrieval"].url,
+            "http://pc/api/3d/triangulation-runs/100/result",
+        )
+        self.assertFalse(
+            any(
+                item["name"]
+                in {
+                    "detection_first_segment",
+                    "detection_uncached_seek_segment",
+                    "detection_sequential_segment",
+                    "triangulation_result_retrieval",
+                }
+                for item in unavailable
+            )
+        )
 
     def test_cold_requests_use_safe_cache_bypass_headers_without_cache_mutation(self) -> None:
         pc = "http://pc"

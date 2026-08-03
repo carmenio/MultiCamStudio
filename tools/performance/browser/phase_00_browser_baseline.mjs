@@ -70,6 +70,15 @@ async function waitForHttp(url) {
   }, READINESS_TIMEOUT_MS, 100)
 }
 
+async function waitForStage(stageName, predicate, timeoutMs = READINESS_TIMEOUT_MS) {
+  try {
+    await waitFor(predicate, timeoutMs)
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    throw new Error(`${stageName}: ${detail}`)
+  }
+}
+
 async function openCdpTarget() {
   await waitForHttp(`http://127.0.0.1:${DEBUG_PORT}/json/version`)
   const response = await fetch(
@@ -344,6 +353,12 @@ async function openFixtureThreeDSet(client) {
     async () => Boolean(await evaluate(client, "Boolean(document.querySelector('main.three-d-page--detail section[aria-label=\"3D recording set\"]'))")),
     READINESS_TIMEOUT_MS,
   )
+  await waitForStage(
+    'triangulation run options',
+    async () => Boolean(await evaluate(client, `Boolean(
+      document.querySelector('#triangulation-pose-run option[value=${JSON.stringify(TRIANGULATION_RUN_ID)}]')
+    )`)),
+  )
   const selectedRun = await evaluate(client, `(() => {
     const select = document.querySelector('#triangulation-pose-run')
     if (!select) return null
@@ -452,9 +467,9 @@ async function measureCalibrationPlotlyReadiness(client) {
     return true
   })()`)
   if (!opened) throw new Error(`Calibration set card index ${cardIndex} was not rendered`)
-  await waitFor(
+  await waitForStage(
+    'calibration detail',
     async () => Boolean(await evaluate(client, "Boolean(document.querySelector('section.calibration-set-open[aria-label=\"Calibration set\"]'))")),
-    READINESS_TIMEOUT_MS,
   )
   const cameraModeSelected = await evaluate(client, `(() => {
     const button = document.querySelector('[role="radiogroup"][aria-label="Calibration preview mode"] button[aria-label="Camera view"]')
@@ -464,25 +479,25 @@ async function measureCalibrationPlotlyReadiness(client) {
   })()`)
   if (!cameraModeSelected) throw new Error('Calibration camera-view control was not rendered')
   const expectedSuffix = `/calibration-viewers/${CALIBRATION_ID}.html`
-  await waitFor(
+  await waitForStage(
+    'calibration viewer iframe',
     async () => Boolean(await evaluate(client, `Boolean(document.querySelector('.calibration-detail-camera-iframe[src$=${JSON.stringify(expectedSuffix)}]'))`)),
-    READINESS_TIMEOUT_MS,
   )
   let frame
-  await waitFor(async () => {
+  await waitForStage('calibration viewer frame', async () => {
     const { frameTree } = await client.send('Page.getFrameTree')
     frame = findFrameByUrl(frameTree, expectedSuffix)
     return Boolean(frame)
-  }, READINESS_TIMEOUT_MS)
+  })
   const { executionContextId } = await client.send('Page.createIsolatedWorld', {
     frameId: frame.id,
     worldName: 'multicam-benchmark',
   })
-  await waitFor(async () => Boolean(await evaluateInContext(client, executionContextId, `Boolean(
+  await waitForStage('calibration Plotly canvas', async () => Boolean(await evaluateInContext(client, executionContextId, `Boolean(
     document.readyState === 'complete' &&
     document.querySelector('#root.js-plotly-plot') &&
     document.querySelector('#root .gl-container canvas')
-  )`)), READINESS_TIMEOUT_MS)
+  )`)))
   await evaluateInContext(
     client,
     executionContextId,

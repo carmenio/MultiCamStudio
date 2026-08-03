@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T13:16:56.497215+00:00",
+  "created_at_utc": "2026-08-03T14:07:22.180419+00:00",
   "metadata": {
-    "commit": "2d93790d625238bdd005be0c21d8c5173e7dc19b",
+    "commit": "82cc86b4581dfdf5c9054a5190e654825e3cbb94",
     "source_revisions": {
-      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "24eef3ed5f4f1d0cc3795484f8d631278f2ff39b",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "opencv": "4.8.1",
       "numpy": "1.26.2",
@@ -19,9 +20,17 @@
     "network_route": "none; local fixed host media and in-process production runner",
     "database_snapshot": "none; fixed host media fixture",
     "build_mode": "local Python production module",
+    "compose_configuration": "not used; in-process local source benchmark",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "clips decoded once outside timing; output cleared and NumPy seed reset before every run; three solver warmups",
     "camera_count": 2,
     "recording_duration_seconds": 2.0,
+    "media_sizes_bytes": [
+      4086441,
+      5781290
+    ],
     "fixture": {
       "source_directory": "E:\\Shared_Folder\\Golf_AI\\MultiCamStudio\\SyncedVideos\\set-201",
       "source_files": [
@@ -70,6 +79,10 @@
     },
     "expected_toml_identity": "3dad317eb5f84ec023039fd66d3f9f4c8dccad5dddf1c1200d2823ed544a24fc",
     "expected_result_identity": "ea1e323dadcb542be992c041de43f8806c1a7a5d0585596d39325cb10000035e",
+    "expected_output_identity": {
+      "calibration_toml": "3dad317eb5f84ec023039fd66d3f9f4c8dccad5dddf1c1200d2823ed544a24fc",
+      "canonical_result": "ea1e323dadcb542be992c041de43f8806c1a7a5d0585596d39325cb10000035e"
+    },
     "output_artifacts": [
       "camera_calibration.toml",
       "camera_calibration.yaml"
@@ -81,11 +94,11 @@
       "name": "calibration_freemocap_two_camera_fixed_fixture",
       "cache_state": "warm",
       "samples_ms": [
-        34656.1345999944,
-        32187.783400004264,
-        34028.44040002674,
-        33878.19940003101,
-        31508.147299988195
+        29601.956599974073,
+        29737.110499991104,
+        29179.37259998871,
+        29382.15159997344,
+        29293.984499992803
       ],
       "successful_runs": 5,
       "measured_runs": 5,
@@ -96,11 +109,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 33878.19940003101,
-      "p50_ms": 33878.19940003101,
-      "p95_ms": 34656.1345999944,
-      "minimum_ms": 31508.147299988195,
-      "maximum_ms": 34656.1345999944,
+      "median_ms": 29382.15159997344,
+      "p50_ms": 29382.15159997344,
+      "p95_ms": 29737.110499991104,
+      "minimum_ms": 29179.37259998871,
+      "maximum_ms": 29737.110499991104,
       "work_units": [
         240.0,
         240.0,
@@ -109,7 +122,7 @@
         240.0
       ],
       "unit_name": "camera_frames",
-      "throughput_per_second": 7.2176671848725835
+      "throughput_per_second": 8.152474325080743
     }
   ]
 }

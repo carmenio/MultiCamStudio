@@ -114,6 +114,17 @@ chunk-write throughput, and assembly/final-checksum throughput. It enforces the
 5,000 ms initialization ceiling as a server-side lower bound only. It is not
 physical Stop-to-upload-init or radio/network evidence.
 
+Calibration viewer generation uses a fixed database-shaped geometry row and the
+production HTML renderer:
+
+```powershell
+python -m tools.performance.phase_00_calibration_viewer_baseline
+```
+
+The renderer returns its self-contained Plotly document without writing a file.
+The full HTML identity is checked outside timing. This does not replace solver,
+video-detection, or live browser Plotly-readiness measurements.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

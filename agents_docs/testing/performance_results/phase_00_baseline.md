@@ -204,6 +204,26 @@ It does **not** prove phone Stop-to-upload-init, device finalization, or network
 latency; those remain physical-device acceptance gaps. Raw evidence is in
 `tools/performance/results/phase_00_resumable_upload/`.
 
+## Calibration viewer generation baseline
+
+The production database-backed renderer generated a self-contained Plotly HTML
+document for ten fixed camera poses. The full 9,295-byte document and embedded
+geometry were hashed outside timing; each sample includes finite-value filtering,
+safe script serialization, camera data embedding, and HTML construction.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ten-camera calibration viewer HTML | Warm | 0.233 | 0.283 | 0.211 | 0.283 | 0 | 42,463 cameras/s |
+
+The run used 3 warmups and 10 measurements at root commit
+`1ec7947b88d77e6930a0c57b794041261deca60a` and PC revision
+`dcb83184f2d6d5192eb15fc7435871fbdb162e91`. Geometry identity was
+`e5d54c19cb958db65ac3759214131673bf132a1b1bfce2e533e64939bfd4176f`,
+and complete HTML identity was
+`9a7910b9c035d50c8c42b61f04f061d2db56e87bef5bffa817bb8912e7cca817`.
+Raw evidence is in `tools/performance/results/phase_00_calibration_viewer/`.
+Solver processing and live Plotly readiness remain separate gaps.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -251,7 +271,7 @@ Complete this table before Phase 1 structural changes resume.
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
 | Pairing/control/upload | Warm server route; physical devices pending | Fixed 16 MiB/4-chunk PC fixture | 10 each | Server init 2.019; resume 0.511; chunk write 58.605; completion 32.828 | Server init 2.438; resume 0.665; chunk write 67.493; completion 39.447 | Captured | Captured | 0 | Chunk 277,664,628 bytes/s; completion 493,783,883 bytes/s | Server init < 5 s passed; physical Stop-to-init pending |
-| Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
+| Calibration workflow | Warm renderer; processing pending | Fixed 10-camera geometry | 10 renderer | Viewer HTML 0.233 | Viewer HTML 0.283 | Viewer HTML 0.211 | Viewer HTML 0.283 | 0 | 42,463 cameras/s | Solver/video processing pending |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Live retrieval captured; processing 4,310.144 | Live retrieval captured; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Browser 3D readiness pending |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |

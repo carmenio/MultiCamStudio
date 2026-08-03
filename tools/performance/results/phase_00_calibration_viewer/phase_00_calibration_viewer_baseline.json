@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T12:22:10.404696+00:00",
+  "metadata": {
+    "commit": "1ec7947b88d77e6930a0c57b794041261deca60a",
+    "source_revisions": {
+      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "none; in-process production renderer",
+    "database_snapshot": "fixed generated calibration row; no database access",
+    "build_mode": "local Python production module",
+    "cache_preparation": "complete untimed reference render followed by three warmups",
+    "camera_count": 10,
+    "fixture": {
+      "calibration_id": 90001,
+      "camera_count": 10,
+      "geometry_identity": "e5d54c19cb958db65ac3759214131673bf132a1b1bfce2e533e64939bfd4176f"
+    },
+    "expected_output_identity": "9a7910b9c035d50c8c42b61f04f061d2db56e87bef5bffa817bb8912e7cca817",
+    "output_bytes": 9295,
+    "side_effects": "none; renderer returns HTML without writing an artifact"
+  },
+  "results": [
+    {
+      "name": "calibration_viewer_html_generation",
+      "cache_state": "warm",
+      "samples_ms": [
+        0.23359997430816293,
+        0.2834999468177557,
+        0.2329999697394669,
+        0.23750000400468707,
+        0.22879999596625566,
+        0.23629999486729503,
+        0.2270000404678285,
+        0.2106999745592475,
+        0.2258999738842249,
+        0.23870001314207911
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 0.23329997202381492,
+      "p50_ms": 0.23329997202381492,
+      "p95_ms": 0.2834999468177557,
+      "minimum_ms": 0.2106999745592475,
+      "maximum_ms": 0.2834999468177557,
+      "work_units": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      "unit_name": "cameras",
+      "throughput_per_second": 42462.84703446166
+    }
+  ]
+}

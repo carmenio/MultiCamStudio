@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T13:20:01.902016+00:00",
+  "metadata": {
+    "commit": "80f5385fd2e6a3d3a0ec65e0243c8d3389390f7c",
+    "source_revisions": {
+      "pc": "dcb83184f2d6d5192eb15fc7435871fbdb162e91",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "dependency_versions": {
+      "opencv": "4.8.1",
+      "numpy": "1.26.2"
+    },
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "none; local fixed host media and in-process production probes",
+    "database_snapshot": "none; fixed host media fixture",
+    "build_mode": "local Python production module",
+    "cache_preparation": "source identities read once, followed by three warmups; OS cache not cleared",
+    "camera_count": 4,
+    "recording_duration_seconds": 57.28333333333333,
+    "media_sizes_bytes": [
+      54977672,
+      41709022,
+      108268584,
+      214038077
+    ],
+    "fixture": {
+      "recording_set_id": 201,
+      "source_directory": "E:\\Shared_Folder\\Golf_AI\\MultiCamStudio\\SyncedVideos\\set-201",
+      "source_files": [
+        "synced_anna-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20.mp4",
+        "synced_chris-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20.mp4",
+        "synced_dom-1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20.mp4",
+        "synced_tenchris-1-2-3-4-5-6-7-8-9-10-11-12.mp4"
+      ],
+      "source_identities": [
+        "60f3749cf04c184a004a6657d1e290b4932c8b9bcb0b8e1ced92c0c5ecc4520a",
+        "c7214f135ef25bb73004c9ffd646353185eb84acf0daf8554778d6689b3e6de7",
+        "c22aadaf069e28d32ad38b81ac09f4bc4435fe60c7e1fd5423c9229c58c76140",
+        "6735baeb0f6f17ca061e610e83fee5353ae931bb1c2b4002b917503b56b8d0b9"
+      ],
+      "expected_frame_count": 3437,
+      "expected_fps": 60.0
+    },
+    "expected_output_identity": "7790c0e597580ef184976de348736b8605da2b81ad30be2632eb8709807d3283",
+    "side_effects": "none",
+    "evidence_scope": "metadata plus first decoded frame; not full calibration processing"
+  },
+  "results": [
+    {
+      "name": "calibration_four_camera_video_preflight",
+      "cache_state": "warm",
+      "samples_ms": [
+        633.38220003061,
+        618.3227999717928,
+        678.6013999953866,
+        588.930599973537,
+        589.9866999825463,
+        549.929200031329,
+        574.9249000218697,
+        561.2891000346281,
+        580.5624999920838,
+        630.4685999639332
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 589.4586499780416,
+      "p50_ms": 589.4586499780416,
+      "p95_ms": 678.6013999953866,
+      "minimum_ms": 549.929200031329,
+      "maximum_ms": 678.6013999953866,
+      "work_units": [
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0
+      ],
+      "unit_name": "videos_preflighted",
+      "throughput_per_second": 6.659565350150824
+    }
+  ]
+}

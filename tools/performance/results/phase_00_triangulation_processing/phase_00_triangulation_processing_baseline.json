@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T12:09:59.491284+00:00",
+  "metadata": {
+    "commit": "e2c857c652c7457cea868e658d4d28a3b1cb1d79",
+    "source_revisions": {
+      "pc": "95ca0fb29f38746a4cf6d5754250af75a05f716b",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "dependency_versions": {
+      "numpy": "1.26.2"
+    },
+    "thread_environment": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null
+    },
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "network_route": "none; in-process production service",
+    "database_snapshot": "fixed generated fixture; no database access",
+    "build_mode": "local Python production module",
+    "cache_preparation": "complete untimed reference execution followed by three warmups",
+    "camera_count": 3,
+    "recording_duration_seconds": 60.0,
+    "fixture": {
+      "camera_count": 3,
+      "frame_count": 1800,
+      "point_count": 15,
+      "fps": 30,
+      "min_confidence": 0.1,
+      "observations": 81000,
+      "calibration_translation_mm": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          -1000,
+          0,
+          0
+        ],
+        [
+          0,
+          -800,
+          0
+        ]
+      ]
+    },
+    "fixture_identity": "3690fceccada5a27a7088259be6ec729f19d8843b6f060aa519b062d1d4e63ec",
+    "expected_output_identity": "a7126a69d24773083f459eb59e9764d03c6519c1387d48be4ebd37315d1a6227",
+    "accepted_3d_points": 27000,
+    "observations_total": 81000,
+    "coordinate_transform": {
+      "type": "first_frame_centroid_origin",
+      "origin_frame": 0,
+      "offset_m": {
+        "x": 0.055646,
+        "y": 0.06319,
+        "z": 4.626
+      },
+      "applied": true
+    },
+    "per_camera_reprojection": {
+      "camera_0": {
+        "count": 27000,
+        "mean_error_px": 0.0,
+        "max_error_px": 0.0
+      },
+      "camera_1": {
+        "count": 27000,
+        "mean_error_px": 0.0,
+        "max_error_px": 0.0
+      },
+      "camera_2": {
+        "count": 27000,
+        "mean_error_px": 0.0,
+        "max_error_px": 0.0
+      }
+    },
+    "side_effects": "none"
+  },
+  "results": [
+    {
+      "name": "triangulation_three_camera_fixed_fixture",
+      "cache_state": "warm",
+      "samples_ms": [
+        3915.030799980741,
+        4200.356799992733,
+        4510.4266999987885,
+        4310.144099988975,
+        4316.178100008983
+      ],
+      "successful_runs": 5,
+      "measured_runs": 5,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 5,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 4310.144099988975,
+      "p50_ms": 4310.144099988975,
+      "p95_ms": 4510.4266999987885,
+      "minimum_ms": 3915.030799980741,
+      "maximum_ms": 4510.4266999987885,
+      "work_units": [
+        27000.0,
+        27000.0,
+        27000.0,
+        27000.0,
+        27000.0
+      ],
+      "unit_name": "accepted_3d_points",
+      "throughput_per_second": 6352.302508511988
+    }
+  ]
+}

@@ -156,6 +156,29 @@ and all 36 segments retained identity
 `a3d57f5211f8e483c24d172efb1adc753e3042d5dd09b3e0d5cb8fb71a7d4db3`.
 Raw evidence is in `tools/performance/results/phase_00_detection_processing/`.
 
+## Triangulation processing baseline
+
+The production `TriangulationService` processed a deterministic 60-second,
+three-camera calibrated fixture at 30 fps with 15 connected labels. The fixture
+contains 81,000 2D observations and produces 27,000 accepted 3D points. Input
+projection, fixture hashing, and complete result hashing are outside the timed
+operation; triangulation, diagnostics, and first-frame centroid transformation
+are included.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Three-camera fixed-fixture triangulation | Warm | 4,310.144 | 4,510.427 | 3,915.031 | 4,510.427 | 0 | 6,352 accepted 3D points/s |
+
+The approved long-workflow run used 3 warmups and 5 measurements at root commit
+`e2c857c652c7457cea868e658d4d28a3b1cb1d79` and PC revision
+`95ca0fb29f38746a4cf6d5754250af75a05f716b`. The fixture identity is
+`3690fceccada5a27a7088259be6ec729f19d8843b6f060aa519b062d1d4e63ec`;
+the complete output identity is
+`a7126a69d24773083f459eb59e9764d03c6519c1387d48be4ebd37315d1a6227`.
+All cameras contributed 27,000 zero-error synthetic projections, and the output
+retained the applied first-frame centroid transform. Raw evidence is in
+`tools/performance/results/phase_00_triangulation_processing/`.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -205,7 +228,7 @@ Complete this table before Phase 1 structural changes resume.
 | Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
-| Triangulation/3D readiness | Warm | Set 178, run 100 | 10 | Metadata/status/result retrieval captured | Metadata/status/result retrieval captured | Captured | Captured | 0 | Result bytes/s captured | Processing and browser 3D readiness pending |
+| Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Live retrieval captured; processing 4,310.144 | Live retrieval captured; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Browser 3D readiness pending |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |
 
 ## Rollback

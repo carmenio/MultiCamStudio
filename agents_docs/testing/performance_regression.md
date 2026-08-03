@@ -92,6 +92,17 @@ ordered post-processing stages. Checkpoint generators are consumed stage-major,
 matching controller execution. Complete output hashes are captured before and
 after the timed suite; canonical JSON serialization is excluded from latency.
 
+Triangulation processing uses the production pure service boundary with a fixed
+three-camera calibrated fixture:
+
+```powershell
+python -m tools.performance.phase_00_triangulation_processing_baseline
+```
+
+Input projection and full result hashing occur outside timing. Each measured
+sample triangulates the same 81,000 camera observations into 27,000 accepted 3D
+points, including diagnostics and first-frame centroid transformation.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

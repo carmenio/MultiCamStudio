@@ -10,7 +10,7 @@ Delivery source: `agents_docs/implementation/ui_ux_roadmap.md`
 - Operator loading, stale, partial, empty, and error presentation uses shared resource and operation-error models. Errors retain technical detail while naming the affected capability and recovery action.
 - The desktop shell has wide, laptop, constrained, and unsupported modes with mode-scoped pane preferences. Visible workflow labels changed without changing internal page keys.
 - Sessions navigation, Settings, and Activity are shell concerns. Settings reuses the existing storage, cache, model, and connectivity APIs; Activity reuses task and upload contexts.
-- High-frequency workflow commands live beside their content. Inspectors progressively disclose properties and advanced controls.
+- High-frequency selected-object commands live beside their content. The Recordings overview keeps its session-wide **Sync all recordings** command in the right inspector, while an opened set keeps **Sync recordings** in its toolbar. Inspectors progressively disclose properties and advanced controls.
 - Expo Router now owns phone navigation while one long-lived `PhoneRuntimeProvider` keeps signaling, capture, finalization, recording storage, and upload recovery mounted across route changes.
 
 ## Compatibility boundaries
@@ -25,8 +25,8 @@ Delivery source: `agents_docs/implementation/ui_ux_roadmap.md`
 
 - Header: workflow destinations, Settings, Activity, and Export only.
 - Sessions pane: session hierarchy and selection.
-- Workspace toolbar: the primary action for the current task or selected object.
-- Inspector: contextual properties and advanced disclosure.
+- Workspace toolbar: the primary action for the current task or selected object; an opened recording set owns **Sync recordings** here.
+- Inspector: contextual properties, advanced disclosure, and the Recordings overview's session-wide **Sync all recordings** command. Manual Sync appears only for an opened recording set.
 - Settings: storage/cache, camera defaults, models, connectivity, export presets, and troubleshooting.
 - Activity: background tasks, transfers, failures, completion, and cancellation.
 

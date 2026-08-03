@@ -1,5 +1,9 @@
 # Phase 1: Recordings and Sessions
 
+> **Gate status:** paused. Independent review found that Phase 0 live baseline
+> coverage was incomplete. The characterized extraction commit is retained in
+> PC history but is not the active subrepository revision until Phase 0 passes.
+
 ## Original responsibilities and coupling
 
 `RecordingsController` owned route translation, five persistence adapters,

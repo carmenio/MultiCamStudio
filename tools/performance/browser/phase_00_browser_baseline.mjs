@@ -8,6 +8,14 @@ import { performance } from 'node:perf_hooks'
 
 import { CdpClient, summarizeSamples, waitFor } from './cdp_client.mjs'
 import { hashOperatorShellSignature } from './output_identity.mjs'
+import {
+  BROWSER_BENCHMARK_FIXTURE,
+  createBuildProvenance,
+  createFixtureProvenance,
+  createFixtureReportMetadata,
+  discoverRuntimeProvenance,
+} from './provenance.mjs'
+import { formatRecordingSeekDiagnostic } from './seek_diagnostics.mjs'
 
 const REPOSITORY_ROOT = resolve(import.meta.dirname, '..', '..', '..')
 const OPERATOR_ROOT = join(REPOSITORY_ROOT, 'laptop', 'apps', 'operator-web')
@@ -16,13 +24,15 @@ const TYPESCRIPT_ENTRYPOINT = join(OPERATOR_ROOT, 'node_modules', 'typescript', 
 const OPERATOR_ORIGIN = 'http://127.0.0.1:4173'
 const PREVIEW_PORT = 4173
 const DEBUG_PORT = 9223
-const SESSION_ID = '49'
-const RECORDING_SET_ID = '178'
-const CALIBRATION_RECORDING_SET_ID = '177'
-const CALIBRATION_ID = '113'
-const TRIANGULATION_RUN_ID = '100'
-const TRIANGULATION_MAX_FRAME = 11_463
-const EXPECTED_CAMERA_COUNT = 3
+const FIXTURE_PROVENANCE = createFixtureProvenance(BROWSER_BENCHMARK_FIXTURE)
+const FIXTURE_REPORT_METADATA = createFixtureReportMetadata(BROWSER_BENCHMARK_FIXTURE)
+const SESSION_ID = String(BROWSER_BENCHMARK_FIXTURE.sessionId)
+const RECORDING_SET_ID = String(BROWSER_BENCHMARK_FIXTURE.recordingSetId)
+const CALIBRATION_RECORDING_SET_ID = String(BROWSER_BENCHMARK_FIXTURE.calibrationRecordingSetId)
+const CALIBRATION_ID = String(BROWSER_BENCHMARK_FIXTURE.calibrationId)
+const TRIANGULATION_RUN_ID = String(BROWSER_BENCHMARK_FIXTURE.triangulationRunId)
+const TRIANGULATION_MAX_FRAME = BROWSER_BENCHMARK_FIXTURE.triangulationMaxFrame
+const EXPECTED_CAMERA_COUNT = FIXTURE_PROVENANCE.camera_count
 const WARMUP_RUNS = 3
 const MEASURED_RUNS = 10
 const READINESS_TIMEOUT_MS = 20_000
@@ -283,15 +293,45 @@ async function measureRecordingSeekReadiness(client) {
     const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
     if (videos.length !== ${EXPECTED_CAMERA_COUNT}) return reject(new Error('recording videos are missing'))
     const startedAt = performance.now()
-    const timeout = setTimeout(() => reject(new Error('recording seek timed out')), ${READINESS_TIMEOUT_MS})
-    Promise.all(videos.map(video => new Promise((resolveVideo, rejectVideo) => {
-      video.addEventListener('seeked', resolveVideo, { once: true })
-      video.addEventListener('error', rejectVideo, { once: true })
+    const formatDiagnostic = ${formatRecordingSeekDiagnostic.toString()}
+    const states = videos.map((video, index) => ({
+      index,
+      source: video.currentSrc || video.src || '',
+      readyState: video.readyState,
+      currentTime: video.currentTime,
+      outcome: 'pending',
+    }))
+    const updateState = (index, outcome) => {
+      const video = videos[index]
+      states[index] = {
+        index,
+        source: video.currentSrc || video.src || '',
+        readyState: video.readyState,
+        currentTime: video.currentTime,
+        outcome,
+      }
+    }
+    const timeout = setTimeout(() => {
+      states.forEach((state, index) => updateState(index, state.outcome === 'pending' ? 'timeout' : state.outcome))
+      reject(new Error('recording seek timed out: ' + formatDiagnostic(states)))
+    }, ${READINESS_TIMEOUT_MS})
+    Promise.all(videos.map((video, index) => new Promise((resolveVideo, rejectVideo) => {
+      video.addEventListener('seeked', () => {
+        updateState(index, 'seeked')
+        resolveVideo()
+      }, { once: true })
+      video.addEventListener('error', () => {
+        updateState(index, 'error')
+        rejectVideo(new Error('recording seek failed: ' + formatDiagnostic(states)))
+      }, { once: true })
       video.currentTime = video.currentTime < 15 ? 20 : 10
     }))).then(() => {
       clearTimeout(timeout)
       resolve(performance.now() - startedAt)
-    }, reject)
+    }, error => {
+      clearTimeout(timeout)
+      reject(error)
+    })
   })`, true)
 }
 
@@ -598,7 +638,7 @@ async function run() {
   let client
   try {
     await waitForHttp(OPERATOR_ORIGIN)
-    chrome = launch(CHROME_PATH, [
+    const chromeArguments = [
       `--user-data-dir=${profileDirectory}`,
       `--remote-debugging-port=${DEBUG_PORT}`,
       '--ignore-certificate-errors',
@@ -607,7 +647,8 @@ async function run() {
       '--disable-default-apps',
       '--window-size=1440,1000',
       'about:blank',
-    ])
+    ]
+    chrome = launch(CHROME_PATH, chromeArguments)
     client = await openCdpTarget()
     await client.send('Page.enable')
     await client.send('Runtime.enable')
@@ -705,6 +746,17 @@ async function run() {
     }
     results.push(...optionalOutcomes.map(outcome => outcome.result).filter(Boolean))
     const unavailable = optionalOutcomes.map(outcome => outcome.unavailable).filter(Boolean)
+    const runtimeProvenance = discoverRuntimeProvenance()
+    const buildProvenance = createBuildProvenance({
+      viteEdgeMode: buildEnvironment.VITE_EDGE_MODE,
+      viteApiUrl: buildEnvironment.VITE_API_URL,
+      previewPort: PREVIEW_PORT,
+      chromeArguments: chromeArguments.map(argument => (
+        argument.startsWith('--user-data-dir=')
+          ? '--user-data-dir=<isolated temporary profile>'
+          : argument
+      )),
+    })
     const payload = {
       schema_version: 1,
       created_at_utc: new Date().toISOString(),
@@ -716,19 +768,11 @@ async function run() {
         platform: `${process.platform}-${process.arch}`,
         python: (await import('node:child_process')).execFileSync('python', ['--version'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim(),
         node: process.version,
-        hardware: '11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM',
-        power_mode: 'Balanced',
+        ...runtimeProvenance,
         network_route: 'production Vite preview http://127.0.0.1:4173 -> backend https://127.0.0.1:5000',
         database_snapshot: 'live fixture observed 2026-08-03; session 49',
-        fixture: {
-          session_id: Number(SESSION_ID),
-          recording_set_id: Number(RECORDING_SET_ID),
-          calibration_recording_set_id: Number(CALIBRATION_RECORDING_SET_ID),
-          calibration_id: Number(CALIBRATION_ID),
-          triangulation_run_id: Number(TRIANGULATION_RUN_ID),
-          triangulation_max_frame: TRIANGULATION_MAX_FRAME,
-        },
-        build_mode: 'Vite production build served by vite preview; headed Chrome with GPU enabled',
+        ...FIXTURE_REPORT_METADATA,
+        ...buildProvenance,
         dependency_versions: { operator_lockfile: 'laptop/package-lock.json' },
         compose_configuration: '3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251',
         service_images: { backend: 'sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7' },
@@ -736,9 +780,6 @@ async function run() {
           cold: 'isolated profile plus Network.clearBrowserCache and cache disabled',
           warm: 'same isolated profile with browser cache enabled after warmups',
         },
-        camera_count: 3,
-        recording_duration_seconds: [196.1, 195.8, 195.766666666667],
-        media_sizes_bytes: [450821959, 445290517, 448855126],
         chrome_path: CHROME_PATH,
         origin: OPERATOR_ORIGIN,
         viewport: [1440, 1000],

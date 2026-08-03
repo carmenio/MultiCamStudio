@@ -93,7 +93,13 @@ async function evaluate(client, expression, awaitPromise = false) {
   } catch (error) {
     throw new Error(`browser evaluation failed for ${expression.slice(0, 80)}: ${error.message}`)
   }
-  if (result.exceptionDetails) throw new Error('browser expression failed')
+  if (result.exceptionDetails) {
+    const detail = result.exceptionDetails.exception?.description
+      ?? result.exceptionDetails.exception?.value
+      ?? result.exceptionDetails.text
+      ?? 'unknown browser exception'
+    throw new Error(`browser expression failed: ${detail}`)
+  }
   return result.result?.value
 }
 
@@ -210,7 +216,6 @@ async function measureRecordingPreviewStartup(client, cacheState) {
 }
 
 async function measureRecordingFirstFrame(client) {
-  await openFixtureRecordingSet(client, 'warm')
   return evaluate(client, `new Promise((resolve, reject) => {
     const video = document.querySelector('section.recording-set-open video.recording-tile-video')
     if (!video) return reject(new Error('primary recording video is missing'))
@@ -228,7 +233,6 @@ async function measureRecordingFirstFrame(client) {
 }
 
 async function measureRecordingSeekReadiness(client) {
-  await openFixtureRecordingSet(client, 'warm')
   return evaluate(client, `new Promise((resolve, reject) => {
     const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
     if (videos.length !== ${EXPECTED_CAMERA_COUNT}) return reject(new Error('recording videos are missing'))
@@ -237,7 +241,7 @@ async function measureRecordingSeekReadiness(client) {
     Promise.all(videos.map(video => new Promise((resolveVideo, rejectVideo) => {
       video.addEventListener('seeked', resolveVideo, { once: true })
       video.addEventListener('error', rejectVideo, { once: true })
-      video.currentTime = 10
+      video.currentTime = video.currentTime < 15 ? 20 : 10
     }))).then(() => {
       clearTimeout(timeout)
       resolve(performance.now() - startedAt)
@@ -246,7 +250,6 @@ async function measureRecordingSeekReadiness(client) {
 }
 
 async function measureSynchronizedPlaybackStart(client) {
-  await openFixtureRecordingSet(client, 'warm')
   return evaluate(client, `new Promise((resolve, reject) => {
     const videos = [...document.querySelectorAll('section.recording-set-open video.recording-tile-video')]
     const playButton = [...document.querySelectorAll('footer button')]
@@ -274,6 +277,24 @@ async function measureScenario(client, operation) {
   const samples = []
   for (let index = 0; index < MEASURED_RUNS; index += 1) samples.push(await operation(client))
   return summarizeSamples(samples)
+}
+
+async function measureOptionalScenario(client, name, cacheState, operation) {
+  try {
+    return {
+      result: completeResult(name, cacheState, await measureScenario(client, operation)),
+      unavailable: null,
+    }
+  } catch (error) {
+    return {
+      result: null,
+      unavailable: {
+        name,
+        status: 'unavailable',
+        reason: error instanceof Error ? error.message : String(error),
+      },
+    }
+  }
 }
 
 async function captureOutputIdentity(client) {
@@ -359,27 +380,36 @@ async function run() {
         'warm',
         await measureScenario(client, measureRecordingNavigation),
       ),
-      completeResult(
-        'recording_preview_startup',
-        'cold',
-        await measureScenario(client, (activeClient) => measureRecordingPreviewStartup(activeClient, 'cold')),
-      ),
-      completeResult(
-        'recording_first_frame',
-        'warm',
-        await measureScenario(client, measureRecordingFirstFrame),
-      ),
-      completeResult(
-        'recording_seek_readiness',
-        'warm',
-        await measureScenario(client, measureRecordingSeekReadiness),
-      ),
-      completeResult(
-        'recording_synchronized_playback_start',
-        'warm',
-        await measureScenario(client, measureSynchronizedPlaybackStart),
-      ),
     ]
+    const optionalOutcomes = []
+    optionalOutcomes.push(await measureOptionalScenario(
+      client,
+      'recording_preview_startup',
+      'cold',
+      (activeClient) => measureRecordingPreviewStartup(activeClient, 'cold'),
+    ))
+    await openFixtureRecordingSet(client, 'warm')
+    optionalOutcomes.push(await measureOptionalScenario(
+      client,
+      'recording_first_frame',
+      'warm',
+      measureRecordingFirstFrame,
+    ))
+    await openFixtureRecordingSet(client, 'warm')
+    optionalOutcomes.push(await measureOptionalScenario(
+      client,
+      'recording_seek_readiness',
+      'warm',
+      measureRecordingSeekReadiness,
+    ))
+    await openFixtureRecordingSet(client, 'warm')
+    optionalOutcomes.push(await measureOptionalScenario(
+      client,
+      'recording_synchronized_playback_start',
+      'warm',
+      measureSynchronizedPlaybackStart,
+    ))
+    results.push(...optionalOutcomes.map(outcome => outcome.result).filter(Boolean))
     const outputIdentity = await captureOutputIdentity(client)
     const unavailable = [
       'three_d_first_usable_render',
@@ -388,6 +418,7 @@ async function run() {
       status: 'unavailable',
       reason: 'requires an explicitly configured visible card/media/result fixture',
     }))
+    unavailable.push(...optionalOutcomes.map(outcome => outcome.unavailable).filter(Boolean))
     const payload = {
       schema_version: 1,
       created_at_utc: new Date().toISOString(),

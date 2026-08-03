@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "phase": "phase_00",
+  "phase_complete": false,
+  "scenarios": [
+    {
+      "id": "session_overview_cold_warm",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_live/phase_00_live_benchmark.json", "tools/performance/results/phase_00_service_cold/phase_00_service_cold_baseline.json"],
+      "blocker": "Database and operating-system cold state are not captured; full profile currently returns HTTP 500."
+    },
+    {
+      "id": "operator_render_navigation",
+      "status": "captured",
+      "evidence": ["tools/performance/results/phase_00_browser/phase_00_browser_baseline.json"],
+      "blocker": null
+    },
+    {
+      "id": "pairing_control_round_trip",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_pairing/phase_00_pairing_baseline.json", "tools/performance/results/phase_00_edge_pairing/phase_00_edge_pairing_baseline.json", "tools/performance/results/phase_00_signaling/phase_00_signaling_baseline.json"],
+      "blocker": "Physical LAN, TLS, QR, WebRTC, reconnect, and device control are not captured."
+    },
+    {
+      "id": "stop_to_upload_init",
+      "status": "unavailable",
+      "evidence": ["tools/performance/results/phase_00_resumable_upload/phase_00_resumable_upload_baseline.json"],
+      "blocker": "Only the backend route lower bound exists; physical Stop, finalization, and network transit are absent."
+    },
+    {
+      "id": "upload_recovery_throughput",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_resumable_upload/phase_00_resumable_upload_baseline.json"],
+      "blocker": "Physical interrupted-network recovery on iPhone and Android is absent."
+    },
+    {
+      "id": "recording_preview_seek_sync_cut",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_browser/phase_00_browser_baseline.json", "tools/performance/results/phase_00_recording_cut/phase_00_recording_cut_baseline.json"],
+      "blocker": "All-camera seek, synchronization processing, cold cut, and live worker cut are absent."
+    },
+    {
+      "id": "calibration_workflow",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_calibration_preflight/phase_00_calibration_preflight_baseline.json", "tools/performance/results/phase_00_calibration_processing/phase_00_calibration_processing_baseline.json", "tools/performance/results/phase_00_calibration_viewer/phase_00_calibration_viewer_baseline.json"],
+      "blocker": "Live batch task orchestration is absent."
+    },
+    {
+      "id": "detection_streaming_postprocessing",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_live/phase_00_live_benchmark.json", "tools/performance/results/phase_00_detection_processing/phase_00_detection_processing_baseline.json"],
+      "blocker": "True uncached seek, live task persistence, and rendered overlay equivalence are absent."
+    },
+    {
+      "id": "triangulation_and_3d",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_triangulation_processing/phase_00_triangulation_processing_baseline.json", "tools/performance/results/phase_00_browser/phase_00_browser_baseline.json"],
+      "blocker": "Live rendered-skeleton and camera-transform equivalence are absent."
+    },
+    {
+      "id": "pipeline_worker_orchestration",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_pipeline_dispatch/phase_00_pipeline_dispatch_baseline.json"],
+      "blocker": "Dedicated persistent worker pickup, cancellation, and terminal-state timing are absent."
+    },
+    {
+      "id": "dataset_export",
+      "status": "partial",
+      "evidence": ["tools/performance/results/phase_00_export_planning/phase_00_export_planning_baseline.json", "tools/performance/results/phase_00_export_writing/phase_00_export_writing_baseline.json"],
+      "blocker": "Live task dispatch and history polling are absent."
+    },
+    {
+      "id": "physical_device_matrix",
+      "status": "unavailable",
+      "evidence": ["agents_docs/implementation/refactor_phases/phase_00_baseline.md"],
+      "blocker": "Ten maximum-profile recordings and interrupted recovery are required on physical iPhone and Android devices."
+    }
+  ]
+}

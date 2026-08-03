@@ -101,6 +101,12 @@ be defects but cannot be silently changed inside structural commits:
   `build_recording_preview` task remains queued rather than being canceled.
 - Recording-upload and preview-build handlers never poll running cancellation
   requests, so a requested cancel does not interrupt those handlers.
+- Capture finalization is serialized only by a controller-instance lock. Two
+  overlapping requests handled by one instance return the same persisted 200
+  response and import once, but separate controller/worker instances can both
+  create and ingest distinct recording sets. Both return 200 and the last
+  capture-row write wins. This multi-worker race is now characterized and must
+  not be altered inside a structural refactor.
 - Calibration cancellation after solver output persists the run as `error` and
   retains generated TOML/YAML. A still-later request can mark the batch canceled
   while leaving a completed run, viewer URL, canonical camera saves, and solver

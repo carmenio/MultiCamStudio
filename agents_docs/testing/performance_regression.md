@@ -6,7 +6,15 @@
 
 ## Public interface
 
-Create a `BenchmarkScenario` with a descriptive name, an explicit `cold` or `warm` cache label, and a zero-argument operation. The runner enforces three warmups and ten measured runs by default. Approved long-running calibration, detection, triangulation, and export scenarios may set `approved_long_workflow=True` and `measured_runs=5`; five runs are rejected without that explicit marker.
+Create a `BenchmarkScenario` with a descriptive name, an explicit `cold` or
+`warm` cache label, and a zero-argument operation. The diagnostic
+`header-bypass` label is also accepted for read-only probes that send
+`Cache-Control: no-cache` without clearing browser, service, database, or
+operating-system caches. It must never satisfy a required cold-cache gate. The
+runner enforces three warmups and ten measured runs by default. Approved
+long-running calibration, detection, triangulation, and export scenarios may
+set `approved_long_workflow=True` and `measured_runs=5`; five runs are rejected
+without that explicit marker.
 
 ```python
 from tools.performance import BenchmarkRunner, BenchmarkScenario
@@ -24,6 +32,18 @@ result = BenchmarkRunner().run(scenario)
 The operation may return `BenchmarkObservation(work_units, unit_name)` to report aggregate throughput. If any successful run supplies an observation, all successful runs must use the same unit. The comparison gate requires identical per-run work and units, then rejects throughput more than 3% below baseline. Failures are retained in the result instead of terminating the remaining measurements.
 
 Use `write_report(path, results, metadata)` and `read_report(path)` for the versioned JSON format. The report includes raw samples, configured run counts, p50/median, nearest-rank p95, minimum, maximum, measured and warmup failures, and throughput when supplied. `compare_report_files(baseline_path, candidate_path)` is the phase gate because it verifies controlled-environment metadata as well as measurements. `compare_reports(...)` is available for unit-level comparisons where the caller separately controls the environment.
+
+The committed-evidence gate additionally requires zero measured and warm-up
+failures, count/list consistency, one sample per successful execution, and a
+name/status/reason for every unavailable scenario. An unavailable scenario is
+retained as an explicit phase blocker; it is not silently treated as a passing
+measurement.
+
+Phase 0 required-workflow completeness is tracked separately in
+`tools/performance/phase_00_required_scenarios.json`. Its test requires the
+complete scenario ID set, existing evidence links, an explanation for every
+partial/unavailable scenario, and `phase_complete=true` only when every entry is
+captured.
 
 `tools/performance/run_http_benchmarks.py` is the SDK-style executable for read-only HTTP scenarios. Set its constants, `BENCHMARK_METADATA`, and `HTTP_SCENARIOS` at the top of the file; it deliberately has no command-line parser. Run it from the repository root with `python -m tools.performance.run_http_benchmarks`. Service-specific suites may import the public API directly instead of changing that shared runner.
 
@@ -113,9 +133,10 @@ python -m tools.performance.phase_00_resumable_upload_baseline
 ```
 
 This in-process runner captures initialization, interrupted-state resume,
-chunk-write throughput, and assembly/final-checksum throughput. It enforces the
-5,000 ms initialization ceiling as a server-side lower bound only. It is not
-physical Stop-to-upload-init or radio/network evidence.
+chunk-write throughput, and assembly/final-checksum throughput. It does not
+attach the 5,000 ms Stop-to-upload-init ceiling because the timer begins after
+phone finalization and network transit. It is not physical Stop-to-upload-init
+or radio/network evidence.
 
 Calibration viewer generation uses a fixed database-shaped geometry row and the
 production HTML renderer:
@@ -239,7 +260,7 @@ Run baseline and candidate on the same host without unrelated workloads. Do not 
 3. Pass only when controlled metadata and output identity match, required run counts are met, candidate median and p95 are each no more than 3% slower than baseline, throughput is no more than 3% lower for identical work, and candidate measured failures do not exceed baseline failures.
 4. Treat changes from -3% through +3% as measurement noise. Claim an improvement only when median or p95 improves by at least 3% and the other metric does not regress beyond the gate.
 5. A missing candidate scenario, an all-failed result, or an increased failure count blocks the phase.
-6. Encode workflow hard limits with `maximum_p95_ms` in both baseline and candidate scenarios: Detections summary/segment latency uses `500.0`, and Stop-to-upload-init uses `5000.0`. A changed limit or a baseline/candidate result exceeding it blocks the phase.
+6. Encode workflow hard limits with `maximum_p95_ms` in both baseline and candidate scenarios: Detections summary/segment latency uses `500.0`, and the physical end-to-end Stop-to-upload-init runner uses `5000.0`. Do not attach the phone limit to the backend upload-init handler surrogate. A changed limit or a baseline/candidate result exceeding it blocks the phase.
 
 If a result fails, capture a profile, correct the regression, and rerun both baseline and candidate under the same controls. Never overwrite a baseline with candidate results.
 

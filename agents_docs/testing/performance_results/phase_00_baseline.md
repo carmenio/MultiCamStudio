@@ -204,6 +204,47 @@ It does **not** prove phone Stop-to-upload-init, device finalization, or network
 latency; those remain physical-device acceptance gaps. Raw evidence is in
 `tools/performance/results/phase_00_resumable_upload/`.
 
+## Calibration preflight and processing baselines
+
+Warm video preflight calls the current production OpenCV metadata and
+first-decoded-frame probes for all four set-201 videos. The source files total
+418,993,355 bytes, contain 3,437 frames each at 60 fps, and are fully hashed
+before timing. The real solver benchmark prepares deterministic frames 500-619
+from anna and chris outside timing, then runs the production FreeMoCap boundary
+with NumPy seed `20260803`.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Four-camera metadata/readability preflight | Warm | 589.459 | 678.601 | 549.929 | 678.601 | 0 | 6.660 videos/s |
+| Two-camera, 120-frame FreeMoCap solve | Warm | 33,878.199 | 34,656.135 | 31,508.147 | 34,656.135 | 0 | 7.218 camera-frames/s |
+
+Preflight used 3 warmups and 10 measurements at root commit
+`80f5385fd2e6a3d3a0ec65e0243c8d3389390f7c`; its complete semantic identity
+was `7790c0e597580ef184976de348736b8605da2b81ad30be2632eb8709807d3283`.
+Processing used 3 warmups and 5 measurements at root commit
+`2d93790d625238bdd005be0c21d8c5173e7dc19b`; every execution retained TOML
+identity `3dad317eb5f84ec023039fd66d3f9f4c8dccad5dddf1c1200d2823ed544a24fc`
+and canonical result identity
+`ea1e323dadcb542be992c041de43f8806c1a7a5d0585596d39325cb10000035e`.
+Raw evidence is under `tools/performance/results/phase_00_calibration_preflight/`
+and `tools/performance/results/phase_00_calibration_processing/`.
+
+## All-page pipeline dispatch baseline
+
+The production `/api/all-tab/run` route dispatched a five-stage chain for ten
+fixed recording sets through deterministic in-memory adapters. Each sample
+created 50 ordered tasks and ten calibration batches with exact response
+identity `02058072ab6f3f7f6274f6ea4e7ff5a4102e3a50e3ac17a9954f9da2023efe06`.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Ten-set, five-stage route dispatch | Warm | 0.786 | 0.964 | 0.725 | 0.964 | 0 | 60,692 tasks/s |
+
+The run used 3 warmups and 10 measurements at root commit
+`eff3343b3cecb7183beaf88a460c4f2ae92db63c`. This is a controller/task-chain
+construction lower bound, not database persistence or worker execution. Raw
+evidence is in `tools/performance/results/phase_00_pipeline_dispatch/`.
+
 ## Calibration viewer generation baseline
 
 The production database-backed renderer generated a self-contained Plotly HTML
@@ -222,7 +263,8 @@ The run used 3 warmups and 10 measurements at root commit
 and complete HTML identity was
 `9a7910b9c035d50c8c42b61f04f061d2db56e87bef5bffa817bb8912e7cca817`.
 Raw evidence is in `tools/performance/results/phase_00_calibration_viewer/`.
-Solver processing and live Plotly readiness remain separate gaps.
+Solver processing and live Plotly readiness are recorded separately above and
+in the production browser section.
 
 ## Production browser baseline
 
@@ -285,14 +327,19 @@ Complete this table before Phase 1 structural changes resume.
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
 | Pairing/control/upload | Warm server route; physical devices pending | Fixed 16 MiB/4-chunk PC fixture | 10 each | Server init 2.019; resume 0.511; chunk write 58.605; completion 32.828 | Server init 2.438; resume 0.665; chunk write 67.493; completion 39.447 | Captured | Captured | 0 | Chunk 277,664,628 bytes/s; completion 493,783,883 bytes/s | Server init < 5 s passed; physical Stop-to-init pending |
-| Calibration workflow | Warm renderer/browser; processing pending | Fixed 10-camera geometry; live viewer 113 | 10 each | HTML 0.233; Plotly 848.624 | HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | 42,463 cameras/s | Solver/video processing pending |
+| Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 589.459; solve 33,878.199; HTML 0.233; Plotly 848.624 | Preflight 678.601; solve 34,656.135; HTML 0.283; Plotly 978.702 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,904.354; seek 32.575; playback 29.002; processing 4,310.144 | Render 7,329.336; seek 32.770; playback 31.417; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Relative gate |
+| Pipeline dispatch | Warm in-process | Ten sets, five stages, deterministic adapters | 10 | 0.786 | 0.964 | 0.725 | 0.964 | 0 | 60,692 tasks/s | Worker execution pending |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,967.282; writing 3,108.076 | Planning 4,670.150; writing 3,157.991 | Planning 3,683.326; writing 2,969.702 | Planning 4,670.150; writing 3,157.991 | 0 | 12,787,583 artifact bytes/s | Relative gate |
 
 ## Rollback
 
-The harness is isolated under `tools/performance/` and has no runtime imports or manifest changes. Rollback consists of removing that package, its dedicated tests, and these two performance documents. No application service, schema, persisted data, or deployment configuration is affected.
+The harness is isolated under `tools/performance/` and adds only npm command
+aliases to the root manifest. Rollback consists of removing that package, its
+dedicated tests/results, the command aliases, and these performance documents.
+No application service, schema, persisted data, or deployment configuration is
+affected.
 
 ## Known limitations
 

@@ -129,6 +129,38 @@ The full HTML identity is checked outside timing. This does not replace solver
 or video-detection measurements; live browser Plotly readiness is captured by
 the separate production browser runner.
 
+Calibration video preflight uses the existing production OpenCV probe seam on
+the four fixed set-201 videos:
+
+```powershell
+python -m tools.performance.phase_00_calibration_preflight_baseline
+```
+
+Source files are fully hashed before timing. Each warm sample reads metadata and
+decodes the first frame for all cameras; it does not read every frame or claim a
+cold operating-system cache.
+
+Real calibration processing uses the production FreeMoCap runner with two
+deterministic 120-frame clips prepared outside timing:
+
+```powershell
+python -m tools.performance.phase_00_calibration_processing_baseline
+```
+
+Each of three warmups and five measured solves clears only the benchmark-owned
+temporary output, resets NumPy seed `20260803`, and verifies the complete TOML
+and canonical result hashes. Hash verification is included in the timed work.
+
+All-page task-chain dispatch uses the production Flask route with deterministic
+in-memory persistence adapters:
+
+```powershell
+python -m tools.performance.phase_00_pipeline_dispatch_baseline
+```
+
+The fixed request dispatches all five stages for ten sets. It is a route and
+task-construction lower bound; it does not measure database latency or workers.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

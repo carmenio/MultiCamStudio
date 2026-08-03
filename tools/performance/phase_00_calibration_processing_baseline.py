@@ -303,6 +303,18 @@ class _CalibrationOperation:
             raise RuntimeError(
                 "calibration runner did not write camera_calibration.yaml"
             )
+        actual_toml_identity = _file_identity(artifacts.calibration_toml_path)
+        actual_result_identity = _result_identity(result)
+        if actual_toml_identity != self._config.expected_toml_identity:
+            raise RuntimeError(
+                "seeded calibration TOML changed during measurement: "
+                f"expected {self._config.expected_toml_identity}, got {actual_toml_identity}"
+            )
+        if actual_result_identity != self._config.expected_result_identity:
+            raise RuntimeError(
+                "seeded calibration result changed during measurement: "
+                f"expected {self._config.expected_result_identity}, got {actual_result_identity}"
+            )
         self.last_result = result
         self.last_artifacts = artifacts
         return BenchmarkObservation(

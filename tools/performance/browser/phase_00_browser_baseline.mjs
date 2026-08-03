@@ -17,6 +17,10 @@ const PREVIEW_PORT = 4173
 const DEBUG_PORT = 9223
 const SESSION_ID = '49'
 const RECORDING_SET_ID = '178'
+const CALIBRATION_RECORDING_SET_ID = '177'
+const CALIBRATION_ID = '113'
+const TRIANGULATION_RUN_ID = '100'
+const TRIANGULATION_MAX_FRAME = 11_463
 const EXPECTED_CAMERA_COUNT = 3
 const WARMUP_RUNS = 3
 const MEASURED_RUNS = 10
@@ -103,6 +107,24 @@ async function evaluate(client, expression, awaitPromise = false) {
   return result.result?.value
 }
 
+// Evaluate an expression inside a child-frame execution context.
+async function evaluateInContext(client, contextId, expression, awaitPromise = false) {
+  const result = await client.send('Runtime.evaluate', {
+    expression,
+    contextId,
+    awaitPromise,
+    returnByValue: true,
+  })
+  if (result.exceptionDetails) {
+    const detail = result.exceptionDetails.exception?.description
+      ?? result.exceptionDetails.exception?.value
+      ?? result.exceptionDetails.text
+      ?? 'unknown child-frame exception'
+    throw new Error(`child-frame expression failed: ${detail}`)
+  }
+  return result.result?.value
+}
+
 async function navigate(client, url) {
   await client.send('Page.navigate', { url })
   await waitFor(
@@ -129,6 +151,38 @@ async function prepareOrigin(client) {
     client,
     `localStorage.setItem('multicam:selectedSessionId', ${JSON.stringify(SESSION_ID)})`,
   )
+}
+
+// Open a workflow from the primary navigation and wait for its overview grid.
+async function openWorkflow(client, label, gridSelector) {
+  const clicked = await evaluate(client, `(() => {
+    const button = [...document.querySelectorAll('nav[aria-label="Primary"] button')]
+      .find(item => item.textContent?.trim() === ${JSON.stringify(label)})
+    if (!button) return false
+    button.click()
+    return true
+  })()`)
+  if (!clicked) throw new Error(`${label} navigation button was not found`)
+  await waitFor(
+    async () => Boolean(await evaluate(client, `Boolean(document.querySelector(${JSON.stringify(gridSelector)}))`)),
+    READINESS_TIMEOUT_MS,
+  )
+}
+
+// Resolve the visible card index using the same newest-first summary ordering as the UI.
+async function resolveSetCardIndex(client, recordingSetId) {
+  const cardIndex = await evaluate(client, `(async () => {
+    const response = await fetch('https://127.0.0.1:5000/api/sessions-info?profile=ui')
+    const payload = await response.json()
+    const summaries = payload?.data?.[${JSON.stringify(SESSION_ID)}]?.Recording_Set_Summaries ?? {}
+    return Object.entries(summaries)
+      .sort((left, right) => Date.parse(right[1]?.created_at ?? '') - Date.parse(left[1]?.created_at ?? ''))
+      .findIndex(([id]) => id === ${JSON.stringify(recordingSetId)})
+  })()`, true)
+  if (!Number.isInteger(cardIndex) || cardIndex < 0) {
+    throw new Error(`Recording set ${recordingSetId} was not found in the controlled session`)
+  }
+  return cardIndex
 }
 
 async function measureFirstUsable(client, cacheState) {
@@ -272,6 +326,190 @@ async function measureSynchronizedPlaybackStart(client) {
   })`, true)
 }
 
+// Open the fixed triangulation result and measure until its WebGL canvas is usable.
+async function openFixtureThreeDSet(client) {
+  await navigate(client, OPERATOR_ORIGIN)
+  await waitForUsableShell(client)
+  await openWorkflow(client, '3D', 'main.three-d-page .calibration-set-grid')
+  const cardIndex = await resolveSetCardIndex(client, RECORDING_SET_ID)
+  const startedAt = performance.now()
+  const opened = await evaluate(client, `(() => {
+    const card = document.querySelectorAll('main.three-d-page .three-d-set-card')[${cardIndex}]
+    if (!card) return false
+    card.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }))
+    return true
+  })()`)
+  if (!opened) throw new Error(`3D set card index ${cardIndex} was not rendered`)
+  await waitFor(
+    async () => Boolean(await evaluate(client, "Boolean(document.querySelector('main.three-d-page--detail section[aria-label=\"3D recording set\"]'))")),
+    READINESS_TIMEOUT_MS,
+  )
+  const selectedRun = await evaluate(client, `(() => {
+    const select = document.querySelector('#triangulation-pose-run')
+    if (!select) return null
+    if (select.value !== ${JSON.stringify(TRIANGULATION_RUN_ID)}) {
+      select.value = ${JSON.stringify(TRIANGULATION_RUN_ID)}
+      select.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+    return select.value
+  })()`)
+  if (selectedRun !== TRIANGULATION_RUN_ID) {
+    throw new Error(`Triangulation run ${TRIANGULATION_RUN_ID} was not selectable`)
+  }
+  await waitFor(
+    async () => Boolean(await evaluate(client, `(() => {
+      const canvas = document.querySelector('section[aria-label="3D reconstructed viewer"] .three-d-viewer-canvas-wrap canvas')
+      const label = document.querySelector('.three-d-timeline-panel .three-d-frame-label')
+      if (!canvas || canvas.width <= 1 || canvas.height <= 1 || !label) return false
+      const context = canvas.getContext('webgl2') ?? canvas.getContext('webgl')
+      return Boolean(context && !context.isContextLost() &&
+        !document.body.textContent?.includes('Loading 3D data') &&
+        label.textContent?.includes('/ ${TRIANGULATION_MAX_FRAME}'))
+    })()`)),
+    READINESS_TIMEOUT_MS,
+  )
+  await evaluate(
+    client,
+    'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))',
+    true,
+  )
+  return performance.now() - startedAt
+}
+
+// Seek the 3D timeline and wait until React and the renderer agree on the target frame.
+async function measureThreeDSeekReadiness(client, ratio = 0.5) {
+  const targetFrame = Math.round(TRIANGULATION_MAX_FRAME * ratio)
+  const startedAt = performance.now()
+  const sought = await evaluate(client, `(() => {
+    const track = document.querySelector('.three-d-timeline-panel .timeline-track[aria-label="Training timeline"]')
+    if (!track) return false
+    const rect = track.getBoundingClientRect()
+    const clientX = rect.left + rect.width * ${ratio}
+    track.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX }))
+    track.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX }))
+    return true
+  })()`)
+  if (!sought) throw new Error('3D training timeline was not rendered')
+  await waitFor(
+    async () => Boolean(await evaluate(client, `document.querySelector('.three-d-frame-label')?.textContent?.includes('Frame ${targetFrame} / ${TRIANGULATION_MAX_FRAME}')`)),
+    READINESS_TIMEOUT_MS,
+  )
+  await evaluate(
+    client,
+    'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))',
+    true,
+  )
+  return performance.now() - startedAt
+}
+
+// Start timeline playback and measure until a later rendered frame is reported.
+async function measureThreeDPlaybackStart(client) {
+  await measureThreeDSeekReadiness(client, 0.5)
+  const initialFrame = await evaluate(client, `Number(
+    document.querySelector('.three-d-frame-label')?.textContent?.match(/Frame (\\d+)/)?.[1]
+  )`)
+  const startedAt = performance.now()
+  const clicked = await evaluate(client, `(() => {
+    const button = document.querySelector('.three-d-timeline-panel .timeline-button')
+    if (!button) return false
+    button.click()
+    return true
+  })()`)
+  if (!clicked) throw new Error('3D timeline playback button was not rendered')
+  await waitFor(async () => {
+    const frame = await evaluate(client, `Number(
+      document.querySelector('.three-d-frame-label')?.textContent?.match(/Frame (\\d+)/)?.[1]
+    )`)
+    return Number.isFinite(frame) && frame > initialFrame
+  }, READINESS_TIMEOUT_MS)
+  await evaluate(client, `(() => {
+    const button = document.querySelector('.three-d-timeline-panel .timeline-button')
+    if (button?.textContent?.trim() === 'Pause') button.click()
+  })()`)
+  return performance.now() - startedAt
+}
+
+function findFrameByUrl(frameTree, expectedSuffix) {
+  if (frameTree.frame?.url?.endsWith(expectedSuffix)) return frameTree.frame
+  for (const child of frameTree.childFrames ?? []) {
+    const match = findFrameByUrl(child, expectedSuffix)
+    if (match) return match
+  }
+  return null
+}
+
+// Open the database-rendered calibration viewer and wait for Plotly's WebGL canvas.
+async function measureCalibrationPlotlyReadiness(client) {
+  await navigate(client, OPERATOR_ORIGIN)
+  await waitForUsableShell(client)
+  await openWorkflow(client, 'Calibration', 'main.calibration-page .calibration-set-grid')
+  const cardIndex = await resolveSetCardIndex(client, CALIBRATION_RECORDING_SET_ID)
+  const startedAt = performance.now()
+  const opened = await evaluate(client, `(() => {
+    const card = document.querySelectorAll('main.calibration-page .calibration-set-card')[${cardIndex}]
+    if (!card) return false
+    card.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, detail: 2 }))
+    return true
+  })()`)
+  if (!opened) throw new Error(`Calibration set card index ${cardIndex} was not rendered`)
+  await waitFor(
+    async () => Boolean(await evaluate(client, "Boolean(document.querySelector('section.calibration-set-open[aria-label=\"Calibration set\"]'))")),
+    READINESS_TIMEOUT_MS,
+  )
+  const cameraModeSelected = await evaluate(client, `(() => {
+    const button = document.querySelector('[role="radiogroup"][aria-label="Calibration preview mode"] button[aria-label="Camera view"]')
+    if (!button) return false
+    button.click()
+    return true
+  })()`)
+  if (!cameraModeSelected) throw new Error('Calibration camera-view control was not rendered')
+  const expectedSuffix = `/calibration-viewers/${CALIBRATION_ID}.html`
+  await waitFor(
+    async () => Boolean(await evaluate(client, `Boolean(document.querySelector('.calibration-detail-camera-iframe[src$=${JSON.stringify(expectedSuffix)}]'))`)),
+    READINESS_TIMEOUT_MS,
+  )
+  let frame
+  await waitFor(async () => {
+    const { frameTree } = await client.send('Page.getFrameTree')
+    frame = findFrameByUrl(frameTree, expectedSuffix)
+    return Boolean(frame)
+  }, READINESS_TIMEOUT_MS)
+  const { executionContextId } = await client.send('Page.createIsolatedWorld', {
+    frameId: frame.id,
+    worldName: 'multicam-benchmark',
+  })
+  await waitFor(async () => Boolean(await evaluateInContext(client, executionContextId, `Boolean(
+    document.readyState === 'complete' &&
+    document.querySelector('#root.js-plotly-plot') &&
+    document.querySelector('#root .gl-container canvas')
+  )`)), READINESS_TIMEOUT_MS)
+  await evaluateInContext(
+    client,
+    executionContextId,
+    'new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))',
+    true,
+  )
+  return performance.now() - startedAt
+}
+
+async function captureElementIdentity(client, selector) {
+  const clip = await evaluate(client, `(() => {
+    const element = document.querySelector(${JSON.stringify(selector)})
+    if (!element) return null
+    const rect = element.getBoundingClientRect()
+    return { x: rect.left, y: rect.top, width: rect.width, height: rect.height, scale: 1 }
+  })()`)
+  if (!clip || clip.width <= 1 || clip.height <= 1) {
+    throw new Error(`Cannot capture missing element: ${selector}`)
+  }
+  const screenshot = await client.send('Page.captureScreenshot', {
+    format: 'png',
+    fromSurface: true,
+    clip,
+  })
+  return createHash('sha256').update(Buffer.from(screenshot.data, 'base64')).digest('hex')
+}
+
 async function measureScenario(client, operation) {
   for (let index = 0; index < WARMUP_RUNS; index += 1) await operation(client)
   const samples = []
@@ -409,16 +647,52 @@ async function run() {
       'warm',
       measureSynchronizedPlaybackStart,
     ))
+    const threeDFirstUsable = await measureOptionalScenario(
+      client,
+      'three_d_first_usable_render',
+      'warm',
+      openFixtureThreeDSet,
+    )
+    optionalOutcomes.push(threeDFirstUsable)
+    let threeDOutputIdentity = null
+    if (threeDFirstUsable.result) {
+      threeDOutputIdentity = await captureElementIdentity(
+        client,
+        'section[aria-label="3D reconstructed viewer"] .three-d-viewer-canvas-wrap',
+      )
+      optionalOutcomes.push(await measureOptionalScenario(
+        client,
+        'three_d_timeline_seek_readiness',
+        'warm',
+        async (activeClient) => {
+          await measureThreeDSeekReadiness(activeClient, 0.25)
+          return measureThreeDSeekReadiness(activeClient, 0.5)
+        },
+      ))
+      optionalOutcomes.push(await measureOptionalScenario(
+        client,
+        'three_d_playback_start',
+        'warm',
+        measureThreeDPlaybackStart,
+      ))
+    }
+    const calibrationReadiness = await measureOptionalScenario(
+      client,
+      'calibration_plotly_readiness',
+      'warm',
+      measureCalibrationPlotlyReadiness,
+    )
+    optionalOutcomes.push(calibrationReadiness)
+    let calibrationOutputIdentity = null
+    if (calibrationReadiness.result) {
+      calibrationOutputIdentity = await captureElementIdentity(
+        client,
+        `.calibration-detail-camera-iframe[src$="/calibration-viewers/${CALIBRATION_ID}.html"]`,
+      )
+    }
     results.push(...optionalOutcomes.map(outcome => outcome.result).filter(Boolean))
     const outputIdentity = await captureOutputIdentity(client)
-    const unavailable = [
-      'three_d_first_usable_render',
-    ].map((name) => ({
-      name,
-      status: 'unavailable',
-      reason: 'requires an explicitly configured visible card/media/result fixture',
-    }))
-    unavailable.push(...optionalOutcomes.map(outcome => outcome.unavailable).filter(Boolean))
+    const unavailable = optionalOutcomes.map(outcome => outcome.unavailable).filter(Boolean)
     const payload = {
       schema_version: 1,
       created_at_utc: new Date().toISOString(),
@@ -434,7 +708,14 @@ async function run() {
         power_mode: 'Balanced',
         network_route: 'production Vite preview http://127.0.0.1:4173 -> backend https://127.0.0.1:5000',
         database_snapshot: 'live fixture observed 2026-08-03; session 49',
-        fixture: { session_id: 49 },
+        fixture: {
+          session_id: Number(SESSION_ID),
+          recording_set_id: Number(RECORDING_SET_ID),
+          calibration_recording_set_id: Number(CALIBRATION_RECORDING_SET_ID),
+          calibration_id: Number(CALIBRATION_ID),
+          triangulation_run_id: Number(TRIANGULATION_RUN_ID),
+          triangulation_max_frame: TRIANGULATION_MAX_FRAME,
+        },
         build_mode: 'Vite production build served by vite preview; headed Chrome with GPU enabled',
         dependency_versions: { operator_lockfile: 'laptop/package-lock.json' },
         compose_configuration: '3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251',
@@ -455,6 +736,8 @@ async function run() {
         measured_runs: MEASURED_RUNS,
         isolated_profile: true,
         expected_output_identity: outputIdentity,
+        three_d_output_identity: threeDOutputIdentity,
+        calibration_output_identity: calibrationOutputIdentity,
       },
       results,
       unavailable,

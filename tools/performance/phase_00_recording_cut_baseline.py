@@ -317,6 +317,32 @@ class _ContainerCutExecution:
         self.container_image_id = (
             image.stdout.strip() if image.returncode == 0 and image.stdout.strip() else "unavailable"
         )
+        environment = subprocess.run(
+            ["docker", "inspect", "--format", "{{json .Config.Env}}", container_name],
+            capture_output=True,
+            text=True,
+        )
+        if environment.returncode != 0 or not environment.stdout.strip():
+            raise RuntimeError(f"could not resolve deployed recording-cut settings for {container_name!r}")
+        container_environment = dict(
+            entry.split("=", 1) for entry in json.loads(environment.stdout) if "=" in entry
+        )
+        self.ffmpeg_preset = (
+            container_environment.get("PREVIEW_RECORDING_PRESET") or "veryfast"
+        ).strip() or "veryfast"
+        self.audio_bitrate_kbps = 96
+        deployed_audio = container_environment.get("PREVIEW_RECORDING_AUDIO_BITRATE_KBPS")
+        if deployed_audio is not None:
+            try:
+                parsed_audio = int(deployed_audio.strip())
+                self.audio_bitrate_kbps = parsed_audio if parsed_audio > 0 else 96
+            except (TypeError, ValueError):
+                self.audio_bitrate_kbps = 96
+        self.public_origin = (
+            container_environment.get("PUBLIC_RECORDINGS_BASE_URL")
+            or container_environment.get("PC_BACKEND_PUBLIC_ORIGIN")
+            or "http://localhost:5000"
+        ).strip().rstrip("/")
 
     def _container_path(self, host_path: Path) -> str:
         try:
@@ -357,6 +383,8 @@ class _CutEnvironment:
         self.progress: list[dict[str, Any]] = []
         self.last_result: dict[str, Any] | None = None
         self.last_output_paths: list[Path] = []
+        self.expected_contract_identity: str | None = None
+        self.expected_media_identity: str | None = None
 
         controller = RecordingsController.__new__(RecordingsController)
         controller.recording_database = self.recording_database
@@ -367,6 +395,8 @@ class _CutEnvironment:
         controller.preview_recordings_dir = self.runtime_root / "PreviewRecordings"
         controller.preview_ffmpeg_preset = FFMPEG_PRESET
         controller.preview_audio_bitrate_kbps = AUDIO_BITRATE_KBPS
+        public_origin = getattr(cut_execution, "public_origin", "http://localhost:5000")
+        controller._resolve_public_base_url = lambda: public_origin
         controller._run_ffmpeg_cut = cut_execution
         if timing_probe is not None:
             controller._persist_recording_timing = lambda recording_id, path: self._persist_injected_timing(timing_probe, recording_id, path)
@@ -385,7 +415,17 @@ class _CutEnvironment:
         """Validate the previous output outside timing, then reset only this run root."""
 
         if self.last_result is not None:
-            self.validate_last_output()
+            evidence = self.validate_last_output()
+            if (
+                self.expected_contract_identity is not None
+                and _canonical_identity(evidence["contract"]) != self.expected_contract_identity
+            ):
+                raise RuntimeError("recording-cut task contract changed between benchmark samples")
+            if (
+                self.expected_media_identity is not None
+                and _canonical_identity(evidence["files"]) != self.expected_media_identity
+            ):
+                raise RuntimeError("recording-cut media output changed between benchmark samples")
         for child in self.runtime_root.iterdir() if self.runtime_root.exists() else ():
             if not _is_within(child, self.runtime_root):
                 raise RuntimeError("refusing to clean outside the recording-cut runtime root")
@@ -464,6 +504,14 @@ def build_recording_cut_baseline(
         host_storage_root=config.shared_storage_root,
         container_name=config.backend_container,
     )
+    deployed_preset = getattr(executor, "ffmpeg_preset", FFMPEG_PRESET)
+    deployed_audio_bitrate = getattr(executor, "audio_bitrate_kbps", AUDIO_BITRATE_KBPS)
+    if deployed_preset != FFMPEG_PRESET or deployed_audio_bitrate != AUDIO_BITRATE_KBPS:
+        raise RuntimeError(
+            "recording-cut benchmark encoding does not match deployed controller settings: "
+            f"expected {deployed_preset}/{deployed_audio_bitrate}k, "
+            f"configured {FFMPEG_PRESET}/{AUDIO_BITRATE_KBPS}k"
+        )
     marker_root = (config.shared_storage_root / ".performance" / "recording-cut").resolve()
     runtime_root = marker_root / f"run-{uuid.uuid4().hex}"
     runtime_root.mkdir(parents=True, exist_ok=False)
@@ -475,6 +523,8 @@ def build_recording_cut_baseline(
         reference = environment.validate_last_output()
         expected_contract_identity = _canonical_identity(reference["contract"])
         expected_media_identity = _canonical_identity(reference["files"])
+        environment.expected_contract_identity = expected_contract_identity
+        environment.expected_media_identity = expected_media_identity
 
         result = BenchmarkRunner().run(
             BenchmarkScenario(
@@ -494,20 +544,28 @@ def build_recording_cut_baseline(
 
         total_output_bytes = sum(item["size_bytes"] for item in final_evidence["files"])
         aggregate_seconds = sum(result.durations_ms) / 1000.0
+        backend_image = getattr(executor, "container_image_id", "injected test execution")
+        expected_output_identity = {
+            "task_contract": expected_contract_identity,
+            "media": expected_media_identity,
+        }
         metadata = {
             "commit": _commit_identity(),
             "source_revisions": {"pc": _repository_revision("pc"), "laptop": _repository_revision("laptop")},
             "platform": platform.platform(),
             "python": platform.python_version(),
+            "node": _command_version(("node", "--version")),
             "dependency_versions": {
                 "ffmpeg": getattr(executor, "ffmpeg_version", "injected test execution"),
-                "backend_container_image": getattr(executor, "container_image_id", "injected test execution"),
+                "backend_container_image": backend_image,
             },
             "hardware": HARDWARE,
             "power_mode": POWER_MODE,
             "network_route": "none; production ffmpeg reached through docker exec",
             "database_snapshot": "set-178 media snapshot with deterministic in-memory persistence adapters",
             "build_mode": "production backend module and backend-container imageio-ffmpeg binary",
+            "compose_configuration": "pc/docker-compose.yml; existing backend container",
+            "service_images": {"backend": backend_image},
             "cache_preparation": "untimed reference execution, three warmups, isolated output reset per sample",
             "evidence_scope": "complete _cut_recording_set_task_handler including real transcoding, filesystem orchestration, timing probe, naming, progress, preview-task enqueue, and persistence calls; production database and output roots untouched",
             "fixture": {
@@ -524,6 +582,11 @@ def build_recording_cut_baseline(
             },
             "expected_contract_identity": expected_contract_identity,
             "expected_media_identity": expected_media_identity,
+            "camera_count": len(config.sources),
+            "recording_duration_seconds": config.cut_end_seconds - config.cut_start_seconds,
+            "media_sizes_bytes": [source.size_bytes for source in config.sources],
+            "expected_output_identity": expected_output_identity,
+            "deployed_public_origin": getattr(executor, "public_origin", "http://localhost:5000"),
             "output_files": final_evidence["files"],
             "bytes_throughput": {
                 "output_bytes_per_run": total_output_bytes,
@@ -535,6 +598,21 @@ def build_recording_cut_baseline(
         return {"results": (result,), "metadata": metadata}
     finally:
         environment.cleanup()
+
+
+def _command_version(command: tuple[str, ...]) -> str:
+    """Return stable tool version evidence without making Node a runtime dependency."""
+
+    try:
+        return subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout.strip()
+    except (FileNotFoundError, subprocess.SubprocessError):
+        return "unavailable"
 
 
 if __name__ == "__main__":

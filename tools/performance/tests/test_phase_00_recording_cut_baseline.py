@@ -14,6 +14,7 @@ from tools.performance.phase_00_recording_cut_baseline import (
     RecordingCutSource,
     build_recording_cut_baseline,
 )
+from tools.performance import compare_report_files
 
 
 class RecordingCutBaselineTests(unittest.TestCase):
@@ -88,6 +89,7 @@ class RecordingCutBaselineTests(unittest.TestCase):
                 )
 
             saved = json.loads(output_path.read_text(encoding="utf-8"))
+            self_gate_passed = compare_report_files(output_path, output_path).passed
             runtime_parent = storage_root / ".performance" / "recording-cut"
 
         result = outcome["results"][0]
@@ -102,6 +104,7 @@ class RecordingCutBaselineTests(unittest.TestCase):
         self.assertEqual(len(saved["metadata"]["expected_contract_identity"]), 64)
         self.assertEqual(len(saved["metadata"]["expected_media_identity"]), 64)
         self.assertEqual(len(saved["metadata"]["output_files"]), 3)
+        self.assertTrue(self_gate_passed)
 
     def test_runner_rejects_drifted_source_before_cut_execution(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -116,6 +119,107 @@ class RecordingCutBaselineTests(unittest.TestCase):
                     cut_execution=lambda **kwargs: calls.append(kwargs),
                 )
         self.assertEqual(calls, [])
+
+    def test_runner_rejects_media_drift_between_samples(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            storage_root = Path(temporary_directory)
+            source_path = storage_root / "SyncedVideos" / "set-178" / "synced_one.mp4"
+            source_path.parent.mkdir(parents=True)
+            source_path.write_bytes(b"source")
+            source = RecordingCutSource(
+                17_801,
+                "One",
+                source_path.relative_to(storage_root).as_posix(),
+                6,
+                hashlib.sha256(b"source").hexdigest(),
+                600,
+                60.0,
+                10.0,
+                1_920,
+                1_080,
+            )
+            calls = 0
+
+            def drifting_cut_execution(*, output_path, **_values):
+                nonlocal calls
+                calls += 1
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_bytes(b"reference" if calls == 1 else b"drifted")
+
+            probe = {
+                "frame_count": 300,
+                "measured_fps": 60.0,
+                "duration_seconds": 5.0,
+                "source_frame_width": 1_920,
+                "source_frame_height": 1_080,
+            }
+            from unittest.mock import patch
+
+            with patch(
+                "tools.performance.phase_00_recording_cut_baseline._probe_summary",
+                side_effect=lambda path: {
+                    **probe,
+                    "frame_count": 600,
+                    "duration_seconds": 10.0,
+                }
+                if path == source_path
+                else probe,
+            ):
+                with self.assertRaisesRegex(RuntimeError, "media output changed"):
+                    build_recording_cut_baseline(
+                        RecordingCutConfig(
+                            output_path=storage_root / "result.json",
+                            shared_storage_root=storage_root,
+                            sources=(source,),
+                        ),
+                        cut_execution=drifting_cut_execution,
+                        timing_probe=lambda _recording_id, _path: probe,
+                    )
+
+    def test_runner_rejects_encoding_that_differs_from_deployment(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            storage_root = Path(temporary_directory)
+            source_path = storage_root / "source.mp4"
+            source_path.write_bytes(b"source")
+            source = RecordingCutSource(
+                1,
+                "One",
+                "source.mp4",
+                6,
+                hashlib.sha256(b"source").hexdigest(),
+                1,
+                1.0,
+                1.0,
+                1,
+                1,
+            )
+
+            def mismatched_execution(**_values):
+                raise AssertionError("encoding mismatch must fail before execution")
+
+            mismatched_execution.ffmpeg_preset = "slow"  # type: ignore[attr-defined]
+            mismatched_execution.audio_bitrate_kbps = 192  # type: ignore[attr-defined]
+            from unittest.mock import patch
+
+            with patch(
+                "tools.performance.phase_00_recording_cut_baseline._probe_summary",
+                return_value={
+                    "frame_count": 1,
+                    "measured_fps": 1.0,
+                    "duration_seconds": 1.0,
+                    "source_frame_width": 1,
+                    "source_frame_height": 1,
+                },
+            ):
+                with self.assertRaisesRegex(RuntimeError, "does not match deployed"):
+                    build_recording_cut_baseline(
+                        RecordingCutConfig(
+                            output_path=storage_root / "result.json",
+                            shared_storage_root=storage_root,
+                            sources=(source,),
+                        ),
+                        cut_execution=mismatched_execution,
+                    )
 
 
 if __name__ == "__main__":

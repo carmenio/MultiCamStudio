@@ -164,3 +164,19 @@ Focused coverage lives in:
 - `laptop/apps/operator-web/tests/pages/PointDetectionPage.test.tsx`
 - `pc/services/backend/Tests/test_point_detection_postprocess_pipeline.py`
 - `pc/services/backend/Tests/test_point_detections_controller.py`
+
+## Detail result toolbar ownership
+
+The Detections detail toolbar owns result viewing controls. It presents raw
+detection runs as chronological `Run 1`, `Run 2`, and so on, then exposes the
+selected run's raw result and every retained post-processing checkpoint in a
+second output selector. Presentation ordinals never replace canonical run IDs.
+Lightweight variant summaries include additive `source_run_id` and
+`source_variant_id` metadata so the UI can group checkpoints without loading
+canonical result JSON.
+
+The same toolbar owns aggregate segment-hydration progress, overlay visibility,
+comparison selection, searchable point/object visibility, and skeleton
+visibility. View and comparison menus are portalled, viewport-clamped, and
+keyboard dismissible. The right sidebar owns only model parameters, execution,
+and the Post-Processing entry; do not duplicate result-view controls there.

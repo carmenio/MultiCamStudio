@@ -179,6 +179,31 @@ All cameras contributed 27,000 zero-error synthetic projections, and the output
 retained the applied first-frame centroid transform. Raw evidence is in
 `tools/performance/results/phase_00_triangulation_processing/`.
 
+## PC resumable-upload baseline
+
+The real PC upload route handlers ran through an in-process Flask adapter with
+fixed in-memory persistence and a dedicated temporary recording root. The
+16,777,216-byte fixture uses four 4 MiB chunks. Initialization and recovery
+include Flask request handling and adapter work; chunk and completion scenarios
+also include production SHA-256 and filesystem operations. Fixture preparation,
+cleanup, and final independent checksum verification are outside timing.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| New resumable-upload initialization | Warm | 2.019 | 2.438 | 1.526 | 2.438 | 0 | N/A |
+| Interrupted-upload resume lookup | Warm | 0.511 | 0.665 | 0.463 | 0.665 | 0 | N/A |
+| Four-chunk write | Warm | 58.605 | 67.493 | 54.835 | 67.493 | 0 | 277,664,628 bytes/s |
+| Assembly and final checksum | Warm | 32.828 | 39.447 | 31.358 | 39.447 | 0 | 493,783,883 bytes/s |
+
+All scenarios used 3 warmups and 10 measurements at root commit
+`8f20e14b2599b5cc7a094a3e88b75902b7705332` and PC revision
+`95ca0fb29f38746a4cf6d5754250af75a05f716b`. The completed bytes retained SHA-256
+`69bb4bc2118a3c18d925e0bb38a01f1d1e2670112c36126eb37492fca2446684`.
+The 2.438 ms initialization p95 satisfies the 5,000 ms server-side ceiling.
+It does **not** prove phone Stop-to-upload-init, device finalization, or network
+latency; those remain physical-device acceptance gaps. Raw evidence is in
+`tools/performance/results/phase_00_resumable_upload/`.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -225,7 +250,7 @@ Complete this table before Phase 1 structural changes resume.
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
 | Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651 | 10 each | Preview, first frame, and synchronized start captured | Preview, first frame, and synchronized start captured | Captured | Captured | 0 | N/A | Seek timed out; cutting pending |
-| Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
+| Pairing/control/upload | Warm server route; physical devices pending | Fixed 16 MiB/4-chunk PC fixture | 10 each | Server init 2.019; resume 0.511; chunk write 58.605; completion 32.828 | Server init 2.438; resume 0.665; chunk write 67.493; completion 39.447 | Captured | Captured | 0 | Chunk 277,664,628 bytes/s; completion 493,783,883 bytes/s | Server init < 5 s passed; physical Stop-to-init pending |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 10,498.022; generation 279.237 | Live summary/windows captured; processing 13,876.066; generation 421.531 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
 | Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Live retrieval captured; processing 4,310.144 | Live retrieval captured; processing 4,510.427 | Captured | Captured | 0 | Result bytes/s plus 6,352 accepted 3D points/s | Browser 3D readiness pending |

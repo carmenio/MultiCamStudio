@@ -103,6 +103,17 @@ Input projection and full result hashing occur outside timing. Each measured
 sample triangulates the same 81,000 camera observations into 27,000 accepted 3D
 points, including diagnostics and first-frame centroid transformation.
 
+PC resumable-upload route and filesystem work uses an isolated temporary root:
+
+```powershell
+python -m tools.performance.phase_00_resumable_upload_baseline
+```
+
+This in-process runner captures initialization, interrupted-state resume,
+chunk-write throughput, and assembly/final-checksum throughput. It enforces the
+5,000 ms initialization ceiling as a server-side lower bound only. It is not
+physical Stop-to-upload-init or radio/network evidence.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

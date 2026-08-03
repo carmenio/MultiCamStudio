@@ -19,6 +19,7 @@
     "benchmark:calibration-processing": "python -m tools.performance.phase_00_calibration_processing_baseline",
     "benchmark:calibration-preflight": "python -m tools.performance.phase_00_calibration_preflight_baseline",
     "benchmark:pipeline-dispatch": "python -m tools.performance.phase_00_pipeline_dispatch_baseline",
+    "benchmark:pairing": "python -m tools.performance.phase_00_pairing_baseline",
     "benchmark:resumable-upload": "python -m tools.performance.phase_00_resumable_upload_baseline",
     "benchmark:calibration-viewer": "python -m tools.performance.phase_00_calibration_viewer_baseline",
     "benchmark:signaling": "node tools/performance/phase_00_signaling_baseline.mjs"

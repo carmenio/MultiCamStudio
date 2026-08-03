@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T07:27:16.533387+00:00",
+  "metadata": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "node": "v24.11.1",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)",
+    "network_route": "https://localhost:5000 -> Docker published backend port 5000",
+    "database_snapshot": "live fixture observed 2026-08-03; session 49; recording set 177",
+    "fixture": "recording set 177; recording ids 646,647,648",
+    "build_mode": "bind-mounted backend container; Flask production service process",
+    "dependency_versions": {
+      "requirements_sha256": "3b0a35fb149de4b0aac3b095adf114a7ebc5510e6bb0e6b9bf749b4123a982f2"
+    },
+    "compose_configuration": "3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251",
+    "service_images": {
+      "backend": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
+    },
+    "cache_preparation": "warm; three unmeasured create/delete lifecycle requests",
+    "camera_count": 3,
+    "recording_duration_seconds": [
+      48.4833333333333,
+      44.1833333333333,
+      53.6833333333333
+    ],
+    "media_sizes_bytes": [
+      111199373,
+      102355070,
+      122456971
+    ],
+    "expected_output_identity": "sha256:7c59ed3835da6b74f6f75d1474939416db82ea6581c8149ccc4c27fec7861155",
+    "evidence_revision": "before playback registry extraction"
+  },
+  "results": [
+    {
+      "name": "recording-playback-session-create",
+      "cache_state": "warm",
+      "samples_ms": [
+        27.12,
+        26.146,
+        26.821,
+        23.311,
+        34.277,
+        24.154,
+        33.801,
+        27.387,
+        24.707,
+        24.285
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 26.4835,
+      "p50_ms": 26.4835,
+      "p95_ms": 34.277,
+      "minimum_ms": 23.311,
+      "maximum_ms": 34.277,
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    }
+  ]
+}

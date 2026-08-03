@@ -32,3 +32,33 @@ Viewer and batch-status requests return HTTP 200, but the live logs show their
 newer selective PostgREST projections returning HTTP 400 before compatibility
 fallback queries succeed. This adds latency and log noise. Preserve the fallback
 until the live database schema and response contracts are migrated deliberately.
+
+## Task and All-page pipeline compatibility behavior
+
+Characterization on 2026-08-03 confirmed several observable behaviors that may
+be defects but cannot be silently changed inside structural commits:
+
+- Invalid numeric `/api/tasks` query values return HTTP 500 rather than 400.
+- All-page calibration linking is validated and recording-set links are updated
+  even when the calibration stage is disabled.
+- Link updates and queued task creation are not transactional. A later queue
+  write failure returns HTTP 500 while earlier link and task writes remain.
+- Active duplicate detection applies to sync tasks only; later stages enqueue
+  another task on repeated submissions.
+- When sync is disabled, an unsynced set is reported in `skipped_sets` while the
+  overall request still returns HTTP 202, including when every set is skipped.
+- Task database construction/probing can fall back independently in controllers
+  and workers, creating a risk of separate in-memory stores after database loss.
+
+The focused route tests intentionally freeze these results. Any correction needs
+an explicit compatibility decision and tests for the new response and recovery
+semantics.
+
+## Triangulation test-order dependency
+
+The triangulation controller harness previously constructed the complete Flask
+application while mocking only triangulation dependencies. It passed in the
+canonical suite only when earlier tests had left mocked controller imports in the
+module cache; a mixed focused suite attempted live Supabase construction and
+failed 21 cases. The harness now mounts `TriangulationsController` on a local
+Flask app. This is a test-only repair and changes no production route behavior.

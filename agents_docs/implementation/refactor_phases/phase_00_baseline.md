@@ -24,6 +24,9 @@ The untouched baseline was:
 - The stale EdgeSync assertion includes the already-observable `size_bytes` update.
 - Detections timing assertions now identify model-FPS fallback when video timing is
   absent; the DOM case that genuinely uses video timing remains unchanged.
+- Triangulation controller tests mount the real controller on a controller-local
+  Flask app. Focused mixed suites no longer depend on earlier tests leaving mocked
+  full-application imports in `sys.modules`.
 - The design-system contract exempts the export point visualization from the ban on
   inline action SVGs. Interactive chrome remains library-backed.
 - `npm ci` restores the signaling test environment; no tracked signaling source or
@@ -42,7 +45,7 @@ The untouched baseline was:
 - Camera mobile: 53 passed; type-check and native-patch validation passed.
 
 After the latest characterization additions, the complete backend suite passes
-564 tests. This includes the 21-test capture lifecycle suite and eight focused
+584 tests. This includes the 21-test capture lifecycle suite and eight focused
 media-route cases added after the prior complete run. The complete operator suite
 passes with the repository's bounded-worker
 command and includes 7 new RecordingPage contract tests (664 total); its
@@ -74,7 +77,7 @@ device gap.
 | Point detection and post-processing | Controller, catalog database, result persistence, service, post-processing pipeline, segmenter, API, scheduler, hydration, page, sidebar, and toolbar suites | Add controlled summary, first-window, uncached-seek, sequential-window, segment-generation, and post-processing baselines. Live overlay equivalence is not Phase 0 evidence. |
 | Triangulation and 3D | Controller, service, database, API, page, viewer, and training-timeline suites cover mapping, variant resolution, diagnostics, audit, runs, results, assignments, and training transitions | Add result-not-found and remaining training/reference-media error shapes, fixed-fixture output identity, camera-transform/render equivalence, first usable render, playback-start, and seek baselines. |
 | Dataset exports | The 17-test controller suite plus planner, coordinator, writer, history, service, and ExportWizard suites cover reviewed specifications, explicit sources, mappings, missing sources, history, and synchronous compatibility. Exact route contracts now include validation and unexpected preflight errors, missing task service, stale reviews, zero eligible sets, and numeric/opaque missing-job lookups. A production preflight baseline captures an eligible fixed-source plan with stable semantic and review hashes. A separate fixed three-camera `two_d_3d` baseline exercises production artifact writing, checksums, manifest integrity, and atomic finalization across five measured exports with stable output identity. | Live server-side export task dispatch and history polling remain uncaptured; writer/finalization throughput is now frozen. |
-| All-tab pipeline and task queue | All-tab controller/overview and worker-boot/task-normalization suites | Add full enabled-stage ordering and payload characterization, partial-stage failure, invalid selection, task cancel-request behavior, and live orchestration timing. |
+| All-tab pipeline and task queue | Twenty-five focused route tests now freeze task list/detail filtering and shaping, queued cancellation, running cancel requests, completed cleanup, persistent-store fallback, five-stage order, exact task payloads, dependency chaining, duplicate-sync reuse, sync-disabled skipping, per-set calibration linking, validation errors, adapter unavailability, and partial task-creation failure. Overview service and worker/task-normalization suites retain stage precedence and dispatch behavior. | Add dependency-store recursive cancellation cases and live orchestration timing. Current validation-before-stage-selection and nontransactional partial effects are documented baseline defects. |
 
 Seven focused RecordingPage contract tests additionally freeze visible-order
 export projection, clearing on session removal, partial-deletion retention, exact

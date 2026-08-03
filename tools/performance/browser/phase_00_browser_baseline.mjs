@@ -510,17 +510,24 @@ async function captureElementIdentity(client, selector) {
   return createHash('sha256').update(Buffer.from(screenshot.data, 'base64')).digest('hex')
 }
 
-async function measureScenario(client, operation) {
-  for (let index = 0; index < WARMUP_RUNS; index += 1) await operation(client)
+async function measureScenario(client, operation, scenarioName = 'scenario') {
+  process.stderr.write(`[browser baseline] ${scenarioName}: starting\n`)
+  for (let index = 0; index < WARMUP_RUNS; index += 1) {
+    await operation(client)
+    process.stderr.write(`[browser baseline] ${scenarioName}: warm-up ${index + 1}/${WARMUP_RUNS}\n`)
+  }
   const samples = []
-  for (let index = 0; index < MEASURED_RUNS; index += 1) samples.push(await operation(client))
+  for (let index = 0; index < MEASURED_RUNS; index += 1) {
+    samples.push(await operation(client))
+    process.stderr.write(`[browser baseline] ${scenarioName}: measured ${index + 1}/${MEASURED_RUNS}\n`)
+  }
   return summarizeSamples(samples)
 }
 
 async function measureOptionalScenario(client, name, cacheState, operation) {
   try {
     return {
-      result: completeResult(name, cacheState, await measureScenario(client, operation)),
+      result: completeResult(name, cacheState, await measureScenario(client, operation, name)),
       unavailable: null,
     }
   } catch (error) {
@@ -606,17 +613,17 @@ async function run() {
       completeResult(
         'operator_first_usable',
         'cold',
-        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'cold')),
+        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'cold'), 'operator_first_usable_cold'),
       ),
       completeResult(
         'operator_first_usable',
         'warm',
-        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'warm')),
+        await measureScenario(client, (activeClient) => measureFirstUsable(activeClient, 'warm'), 'operator_first_usable_warm'),
       ),
       completeResult(
         'operator_recordings_navigation',
         'warm',
-        await measureScenario(client, measureRecordingNavigation),
+        await measureScenario(client, measureRecordingNavigation, 'operator_recordings_navigation'),
       ),
     ]
     const optionalOutcomes = []

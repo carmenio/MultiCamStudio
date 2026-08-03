@@ -4,9 +4,9 @@
 
 The reusable benchmark and comparison infrastructure is implemented and tested.
 A first read-only live baseline is committed for the locally available PC and
-laptop stack. Stateful jobs, true service/database cold-cache preparation,
-browser first-usable rendering, and the physical device matrix remain missing;
-therefore Phase 0 is still **incomplete**.
+laptop stack, including a production browser baseline. Stateful jobs, true
+service/database cold-cache preparation, media-element playback timing, and the
+physical device matrix remain missing; therefore Phase 0 is still **incomplete**.
 
 ## Harness evidence
 
@@ -30,8 +30,9 @@ python -m unittest discover -s tools/performance/tests -v
 
 ## Read-only live baseline
 
-Environment: root commit `794e1a585e99bd4f9f015005ffa3b9ac9a662ece`, PC
-runtime revision `ab9277e42086bad59804fa006bac47d09aca650c`, Windows 10.0.26200, Intel Core i9-11900K, Balanced
+Environment: root commit `afc14c87f36efd778a700ee7dbf3585099af9577`, PC
+runtime revision `afd9acb47ae424beadb8dd7ea54dab0c4b961343`, laptop
+revision `f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`, Windows 10.0.26200, Intel Core i9-11900K, Balanced
 power mode, Docker backend at `https://127.0.0.1:5000`, and laptop proxy at
 `https://127.0.0.1:9443`. Fixture: session 49, recording set 178, recordings
 649-651, calibration 113, and calibration batch 114. Each available scenario
@@ -39,23 +40,29 @@ used three warmups and ten measured GET requests with stable output hashes.
 
 | Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Session overview UI | Header-bypass | 71.016 | 81.834 | 66.086 | 81.834 | 0 |
-| Session overview UI | Warm | 74.817 | 83.579 | 70.576 | 83.579 | 0 |
-| Laptop health | Warm | 5.034 | 5.571 | 4.799 | 5.571 | 0 |
-| Operator HTML response | Header-bypass | 94.497 | 104.693 | 7.788 | 104.693 | 0 |
-| Operator HTML response | Warm | 86.907 | 194.366 | 7.712 | 194.366 | 0 |
-| Laptop-proxied session UI | Warm | 8.608 | 19.653 | 7.585 | 19.653 | 0 |
-| Playback-source resolution | Warm | 30.093 | 38.374 | 28.426 | 38.374 | 0 |
-| One-byte media readiness | Warm | 11.711 | 25.165 | 10.523 | 25.165 | 0 |
-| Detection summary | Warm | 23.610 | 30.157 | 21.639 | 30.157 | 0 |
-| First 5-second segment, 3 cameras | Warm | 70.895 | 81.547 | 61.502 | 81.547 | 0 |
-| Triangulation runs metadata | Warm | 26.347 | 35.739 | 23.535 | 35.739 | 0 |
-| Triangulation session status | Warm | 22.495 | 23.731 | 21.255 | 23.731 | 0 |
-| Calibration viewer metadata | Warm | 28.614 | 37.758 | 24.575 | 37.758 | 0 |
-| Calibration batch status | Warm | 33.912 | 38.989 | 28.771 | 38.989 | 0 |
+| Session overview UI | Header-bypass | 83.281 | 115.388 | 71.859 | 115.388 | 0 |
+| Session overview UI | Warm | 75.370 | 84.382 | 69.600 | 84.382 | 0 |
+| Laptop health | Warm | 5.358 | 14.561 | 4.571 | 14.561 | 0 |
+| Operator HTML response | Header-bypass | 48.165 | 94.470 | 7.985 | 94.470 | 0 |
+| Operator HTML response | Warm | 93.264 | 106.796 | 8.099 | 106.796 | 0 |
+| Laptop-proxied session UI | Warm | 9.430 | 20.586 | 7.699 | 20.586 | 0 |
+| Playback-source resolution | Warm | 29.962 | 32.774 | 28.527 | 32.774 | 0 |
+| One-byte media readiness | Warm | 17.309 | 23.095 | 10.882 | 23.095 | 0 |
+| Detection summary | Warm | 25.791 | 36.244 | 20.894 | 36.244 | 0 |
+| First 5-second segment, 3 cameras | Warm | 68.997 | 74.198 | 59.407 | 74.198 | 0 |
+| Seeked 5-second segment, 3 cameras | Header-bypass | 120.823 | 131.649 | 117.102 | 131.649 | 0 |
+| Sequential 5-second segment, 3 cameras | Warm | 121.818 | 139.106 | 116.963 | 139.106 | 0 |
+| Triangulation runs metadata | Warm | 23.666 | 32.991 | 21.714 | 32.991 | 0 |
+| Triangulation session status | Warm | 24.162 | 32.866 | 21.791 | 32.866 | 0 |
+| Calibration viewer metadata | Warm | 25.430 | 38.526 | 24.146 | 38.526 | 0 |
+| Calibration batch status | Warm | 25.537 | 36.633 | 24.420 | 36.633 | 0 |
+| Triangulation result retrieval, 35,815,719 bytes | Warm | 3,311.008 | 3,556.172 | 3,174.850 | 3,556.172 | 0 |
 
-The detection summary and segment p95 values satisfy the existing 500 ms hard
-target. `Cache-Control: no-cache` is only an HTTP cache-bypass condition; it is
+The detection summary and all three segment p95 values satisfy the existing
+500 ms hard target. Segment throughput was 10,482,724 bytes/s for the first
+window, 10,001,669 bytes/s for the seeked window, and 9,762,334 bytes/s for the
+sequential window. Triangulation-result retrieval throughput was 10,738,381
+bytes/s. `Cache-Control: no-cache` is only an HTTP cache-bypass condition; it is
 not represented as a true cold service, operating-system, or database cache.
 Raw timing and identity evidence is in
 `tools/performance/results/phase_00_live/`.
@@ -102,8 +109,8 @@ Complete this table before Phase 1 structural changes resume.
 | Recording preview/seek/sync/cut | Cold + warm | Pending | 10 each | Pending | Pending | Pending | Pending | Pending | Where applicable | Relative gate |
 | Pairing/control/upload | Cold + warm | Pending devices | 10 each | Pending | Pending | Pending | Pending | Pending | Upload units/s | Upload init < 5 s |
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
-| Detection summary/segments/post-processing | Cold + warm | Pending | 5-10 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Summary/segment < 500 ms |
-| Triangulation/3D readiness | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
+| Detection summary/segments/post-processing | Header-bypass + warm | Set 178, raw:1053, recordings 649-651 | 10 each | Summary and three segment cases captured | Summary and three segment cases captured | Captured | Captured | 0 | Segment bytes/s captured | Summary/segment < 500 ms passed; post-processing pending |
+| Triangulation/3D readiness | Warm | Set 178, run 100 | 10 | Metadata/status/result retrieval captured | Metadata/status/result retrieval captured | Captured | Captured | 0 | Result bytes/s captured | Processing and browser 3D readiness pending |
 | Export planning/finalization | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 
 ## Rollback

@@ -1,6 +1,6 @@
 {
   "benchmark_report": "tools\\performance\\results\\phase_00_live\\phase_00_live_benchmark.json",
-  "created_at_utc": "2026-08-03T07:52:06.092217+00:00",
+  "created_at_utc": "2026-08-03T11:04:28.082168+00:00",
   "fixture": {
     "calibration_batch_id": 114,
     "calibration_id": 113,
@@ -11,7 +11,9 @@
       651
     ],
     "recording_set_id": 178,
-    "session_id": 49
+    "session_id": 49,
+    "triangulation_run_id": 100,
+    "variant_key": "raw:1053"
   },
   "safety": {
     "cold_preparation": "GET with Cache-Control: no-cache and Pragma: no-cache; no cache deletion",
@@ -57,10 +59,32 @@
     },
     {
       "cache_state": "warm",
+      "expected_output_identity": "44c53d3f2d7e0ef58671f379f062ec9d6097dc1daf700b66bbec07e29b473064",
+      "failure_count": 0,
+      "failures": [],
+      "name": "detection_sequential_segment",
+      "reason": null,
+      "status": "available",
+      "successful_runs": 10,
+      "warmup_failures": []
+    },
+    {
+      "cache_state": "warm",
       "expected_output_identity": "4c1ef31038f14be00bd02e285a11d859f92c4abda05e9abc7ebb3bc7d86da0fd",
       "failure_count": 0,
       "failures": [],
       "name": "detection_summary",
+      "reason": null,
+      "status": "available",
+      "successful_runs": 10,
+      "warmup_failures": []
+    },
+    {
+      "cache_state": "cold",
+      "expected_output_identity": "1ba748be5e604515512001979cb277ca3ccbcea8ab5ca9eb1e16beb70a571c97",
+      "failure_count": 0,
+      "failures": [],
+      "name": "detection_uncached_seek_segment",
       "reason": null,
       "status": "available",
       "successful_runs": 10,
@@ -79,7 +103,7 @@
     },
     {
       "cache_state": "warm",
-      "expected_output_identity": "024ef70132421dc15ac3e5e0b8fec411836cc8055d83e84cb5201948b790bb46",
+      "expected_output_identity": "db9e91a011593119329fd819734a52d8d3d16f66a2fc68cbcbc4a8be6f7edc75",
       "failure_count": 0,
       "failures": [],
       "name": "laptop_proxy_sessions_ui",
@@ -158,6 +182,17 @@
       "failure_count": 0,
       "failures": [],
       "name": "recording_playback_source",
+      "reason": null,
+      "status": "available",
+      "successful_runs": 10,
+      "warmup_failures": []
+    },
+    {
+      "cache_state": "warm",
+      "expected_output_identity": "13c598b8bf599e775f9111d13af5a325cda7f49033e8458522b782fa39d3179c",
+      "failure_count": 0,
+      "failures": [],
+      "name": "triangulation_result_retrieval",
       "reason": null,
       "status": "available",
       "successful_runs": 10,

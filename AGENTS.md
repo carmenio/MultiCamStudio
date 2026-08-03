@@ -37,3 +37,12 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## Refactor migration
+
+The whole-monorepo refactor is contract-first and phase-gated. Do not begin a
+structural phase until its characterization and before-performance evidence is
+committed; treat cache-bypass timings as distinct from true cold-cache evidence.
+See `agents_docs/implementation/refactor_migration.md`,
+`agents_docs/testing/performance_regression.md`, and
+`agents_docs/troubleshooting/refactor_baseline_defects.md`.

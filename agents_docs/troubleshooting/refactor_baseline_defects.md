@@ -46,6 +46,26 @@ synchronized playback-start measurements remain valid independent scenarios.
 Do not loosen the all-camera readiness condition during structural refactoring;
 diagnose and repair media seeking as an explicit behavior change.
 
+## Edge and PC pairing compatibility differences
+
+Phase 0 characterization confirms that both pairing implementations are active
+contracts rather than interchangeable implementations:
+
+- EdgeRelay issues a 15-minute timed-serializer token and returns ISO-8601
+  `expires_at`; the PC route issues a five-minute HMAC token and returns an
+  integer Unix expiration.
+- The operator `PairingTokenResponse` type currently describes `expires_at` as
+  a number even though the Edge route and existing UI test use a string.
+- Edge resolve returns `api_base`; PC resolve returns `session_name`.
+- Edge resolve trusts valid signed claims without re-reading the camera cache,
+  so a token remains resolvable after its cached camera is deleted or changed.
+- A non-numeric Edge token-issue `session_id` currently raises an unhandled
+  conversion error and produces Flask's HTML HTTP 500 response.
+
+Do not normalize these shapes or errors during route extraction. A later repair
+requires an explicit compatibility decision spanning operator web, browser
+phone, Expo phone, PC, and EdgeRelay.
+
 ## Task and All-page pipeline compatibility behavior
 
 Characterization on 2026-08-03 confirmed several observable behaviors that may

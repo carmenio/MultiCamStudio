@@ -1,7 +1,7 @@
 // Benchmark the production signaling relay without requiring physical devices or WebRTC media.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import net from 'node:net'
 import { tmpdir } from 'node:os'
@@ -27,9 +27,12 @@ const OPERATION_TIMEOUT_MS = 8_000
 const TEMP_PREFIX = 'multicam-signaling-benchmark-'
 const ROOM_ID = 'phase-00-signaling-room'
 const DEVICE_ID = 'phase-00-camera'
+const HARDWARE = '11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM'
+const POWER_MODE = 'Balanced'
 
 const requireFromSignaling = createRequire(join(SIGNALING_ROOT, 'package.json'))
 const { WebSocket } = requireFromSignaling('ws')
+const { version: WS_VERSION } = requireFromSignaling('ws/package.json')
 
 // Return percentile values using the nearest-rank convention used by the other baseline runners.
 export function summarizeSamples(samples) {
@@ -41,12 +44,16 @@ export function summarizeSamples(samples) {
     : (sorted[medianIndex - 1] + sorted[medianIndex]) / 2
   const p95Index = Math.max(0, Math.ceil(sorted.length * 0.95) - 1)
   return {
-    median_ms: roundMilliseconds(median),
-    p95_ms: roundMilliseconds(sorted[p95Index]),
-    min_ms: roundMilliseconds(sorted[0]),
-    max_ms: roundMilliseconds(sorted.at(-1)),
-    failures: 0,
+    samples_ms: samples.map(roundMilliseconds),
+    successful_runs: samples.length,
     measured_runs: samples.length,
+    failure_count: 0,
+    failures: [],
+    median_ms: roundMilliseconds(median),
+    p50_ms: roundMilliseconds(median),
+    p95_ms: roundMilliseconds(sorted[p95Index]),
+    minimum_ms: roundMilliseconds(sorted[0]),
+    maximum_ms: roundMilliseconds(sorted.at(-1)),
   }
 }
 
@@ -251,6 +258,25 @@ function rememberIdentity(identities, name, identity) {
   identities.get(name).add(identity)
 }
 
+function completeResult(name, summary, unitName, warmupRuns, measuredRuns) {
+  const totalMilliseconds = summary.samples_ms.reduce((total, sample) => total + sample, 0)
+  return {
+    name,
+    cache_state: 'warm',
+    ...summary,
+    warmup_runs: warmupRuns,
+    minimum_measured_runs: measuredRuns,
+    minimum_warmup_runs: warmupRuns,
+    maximum_p95_ms: null,
+    warmup_failures: [],
+    work_units: summary.samples_ms.map(() => 1),
+    unit_name: unitName,
+    throughput_per_second: totalMilliseconds > 0
+      ? (summary.samples_ms.length * 1_000) / totalMilliseconds
+      : null,
+  }
+}
+
 // Run all three lower-bound relay scenarios against one real production server process.
 export async function runSignalingBenchmark({
   warmupRuns = WARMUP_RUNS,
@@ -371,27 +397,38 @@ export async function runSignalingBenchmark({
       assert.equal(values.size, 1, `${name} normalization changed between samples`)
     }
     const result = {
-      benchmark: 'phase_00_signaling_baseline',
+      schema_version: 1,
+      created_at_utc: new Date().toISOString(),
       metadata: {
-        scope: 'Warm loopback signaling-relay lower bound only; excludes physical devices, network routing, WebRTC negotiation, media readiness, and camera behavior.',
+        commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim(),
+        source_revisions: {
+          laptop: execFileSync('git', ['-C', 'laptop', 'rev-parse', 'HEAD'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim(),
+        },
+        platform: `${process.platform}-${process.arch}`,
+        node: process.version,
+        dependency_versions: { ws: WS_VERSION },
+        hardware: HARDWARE,
+        power_mode: POWER_MODE,
+        network_route: 'unencrypted loopback WebSocket to one production relay process',
+        database_snapshot: 'none',
+        build_mode: 'production Node entrypoint; no transpilation',
+        cache_preparation: 'one warm server process and three warmups per scenario',
+        fixture: { room_id: ROOM_ID, device_id: DEVICE_ID },
+        expected_output_identity: Object.fromEntries(
+          [...identities].map(([name, values]) => [name, [...values][0]]),
+        ),
+        evidence_scope: 'Warm loopback signaling-relay lower bound only; excludes physical devices, network routing, WebRTC negotiation, media readiness, and camera behavior.',
         server_entrypoint: 'laptop/services/signaling/server.js',
         transport: 'unencrypted loopback WebSocket using deliberately nonexistent certificate paths',
-        room_id: ROOM_ID,
-        device_id: DEVICE_ID,
         warmup_runs: warmupRuns,
         measured_runs: measuredRuns,
-        node: process.version,
-        platform: process.platform,
-        architecture: process.arch,
       },
-      metrics: {
-        receiver_connection_to_viewer_ready_ms: connectionToViewerReady,
-        canonical_device_hello_status_round_trip_ms: canonicalRoundTrip,
-        legacy_device_info_round_trip_ms: legacyRoundTrip,
-      },
-      normalized_message_identities: Object.fromEntries(
-        [...identities].map(([name, values]) => [name, [...values][0]]),
-      ),
+      results: [
+        completeResult('signaling_receiver_connection_to_viewer_ready', connectionToViewerReady, 'connections_ready', warmupRuns, measuredRuns),
+        completeResult('signaling_canonical_control_round_trip', canonicalRoundTrip, 'round_trips', warmupRuns, measuredRuns),
+        completeResult('signaling_legacy_control_round_trip', legacyRoundTrip, 'round_trips', warmupRuns, measuredRuns),
+      ],
+      unavailable: [],
     }
     if (writeResult) {
       await mkdir(dirname(outputPath), { recursive: true })

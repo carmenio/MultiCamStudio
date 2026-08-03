@@ -223,7 +223,7 @@ async function measureRecordingNavigation(client) {
   return performance.now() - startedAt
 }
 
-async function openFixtureRecordingSet(client, cacheState = 'warm') {
+async function openFixtureRecordingSet(client, cacheState = 'warm', diagnosticContext = null) {
   await client.send('Network.setCacheDisabled', { cacheDisabled: cacheState === 'cold' })
   if (cacheState === 'cold') await client.send('Network.clearBrowserCache')
   await navigate(client, OPERATOR_ORIGIN)
@@ -251,6 +251,7 @@ async function openFixtureRecordingSet(client, cacheState = 'warm') {
   if (!Number.isInteger(cardIndex) || cardIndex < 0) {
     throw new Error(`Recording set ${RECORDING_SET_ID} was not found in the controlled session`)
   }
+  await evaluate(client, 'performance.clearResourceTimings()')
   const startedAt = performance.now()
   const opened = await evaluate(client, `(() => {
     const card = document.querySelectorAll('.recording-set-card')[${cardIndex}]
@@ -267,11 +268,29 @@ async function openFixtureRecordingSet(client, cacheState = 'warm') {
     })()`)),
     READINESS_TIMEOUT_MS,
   )
-  return performance.now() - startedAt
+  const elapsedMs = performance.now() - startedAt
+  if (diagnosticContext?.samples) {
+    const resources = await evaluate(client, `performance.getEntriesByType('resource').map(entry => ({
+      name: entry.name,
+      initiator_type: entry.initiatorType,
+      start_time_ms: entry.startTime,
+      duration_ms: entry.duration,
+      response_start_ms: entry.responseStart,
+      response_end_ms: entry.responseEnd,
+      transfer_size_bytes: entry.transferSize,
+      encoded_body_size_bytes: entry.encodedBodySize,
+    }))`)
+    diagnosticContext.samples.push({
+      run_index: diagnosticContext.index,
+      elapsed_ms: elapsedMs,
+      resources,
+    })
+  }
+  return elapsedMs
 }
 
-async function measureRecordingPreviewStartup(client, cacheState) {
-  return openFixtureRecordingSet(client, cacheState)
+async function measureRecordingPreviewStartup(client, cacheState, diagnosticContext) {
+  return openFixtureRecordingSet(client, cacheState, diagnosticContext)
 }
 
 async function measureRecordingFirstFrame(client) {
@@ -561,12 +580,12 @@ async function captureElementIdentity(client, selector) {
 async function measureScenario(client, operation, scenarioName = 'scenario') {
   process.stderr.write(`[browser baseline] ${scenarioName}: starting\n`)
   for (let index = 0; index < WARMUP_RUNS; index += 1) {
-    await operation(client)
+    await operation(client, { kind: 'warmup', index })
     process.stderr.write(`[browser baseline] ${scenarioName}: warm-up ${index + 1}/${WARMUP_RUNS}\n`)
   }
   const samples = []
   for (let index = 0; index < MEASURED_RUNS; index += 1) {
-    samples.push(await operation(client))
+    samples.push(await operation(client, { kind: 'measured', index }))
     process.stderr.write(`[browser baseline] ${scenarioName}: measured ${index + 1}/${MEASURED_RUNS}\n`)
   }
   return summarizeSamples(samples)
@@ -676,12 +695,19 @@ async function run() {
       ),
     ]
     const outputIdentity = await captureOutputIdentity(client)
+    const recordingPreviewResourceSamples = []
     const optionalOutcomes = []
     optionalOutcomes.push(await measureOptionalScenario(
       client,
       'recording_preview_startup',
       'cold',
-      (activeClient) => measureRecordingPreviewStartup(activeClient, 'cold'),
+      (activeClient, context) => measureRecordingPreviewStartup(
+        activeClient,
+        'cold',
+        context.kind === 'measured'
+          ? { index: context.index, samples: recordingPreviewResourceSamples }
+          : null,
+      ),
     ))
     await openFixtureRecordingSet(client, 'warm')
     optionalOutcomes.push(await measureOptionalScenario(
@@ -794,6 +820,9 @@ async function run() {
         expected_output_identity: outputIdentity,
         three_d_output_identity: threeDOutputIdentity,
         calibration_output_identity: calibrationOutputIdentity,
+        diagnostics: {
+          recording_preview_resources: recordingPreviewResourceSamples,
+        },
       },
       results,
       unavailable,

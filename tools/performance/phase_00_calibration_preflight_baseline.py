@@ -39,7 +39,7 @@ SOURCE_IDENTITIES = (
     "60f3749cf04c184a004a6657d1e290b4932c8b9bcb0b8e1ced92c0c5ecc4520a",
     "c7214f135ef25bb73004c9ffd646353185eb84acf0daf8554778d6689b3e6de7",
     "c22aadaf069e28d32ad38b81ac09f4bc4435fe60c7e1fd5423c9229c58c76140",
-    "6735baeb0f6f17ca061e610e83fee5353ae931bb1c2b4002b917503b56b8d0b9f",
+    "6735baeb0f6f17ca061e610e83fee5353ae931bb1c2b4002b917503b56b8d0b9",
 )
 EXPECTED_OUTPUT_IDENTITY = "7790c0e597580ef184976de348736b8605da2b81ad30be2632eb8709807d3283"
 WARMUP_RUNS = 3
@@ -100,6 +100,8 @@ def _verify_sources(config: CalibrationPreflightConfig) -> tuple[Path, ...]:
     }
     if len(lengths) != 1 or not config.source_files:
         raise ValueError("source files, sizes, and identities must be non-empty and aligned")
+    if any(len(identity) != 64 for identity in config.source_identities):
+        raise ValueError("source identities must be 64-character SHA256 values")
     paths = tuple(config.source_directory / name for name in config.source_files)
     for index, path in enumerate(paths):
         if not path.is_file():

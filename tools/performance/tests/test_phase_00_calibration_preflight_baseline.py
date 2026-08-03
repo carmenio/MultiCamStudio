@@ -75,6 +75,16 @@ class CalibrationPreflightBaselineTests(unittest.TestCase):
                 CalibrationPreflightConfig(source_files=("one.mp4",), source_sizes=())
             )
 
+    def test_runner_rejects_malformed_source_identity(self) -> None:
+        with self.assertRaisesRegex(ValueError, "64-character SHA256"):
+            build_calibration_preflight_baseline(
+                CalibrationPreflightConfig(
+                    source_files=("one.mp4",),
+                    source_sizes=(1,),
+                    source_identities=("not-a-sha256",),
+                )
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

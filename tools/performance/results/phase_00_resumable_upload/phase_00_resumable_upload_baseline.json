@@ -1,19 +1,27 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T12:15:36.182028+00:00",
+  "created_at_utc": "2026-08-03T14:01:32.896764+00:00",
   "metadata": {
-    "commit": "8f20e14b2599b5cc7a094a3e88b75902b7705332",
+    "commit": "0de6323ae1ade5182a43f13467f94bb79c3624a2",
     "source_revisions": {
-      "pc": "95ca0fb29f38746a4cf6d5754250af75a05f716b",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "52b9c4f528311a885be8a1bff67d16bb6e932639",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
+    "dependency_versions": {
+      "flask": "3.0.2"
+    },
     "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
     "power_mode": "Balanced",
     "network_route": "in-process Flask route adapter; no device or network transport",
     "database_snapshot": "fixed in-memory upload adapter; no database access",
     "build_mode": "local Python production controller routes",
+    "compose_configuration": "pc/docker-compose.yml route semantics; isolated process fixture",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "dedicated temp root reset before each sample; three warmups",
     "fixture": {
       "upload_id": "phase-00-resumable-upload",
@@ -26,6 +34,11 @@
       ]
     },
     "expected_output_identity": "69bb4bc2118a3c18d925e0bb38a01f1d1e2670112c36126eb37492fca2446684",
+    "camera_count": 1,
+    "recording_duration_seconds": 0,
+    "media_sizes_bytes": [
+      16777216
+    ],
     "side_effects": "temporary local files only; removed when the run completes",
     "evidence_scope": "PC server route and filesystem only; not physical phone Stop-to-upload-init, radio/network transport, or device recovery evidence"
   },
@@ -34,16 +47,16 @@
       "name": "resumable_upload_init",
       "cache_state": "warm",
       "samples_ms": [
-        1.526300038676709,
-        2.0705999922938645,
-        2.2384999901987612,
-        2.074600022751838,
-        1.6898000030778348,
-        2.241699956357479,
-        1.9682000274769962,
-        1.9162999815307558,
-        1.858400006312877,
-        2.4384999996982515
+        1.2456999975256622,
+        1.1363999801687896,
+        1.1353000300005078,
+        1.1285999789834023,
+        1.2105999630875885,
+        1.1894000344909728,
+        1.4639999717473984,
+        1.1003999970853329,
+        1.1011000024154782,
+        1.0900000343099236
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -54,11 +67,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 2.0194000098854303,
-      "p50_ms": 2.0194000098854303,
-      "p95_ms": 2.4384999996982515,
-      "minimum_ms": 1.526300038676709,
-      "maximum_ms": 2.4384999996982515,
+      "median_ms": 1.1358500050846487,
+      "p50_ms": 1.1358500050846487,
+      "p95_ms": 1.4639999717473984,
+      "minimum_ms": 1.0900000343099236,
+      "maximum_ms": 1.4639999717473984,
       "work_units": [],
       "unit_name": null,
       "throughput_per_second": null
@@ -67,16 +80,16 @@
       "name": "resumable_upload_interrupted_resume",
       "cache_state": "warm",
       "samples_ms": [
-        0.5385999684222043,
-        0.5118000553920865,
-        0.5373000167310238,
-        0.4634000360965729,
-        0.4670000053010881,
-        0.5097000394016504,
-        0.46339997788891196,
-        0.603599997702986,
-        0.6652000010944903,
-        0.5083000287413597
+        0.44000003254041076,
+        0.4941999795846641,
+        0.48349995631724596,
+        0.43020001612603664,
+        0.4724999889731407,
+        0.4311000229790807,
+        0.4393999697640538,
+        0.43919996824115515,
+        0.41609996696934104,
+        0.42619998566806316
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -87,11 +100,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 0.5107500473968685,
-      "p50_ms": 0.5107500473968685,
-      "p95_ms": 0.6652000010944903,
-      "minimum_ms": 0.46339997788891196,
-      "maximum_ms": 0.6652000010944903,
+      "median_ms": 0.4392999690026045,
+      "p50_ms": 0.4392999690026045,
+      "p95_ms": 0.4941999795846641,
+      "minimum_ms": 0.41609996696934104,
+      "maximum_ms": 0.4941999795846641,
       "work_units": [],
       "unit_name": null,
       "throughput_per_second": null
@@ -100,16 +113,16 @@
       "name": "resumable_upload_chunk_write",
       "cache_state": "warm",
       "samples_ms": [
-        58.36669995915145,
-        58.843899983912706,
-        66.00430002436042,
-        56.90580001100898,
-        55.63829996390268,
-        56.43440003041178,
-        67.49310001032427,
-        67.48440000228584,
-        62.21970001934096,
-        54.83530001947656
+        45.35199998645112,
+        48.48160000983626,
+        49.01389998849481,
+        48.65300003439188,
+        57.4239999987185,
+        48.30490000313148,
+        48.4081000322476,
+        49.19510002946481,
+        46.02130001876503,
+        46.02760000852868
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -120,11 +133,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 58.60529997153208,
-      "p50_ms": 58.60529997153208,
-      "p95_ms": 67.49310001032427,
-      "minimum_ms": 54.83530001947656,
-      "maximum_ms": 67.49310001032427,
+      "median_ms": 48.44485002104193,
+      "p50_ms": 48.44485002104193,
+      "p95_ms": 57.4239999987185,
+      "minimum_ms": 45.35199998645112,
+      "maximum_ms": 57.4239999987185,
       "work_units": [
         16777216.0,
         16777216.0,
@@ -138,22 +151,22 @@
         16777216.0
       ],
       "unit_name": "bytes",
-      "throughput_per_second": 277664628.400218
+      "throughput_per_second": 344585201.865516
     },
     {
       "name": "resumable_upload_assembly_and_checksum",
       "cache_state": "warm",
       "samples_ms": [
-        39.44650001358241,
-        37.21660003066063,
-        32.754499989096075,
-        33.97630003746599,
-        32.232999976258725,
-        32.90180000476539,
-        35.143100016284734,
-        32.54489996470511,
-        32.19400002853945,
-        31.357700005173683
+        33.30660000210628,
+        32.896599965170026,
+        58.01809998229146,
+        44.14010001346469,
+        47.79629997210577,
+        48.989999981131405,
+        45.24940002011135,
+        36.5190000156872,
+        33.51099998690188,
+        33.92289998009801
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -164,11 +177,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 32.82814999693073,
-      "p50_ms": 32.82814999693073,
-      "p95_ms": 39.44650001358241,
-      "minimum_ms": 31.357700005173683,
-      "maximum_ms": 39.44650001358241,
+      "median_ms": 40.32955001457594,
+      "p50_ms": 40.32955001457594,
+      "p95_ms": 58.01809998229146,
+      "minimum_ms": 32.896599965170026,
+      "maximum_ms": 58.01809998229146,
       "work_units": [
         16777216.0,
         16777216.0,
@@ -182,7 +195,7 @@
         16777216.0
       ],
       "unit_name": "bytes",
-      "throughput_per_second": 493783883.27798426
+      "throughput_per_second": 404904452.83641773
     }
   ]
 }

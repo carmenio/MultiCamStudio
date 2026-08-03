@@ -683,8 +683,11 @@ async function run() {
       `--remote-debugging-port=${DEBUG_PORT}`,
       '--ignore-certificate-errors',
       '--autoplay-policy=no-user-gesture-required',
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
       '--no-first-run',
       '--disable-default-apps',
+      '--disable-renderer-backgrounding',
       '--window-size=1440,1000',
       'about:blank',
     ]

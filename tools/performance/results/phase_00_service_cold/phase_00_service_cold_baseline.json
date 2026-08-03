@@ -1,37 +1,67 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T11:09:43.690763+00:00",
+  "created_at_utc": "2026-08-03T14:15:47.751811+00:00",
   "metadata": {
-    "commit": "85c51c8a4f53d99352f2b8ccaac46999452162ce",
+    "commit": "de9b1c2630a9a9d8d27f5e4a4abf00d2b19b7888",
     "source_revisions": {
-      "pc": "afd9acb47ae424beadb8dd7ea54dab0c4b961343",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "24eef3ed5f4f1d0cc3795484f8d631278f2ff39b",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
-    "created_at_utc": "2026-08-03T11:09:43.621804+00:00",
+    "created_at_utc": "2026-08-03T14:15:47.660341+00:00",
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
     "power_mode": "Balanced",
+    "network_route": "PC HTTPS loopback at https://127.0.0.1:5000",
     "database_snapshot": "live fixture observed 2026-08-03; session 49; recording set 178",
+    "fixture": {
+      "session_id": 49,
+      "recording_set_id": 178,
+      "recording_ids": [
+        649,
+        650,
+        651
+      ]
+    },
+    "build_mode": "bind-mounted Docker backend service",
+    "dependency_versions": {
+      "backend": "tools/performance/environments/phase_01_backend_pip_freeze.txt"
+    },
+    "compose_configuration": "3f3fc93872540702653310569ed6a7bd5e4933151bfc6e1207db05b14e591251",
+    "service_images": {
+      "backend": "sha256:55ddc0be147281760c667d996685c8b5eb3daa3efc52cdf456919c50a56320f7"
+    },
     "compose_directory": "pc",
     "compose_service": "backend",
     "health_url": "https://127.0.0.1:5000/health",
     "target_url": "https://127.0.0.1:5000/api/sessions-info?profile=ui",
     "cache_preparation": "docker compose restart backend; health-only readiness polling",
+    "camera_count": 3,
+    "recording_duration_seconds": [
+      196.1,
+      195.8,
+      195.766666666667
+    ],
+    "media_sizes_bytes": [
+      450821959,
+      445290517,
+      448855126
+    ],
     "restart_readiness_durations_ms": [
-      5705.510700005107,
-      5329.1957000037655,
-      5431.9427000009455,
-      5205.844799987972,
-      5740.398699999787,
-      5241.018600005191,
-      5221.424299990758,
-      5220.708800014108,
-      5953.130100038834,
-      5432.793900021352,
-      5392.7740000071935,
-      5270.763900014572,
-      5296.766399987973
+      6132.425500021782,
+      5321.172999974806,
+      4997.568700055126,
+      5203.250700025819,
+      5223.544100008439,
+      5336.843900033273,
+      5043.842400016729,
+      5329.847500019241,
+      5249.594900000375,
+      5231.588199967518,
+      4978.944799979217,
+      5482.012599997688,
+      5252.678100019693
     ],
     "expected_output_identity": "cdf28aa1f87490da059814803ced5733a5060140b9f08420293f2bb6ace6b288",
     "configuration_hash": "ad066a648d8b74959d5da633eb03f85fd2dd84274e6561beef5e6f7dad283b19"
@@ -41,16 +71,16 @@
       "name": "pc_sessions_ui_first_request_after_backend_restart",
       "cache_state": "cold",
       "samples_ms": [
-        78.36220000172034,
-        69.44130000192672,
-        71.18620001710951,
-        72.33509997604415,
-        92.50440000323579,
-        96.22110001510009,
-        74.17060004081577,
-        73.0436000158079,
-        79.14639997761697,
-        87.11870003025979
+        78.59360001748428,
+        76.56299998052418,
+        68.17690003663301,
+        71.54360000276938,
+        85.32110002124682,
+        72.51289999112487,
+        76.4752000104636,
+        65.48410002142191,
+        66.66429998585954,
+        109.23950001597404
       ],
       "successful_runs": 10,
       "measured_runs": 10,
@@ -61,11 +91,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 76.26640002126805,
-      "p50_ms": 76.26640002126805,
-      "p95_ms": 96.22110001510009,
-      "minimum_ms": 69.44130000192672,
-      "maximum_ms": 96.22110001510009,
+      "median_ms": 74.49405000079423,
+      "p50_ms": 74.49405000079423,
+      "p95_ms": 109.23950001597404,
+      "minimum_ms": 65.48410002142191,
+      "maximum_ms": 109.23950001597404,
       "work_units": [],
       "unit_name": null,
       "throughput_per_second": null

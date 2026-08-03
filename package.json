@@ -16,6 +16,7 @@
     "benchmark:export-writing": "python -m tools.performance.phase_00_export_writing_baseline",
     "benchmark:detection-processing": "python -m tools.performance.phase_00_detection_processing_baseline",
     "benchmark:triangulation-processing": "python -m tools.performance.phase_00_triangulation_processing_baseline",
+    "benchmark:calibration-processing": "python -m tools.performance.phase_00_calibration_processing_baseline",
     "benchmark:resumable-upload": "python -m tools.performance.phase_00_resumable_upload_baseline",
     "benchmark:calibration-viewer": "python -m tools.performance.phase_00_calibration_viewer_baseline"
   },

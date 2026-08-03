@@ -45,6 +45,11 @@ complete scenario ID set, existing evidence links, an explanation for every
 partial/unavailable scenario, and `phase_complete=true` only when every entry is
 captured.
 
+The registry test validates structure and evidence-path existence; it does not
+infer that a linked report semantically proves the named workflow. Independent
+review of fixture and scenario relevance remains required before changing an
+entry to `captured`.
+
 `tools/performance/run_http_benchmarks.py` is the SDK-style executable for read-only HTTP scenarios. Set its constants, `BENCHMARK_METADATA`, and `HTTP_SCENARIOS` at the top of the file; it deliberately has no command-line parser. Run it from the repository root with `python -m tools.performance.run_http_benchmarks`. Service-specific suites may import the public API directly instead of changing that shared runner.
 
 The production browser runner is dependency-free and uses Node's built-in

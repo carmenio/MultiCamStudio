@@ -40,8 +40,8 @@ python -m pytest tools/performance/tests -q
 ## Read-only live baseline
 
 Environment: root commit `27b769e3164e5f5314fb2848bc83157b1d2af7eb`, PC
-runtime revision `afd9acb47ae424beadb8dd7ea54dab0c4b961343`, laptop
-revision `f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`, Windows 10.0.26200, Intel Core i9-11900K, Balanced
+runtime revision `006267c0ee82cc5f8d9c18f61ab26773499b6f2c`, laptop
+revision `33e16ddb0968a583145074310c9da72e0b1e64e1`, Windows 10.0.26200, Intel Core i9-11900K, Balanced
 power mode, Docker backend at `https://127.0.0.1:5000`, and laptop proxy at
 `https://127.0.0.1:9443`. Fixture: session 49, recording set 178, recordings
 649-651, calibration 113, and calibration batch 114. Each available scenario
@@ -204,7 +204,7 @@ cleanup, and final independent checksum verification are outside timing.
 
 All scenarios used 3 warmups and 10 measurements at root commit
 `c0c9cc797781b653c51830477a4103b68215b75e` and PC revision
-`52b9c4f528311a885be8a1bff67d16bb6e932639`. The completed bytes retained SHA-256
+`006267c0ee82cc5f8d9c18f61ab26773499b6f2c`. The completed bytes retained SHA-256
 `69bb4bc2118a3c18d925e0bb38a01f1d1e2670112c36126eb37492fca2446684`.
 The server-route timing is retained as a relative baseline without the 5,000 ms
 hard limit. It does **not** pass or prove the end-to-end phone
@@ -314,7 +314,7 @@ correlation token for hashing.
 
 All scenarios used 3 warmups and 10 measurements at root commit
 `3019c02b22f9a87d7cb09542dd5ac8b4392b6f36` and laptop revision
-`b15461e871e59243d7920fd0db69e72d5dc51463`. Five normalized message hashes
+`33e16ddb0968a583145074310c9da72e0b1e64e1`. Five normalized message hashes
 are retained in the raw report. These are warm local relay lower bounds, not
 TLS/LAN, WebRTC, preview, device execution, or physical control evidence. Raw
 evidence is in `tools/performance/results/phase_00_signaling/`.
@@ -377,19 +377,19 @@ animation frames. Navigation requires `main.recording-page` plus two frames.
 
 | Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Operator first usable | Isolated cold | 328.013 | 393.145 | 301.117 | 393.145 | 0 |
-| Operator first usable | Warm | 207.078 | 244.009 | 190.035 | 244.009 | 0 |
-| Recordings navigation | Warm | 35.088 | 37.874 | 34.538 | 37.874 | 0 |
-| Three-camera preview startup | Isolated cold | 592.094 | 2,658.245 | 340.042 | 2,658.245 | 0 |
-| Primary first decoded frame | Warm | 28.650 | 37.900 | 9.500 | 37.900 | 0 |
-| Three-camera synchronized playback start | Warm | 32.250 | 56.800 | 31.500 | 56.800 | 0 |
-| 3D first usable WebGL render | Warm | 6,919.186 | 7,786.040 | 6,734.929 | 7,786.040 | 0 |
-| 3D timeline seek readiness | Warm | 34.905 | 35.702 | 33.774 | 35.702 | 0 |
-| 3D playback start | Warm | 30.425 | 31.460 | 27.925 | 31.460 | 0 |
-| Calibration Plotly readiness | Warm | 879.478 | 1,028.019 | 782.063 | 1,028.019 | 0 |
+| Operator first usable | Isolated cold | 321.241 | 411.761 | 294.124 | 411.761 | 0 |
+| Operator first usable | Warm | 191.664 | 225.221 | 174.185 | 225.221 | 0 |
+| Recordings navigation | Warm | 35.531 | 36.516 | 34.189 | 36.516 | 0 |
+| Three-camera preview startup | Isolated cold | 947.208 | 1,790.330 | 517.464 | 1,790.330 | 0 |
+| Primary first decoded frame | Warm | 30.400 | 41.000 | 21.600 | 41.000 | 0 |
+| Three-camera synchronized playback start | Warm | 31.500 | 41.800 | 26.300 | 41.800 | 0 |
+| 3D first usable WebGL render | Warm | 6,937.393 | 7,642.016 | 6,600.331 | 7,642.016 | 0 |
+| 3D timeline seek readiness | Warm | 34.465 | 35.290 | 33.793 | 35.290 | 0 |
+| 3D playback start | Warm | 29.428 | 30.193 | 27.917 | 30.193 | 0 |
+| Calibration Plotly readiness | Warm | 863.259 | 1,340.113 | 717.428 | 1,340.113 | 0 |
 
-The current run used root commit `c0c9cc797781b653c51830477a4103b68215b75e`
-and laptop revision `f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2`.
+The current run used root commit `9a1051063ead5441756cba16348fe435ccb3a8f9`
+and laptop revision `7a18c38ea75ef700bf4c7734c6d4d403c920468d`.
 The rendered shell signature hash was
 `89cad48c52fc47d44b8b1e7324f6b8fb74bd6bc050694b375be0cfaba15ef0c6`.
 The 3D canvas screenshot identity was
@@ -400,9 +400,10 @@ Raw evidence is in
 `tools/performance/results/phase_00_browser/phase_00_browser_baseline.json`.
 The controlled browser fixture is session 49, recording set 178, recordings
 649-651. The runner resolves the exact card from backend summary ordering rather
-than a display label. Multi-camera seek readiness remains unavailable because at
-least one real media element did not emit `seeked` within 20 seconds. The run
-retains that exact timeout instead of reporting partial-camera timing. The 3D
+than a display label. Multi-camera seek readiness remains unavailable:
+recording 651 did not emit `seeked` within 20 seconds while recordings 649 and
+650 did. All three sources reported readyState 4; the run retains each source,
+current time, and outcome instead of reporting partial-camera timing. The 3D
 fixture is set 178/run 100 with 11,464 timeline frames. Its first-render timer
 starts at card activation and ends after a connected, non-lost WebGL canvas,
 the full frame range, and two animation frames are visible. Seek uses native
@@ -410,6 +411,19 @@ browser input and accepts the rendered position within one percent of the
 requested track coordinate. Calibration discovers viewer 113 through the UI,
 then times its canonical viewer route until Plotly's WebGL canvas and two
 animation frames are ready.
+
+### Browser repeatability gate
+
+The browser baseline is not yet comparison-ready even though each individual
+report is internally valid. Comparing the prior controlled capture in root
+commit `6cc28a1` with the current capture in `3dd2e98` on the same fixture and
+with identical output hashes found cold-shell p95 4.7% slower, preview median
+60.0% slower, first-frame median/p95 6.1%/8.2% slower, and Plotly p95 30.4%
+slower. Other metrics improved by more than 3%. This variance exceeds the
+universal acceptance band, so Phase 0 must control/profile the source of browser
+timing noise and establish a repeatable pair before browser-dependent structural
+work can pass. Self-comparison validates report integrity but cannot prove this
+cross-run repeatability.
 
 `GET /api/sessions-info?profile=full` returned HTTP 500 and is intentionally
 recorded unavailable. The live database rejected the nested legacy response with
@@ -425,11 +439,11 @@ Complete this table before Phase 1 structural changes resume.
 | Scenario | Cache | Fixture | Runs | Median ms | p95 ms | Min ms | Max ms | Failures | Throughput | Hard limit |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | Session/overview retrieval | Service cold + header-bypass + warm | Session 49 | 10 each | Captured | Captured | Captured | Captured | 0 | N/A | Full profile currently 500; database cold pending |
-| Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651; five-second cut | 10 each | Preview 592.094; first frame 28.650; synchronized start 32.250; cut 6,123.213 | Preview 2,658.245; first frame 37.900; synchronized start 56.800; cut 6,380.535 | Captured | Captured | 0 | Cut 2.464 camera-seconds/s | Seek timed out; warm local cut captured; cold cut pending |
+| Recording preview/seek/sync/cut | Isolated cold + warm | Session 49, set 178, recordings 649-651; five-second cut | 10 each | Preview 947.208; first frame 30.400; synchronized start 31.500; cut 6,123.213 | Preview 1,790.330; first frame 41.000; synchronized start 41.800; cut 6,380.535 | Captured | Captured | 0 | Cut 2.464 camera-seconds/s | Recording 651 seek timed out; warm local cut captured; cold cut pending |
 | Pairing/control/upload | Warm local; physical devices pending | Fixed PC/Edge pairing, signaling relay, and 16 MiB/4-chunk upload fixtures | 10 each | PC issue 0.328; PC resolve 0.289; Edge issue 1.592; Edge resolve 0.552; Edge RTT 2.002; canonical RTT 0.700; legacy RTT 0.6115; upload init 1.730; chunk 50.500; completion 36.324 | PC issue 0.425; PC resolve 0.436; Edge issue 3.386; Edge resolve 1.358; Edge RTT 3.557; canonical RTT 0.911; legacy RTT 1.222; upload init 1.951; chunk 65.447; completion 41.419 | Captured | Captured | 0 | Tokens/s, round trips/s, and upload bytes/s captured | Backend init has a relative baseline only; end-to-end Stop-to-init and live nginx/TLS/QR/physical evidence pending |
-| Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 560.131; solve 29,382.152; HTML 0.141; Plotly 879.478 | Preflight 624.721; solve 29,737.110; HTML 0.236; Plotly 1,028.019 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
+| Calibration workflow | Warm | Set-201 four-camera preflight; fixed two-camera solver; fixed geometry; live viewer 113 | 10 preflight/render/browser; 5 solve | Preflight 560.131; solve 29,382.152; HTML 0.141; Plotly 863.259 | Preflight 624.721; solve 29,737.110; HTML 0.236; Plotly 1,340.113 | Captured | Captured | 0 | Videos/s, camera-frames/s, and cameras/s captured | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Live: set 178/raw:1053/recordings 649-651; processing: fixed 3-camera, 1,800-frame fixture | 10 live; 5 processing | Live summary/windows captured; processing 7,319.012; generation 234.320 | Live summary/windows captured; processing 7,411.117; generation 324.207 | Captured | Captured | 0 | Live segment bytes/s plus processing/generation keypoints/s captured | Live summary/segment < 500 ms passed |
-| Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,919.186; seek 34.905; playback 30.425; processing 3,443.984 | Render 7,786.040; seek 35.702; playback 31.460; processing 3,607.543 | Captured | Captured | 0 | Result bytes/s plus 7,893 accepted 3D points/s | Relative gate |
+| Triangulation/3D readiness | Warm | Live: set 178/run 100; processing: fixed 3-camera, 1,800-frame calibrated fixture | 10 live; 5 processing | Render 6,937.393; seek 34.465; playback 29.428; processing 3,443.984 | Render 7,642.016; seek 35.290; playback 30.193; processing 3,607.543 | Captured | Captured | 0 | Result bytes/s plus 7,893 accepted 3D points/s | Relative gate |
 | Pipeline dispatch | Warm in-process | Ten sets, five stages, deterministic adapters | 10 | 0.617 | 0.915 | 0.478 | 0.915 | 0 | 76,814 tasks/s | Worker execution pending |
 | Export planning/finalization | Warm | Live preflight: session 49/set 178/run 100; writing: fixed 3-camera, 1,800-frame `two_d_3d` fixture | 10 planning; 5 writing | Planning 3,408.367; writing 2,644.353 | Planning 3,596.047; writing 2,998.632 | Planning 3,324.019; writing 2,573.341 | Planning 3,596.047; writing 2,998.632 | 0 | 14,577,767 artifact bytes/s | Relative gate |
 
@@ -448,8 +462,7 @@ affected.
 - The harness records process-level latency and supplied throughput; external profilers and resource monitors remain diagnostic tools rather than acceptance substitutes.
 - The operator HTML measurement is transport readiness, not browser first-usable
   render or workflow navigation.
-- The browser runner uses SDK-style constants for hardware, power mode, Compose
-  hash, backend image, media sizes, and durations. The committed payload does
-  not yet discover/validate those values at runtime or store recording IDs
-  649-651 alongside the set ID; candidate acceptance must independently verify
-  them until provenance discovery is implemented.
+- The browser runner discovers CPU, logical processor count, RAM, and Windows
+  power scheme at runtime and freezes recording IDs 649-651 with coupled media
+  durations/sizes. Compose hash and backend image remain SDK-style constants;
+  candidate acceptance must independently confirm them.

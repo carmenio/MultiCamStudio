@@ -252,5 +252,5 @@ Each relevant phase records cold and warm results for its vertical workflow: ses
 From the repository root:
 
 ```powershell
-python -m unittest discover -s tools/performance/tests -v
+python -m pytest tools/performance/tests -q
 ```

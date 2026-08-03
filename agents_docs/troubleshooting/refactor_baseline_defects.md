@@ -75,6 +75,10 @@ be defects but cannot be silently changed inside structural commits:
 - The database foreign key uses `ON DELETE SET NULL`; deleting a parent can make
   a persistent child independent, unlike the fallback store's synthetic
   missing-parent cancellation behavior.
+- Recording-cut cancellation is checked only at cut and recording boundaries,
+  not during ffmpeg or persistence. Rollback removes partial media and persisted
+  cut rows, but timing updates may already exist and an already-enqueued
+  `build_recording_preview` task remains queued rather than being canceled.
 
 The focused route tests intentionally freeze these results. Any correction needs
 an explicit compatibility decision and tests for the new response and recovery

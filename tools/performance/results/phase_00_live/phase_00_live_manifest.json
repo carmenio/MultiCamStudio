@@ -1,6 +1,6 @@
 {
   "benchmark_report": "tools\\performance\\results\\phase_00_live\\phase_00_live_benchmark.json",
-  "created_at_utc": "2026-08-03T11:04:28.082168+00:00",
+  "created_at_utc": "2026-08-03T14:44:37.333536+00:00",
   "fixture": {
     "calibration_batch_id": 114,
     "calibration_id": 113,
@@ -16,7 +16,7 @@
     "variant_key": "raw:1053"
   },
   "safety": {
-    "cold_preparation": "GET with Cache-Control: no-cache and Pragma: no-cache; no cache deletion",
+    "header_bypass_preparation": "GET with Cache-Control: no-cache and Pragma: no-cache; no cache deletion",
     "http_methods": [
       "GET"
     ],
@@ -80,7 +80,7 @@
       "warmup_failures": []
     },
     {
-      "cache_state": "cold",
+      "cache_state": "header-bypass",
       "expected_output_identity": "1ba748be5e604515512001979cb277ca3ccbcea8ab5ca9eb1e16beb70a571c97",
       "failure_count": 0,
       "failures": [],
@@ -103,7 +103,7 @@
     },
     {
       "cache_state": "warm",
-      "expected_output_identity": "db9e91a011593119329fd819734a52d8d3d16f66a2fc68cbcbc4a8be6f7edc75",
+      "expected_output_identity": "c972f4d7524aedb9cb45e4f50a86ee8e2fe925db734251f5f4d943494a06c85d",
       "failure_count": 0,
       "failures": [],
       "name": "laptop_proxy_sessions_ui",
@@ -113,7 +113,7 @@
       "warmup_failures": []
     },
     {
-      "cache_state": "cold",
+      "cache_state": "header-bypass",
       "expected_output_identity": "ddd5654b54058df9b2928e3029efac79dea26b339541389ff0f21649e23f176f",
       "failure_count": 0,
       "failures": [],
@@ -144,7 +144,7 @@
       "status": "unavailable"
     },
     {
-      "cache_state": "cold",
+      "cache_state": "header-bypass",
       "expected_output_identity": "cdf28aa1f87490da059814803ced5733a5060140b9f08420293f2bb6ace6b288",
       "failure_count": 0,
       "failures": [],

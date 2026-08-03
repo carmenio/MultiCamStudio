@@ -53,6 +53,17 @@ times the first session UI request. Do not run it while operators are using the
 PC API. It does not restart PostgreSQL, clear the operating-system page cache,
 or claim database-cold evidence.
 
+Dataset planning uses the production, non-persisting preflight contract:
+
+```powershell
+python -m tools.performance.phase_00_export_planning_baseline
+```
+
+Its fixture is configured at the top of the module. The semantic identity
+excludes only destination free space, which can change between consecutive
+requests without changing the reviewed export plan. Running an export job is
+not part of this command.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

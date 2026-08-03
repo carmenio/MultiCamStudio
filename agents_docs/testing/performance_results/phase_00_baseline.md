@@ -87,6 +87,26 @@ median restart-to-health preparation was 5,329.196 ms. Raw evidence is in
 This is service-process cold, not an operating-system page-cache or PostgreSQL
 buffer-cache flush.
 
+## Dataset export planning baseline
+
+The export-planning runner posts a fixed `three_d_only` specification for
+session 49, recording set 178, and completed triangulation run 100 to the
+production preflight route. Preflight is non-persisting: it creates no job and
+writes no artifacts. Semantic equivalence includes eligibility, source choices,
+ranges, schema, estimated size, normalized specification, and the review hash;
+only the volatile destination `free_bytes` counter is excluded from its identity.
+
+| Scenario | Cache | Median ms | p95 ms | Min ms | Max ms | Failures |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Dataset export preflight | Warm | 3,967.282 | 4,670.150 | 3,683.326 | 4,670.150 | 0 |
+
+The run used 3 warmups and 10 measurements at root commit
+`0bfb136feebc68b5706e505e73c6c5098bc298ac` and PC revision
+`afd9acb47ae424beadb8dd7ea54dab0c4b961343`. Every response retained semantic
+identity `ff6712d285c531b97919d0f9c30fb881b68ad54130fff56ba2cd2630833be461`
+and review hash `bcdcea8bd9fa313d4b4c895d576852a6cc7e6b81f7853aa255483f46bc3ad8b5`.
+Raw evidence is in `tools/performance/results/phase_00_export_planning/`.
+
 ## Production browser baseline
 
 The dependency-free CDP runner rebuilt the operator web with
@@ -137,7 +157,7 @@ Complete this table before Phase 1 structural changes resume.
 | Calibration workflow | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
 | Detection summary/segments/post-processing | Header-bypass + warm | Set 178, raw:1053, recordings 649-651 | 10 each | Summary and three segment cases captured | Summary and three segment cases captured | Captured | Captured | 0 | Segment bytes/s captured | Summary/segment < 500 ms passed; post-processing pending |
 | Triangulation/3D readiness | Warm | Set 178, run 100 | 10 | Metadata/status/result retrieval captured | Metadata/status/result retrieval captured | Captured | Captured | 0 | Result bytes/s captured | Processing and browser 3D readiness pending |
-| Export planning/finalization | Cold + warm | Pending | 5 each | Pending | Pending | Pending | Pending | Pending | Frames/s | Relative gate |
+| Export planning/finalization | Warm | Session 49, set 178, triangulation run 100 | 10 | Planning 3,967.282; finalization pending | Planning 4,670.150; finalization pending | Planning 3,683.326 | Planning 4,670.150 | 0 | Artifact writing pending | Relative gate |
 
 ## Rollback
 

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-08-03T11:40:59.474455+00:00",
+  "metadata": {
+    "commit": "0bfb136feebc68b5706e505e73c6c5098bc298ac",
+    "source_revisions": {
+      "pc": "afd9acb47ae424beadb8dd7ea54dab0c4b961343",
+      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+    },
+    "platform": "Windows-10-10.0.26200-SP0",
+    "python": "3.11.5",
+    "hardware": "11th Gen Intel(R) Core(TM) i9-11900K @ 3.50GHz; 68595343360 bytes RAM",
+    "power_mode": "Balanced",
+    "database_snapshot": "live fixture observed 2026-08-03; session 49; recording set 178",
+    "network_route": "https://127.0.0.1:5000/api/exports/preflight",
+    "build_mode": "bind-mounted Docker backend",
+    "cache_preparation": "same live database snapshot; three warm-up preflights",
+    "fixture": {
+      "recipe": "three_d_only",
+      "sets": [
+        {
+          "session_id": 49,
+          "recording_set_id": 178,
+          "triangulation_run_id": 100
+        }
+      ],
+      "formats": [
+        "npy",
+        "csv",
+        "jsonl"
+      ],
+      "range": {
+        "base": "full",
+        "quality_enabled": false
+      },
+      "point_schema": {
+        "labels": [],
+        "target_point_count": 0,
+        "skeleton_connections": []
+      },
+      "export_name": "Phase 0 benchmark",
+      "destination_subfolder": ""
+    },
+    "expected_output_identity": "ff6712d285c531b97919d0f9c30fb881b68ad54130fff56ba2cd2630833be461",
+    "preflight_hash": "bcdcea8bd9fa313d4b4c895d576852a6cc7e6b81f7853aa255483f46bc3ad8b5",
+    "side_effects": "none; preflight does not create an export job or write artifacts"
+  },
+  "results": [
+    {
+      "name": "dataset_export_preflight",
+      "cache_state": "warm",
+      "samples_ms": [
+        4621.5614000102505,
+        4670.15049996553,
+        4258.390199975111,
+        4262.029799981974,
+        4031.0152000165544,
+        3689.364599995315,
+        3878.680700028781,
+        3793.04509999929,
+        3683.326099999249,
+        3903.5482999752276
+      ],
+      "successful_runs": 10,
+      "measured_runs": 10,
+      "warmup_runs": 3,
+      "minimum_measured_runs": 10,
+      "minimum_warmup_runs": 3,
+      "maximum_p95_ms": null,
+      "failures": [],
+      "failure_count": 0,
+      "warmup_failures": [],
+      "median_ms": 3967.281749995891,
+      "p50_ms": 3967.281749995891,
+      "p95_ms": 4670.15049996553,
+      "minimum_ms": 3683.326099999249,
+      "maximum_ms": 4670.15049996553,
+      "work_units": [],
+      "unit_name": null,
+      "throughput_per_second": null
+    }
+  ]
+}

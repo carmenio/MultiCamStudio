@@ -173,6 +173,19 @@ cryptographic verification. Resolve freezes the complete response. These are
 in-process server lower bounds, not EdgeRelay, QR, network, WebRTC, or device
 measurements.
 
+The signaling relay benchmark starts the production Node server once on an
+isolated loopback port and uses real `ws` clients:
+
+```powershell
+node --test tools/performance/tests/test_phase_00_signaling_baseline.mjs
+node tools/performance/phase_00_signaling_baseline.mjs
+```
+
+It measures receiver connection through relayed viewer readiness plus canonical
+and legacy two-relay control round trips. Correlation IDs are normalized only
+after exact message assertions. The result excludes TLS/LAN routing, WebRTC,
+media, native control execution, and physical devices.
+
 ## Controlled environment
 
 Before comparing measurements, record the following metadata in both JSON reports and the phase result document:

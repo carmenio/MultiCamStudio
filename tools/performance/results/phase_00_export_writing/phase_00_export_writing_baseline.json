@@ -1,14 +1,15 @@
 {
   "schema_version": 1,
-  "created_at_utc": "2026-08-03T11:50:46.893391+00:00",
+  "created_at_utc": "2026-08-03T14:14:37.458055+00:00",
   "metadata": {
-    "commit": "f56373e64739a29ee12a16412059d757693b6fc4",
+    "commit": "de9b1c2630a9a9d8d27f5e4a4abf00d2b19b7888",
     "source_revisions": {
-      "pc": "ff2fad2cd05c9dc03743719214fd938d8cd8cbcf",
-      "laptop": "f0df175b92f2450d8bca0a1d0b6b14451f0fa3e2"
+      "pc": "24eef3ed5f4f1d0cc3795484f8d631278f2ff39b",
+      "laptop": "b15461e871e59243d7920fd0db69e72d5dc51463"
     },
     "platform": "Windows-10-10.0.26200-SP0",
     "python": "3.11.5",
+    "node": "v24.11.1",
     "dependency_versions": {
       "numpy": "1.26.2"
     },
@@ -17,7 +18,14 @@
     "network_route": "none; in-process production coordinator",
     "database_snapshot": "fixed in-memory adapters; no live database reads or writes",
     "build_mode": "local Python production modules",
+    "compose_configuration": "not used; in-process local source benchmark",
+    "service_images": {
+      "backend": "local source; no container"
+    },
     "cache_preparation": "prior output removed outside timing; three warm-up exports",
+    "camera_count": 3,
+    "recording_duration_seconds": 60.0,
+    "media_sizes_bytes": [],
     "fixture": {
       "recipe": "two_d_3d",
       "camera_count": 3,
@@ -41,11 +49,11 @@
       "name": "dataset_export_write_and_atomic_finalize",
       "cache_state": "warm",
       "samples_ms": [
-        3108.0756000010297,
-        3157.990600040648,
-        2969.7022999753244,
-        3011.9763999828137,
-        3114.2411999753676
+        2666.9263999792747,
+        2998.6321999458596,
+        2573.340700007975,
+        2644.3526000366546,
+        2592.2458000131883
       ],
       "successful_runs": 5,
       "measured_runs": 5,
@@ -56,11 +64,11 @@
       "failures": [],
       "failure_count": 0,
       "warmup_failures": [],
-      "median_ms": 3108.0756000010297,
-      "p50_ms": 3108.0756000010297,
-      "p95_ms": 3157.990600040648,
-      "minimum_ms": 2969.7022999753244,
-      "maximum_ms": 3157.990600040648,
+      "median_ms": 2644.3526000366546,
+      "p50_ms": 2644.3526000366546,
+      "p95_ms": 2998.6321999458596,
+      "minimum_ms": 2573.340700007975,
+      "maximum_ms": 2998.6321999458596,
       "work_units": [
         39288534.0,
         39288534.0,
@@ -69,7 +77,7 @@
         39288534.0
       ],
       "unit_name": "bytes",
-      "throughput_per_second": 12787582.850391809
+      "throughput_per_second": 14577767.320627313
     }
   ]
 }

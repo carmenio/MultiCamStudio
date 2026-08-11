@@ -10,6 +10,10 @@ Exports use one normalized specification for four recipes: `video_3d`, `video_2d
 
 The current page publishes its ordered recording-set selection to the shell. A preserved wizard draft takes precedence until the operator uses Reset. No page selection means an empty export selection; it never expands to the full session implicitly.
 
+Source discovery also returns recommendations without mutating the submitted specification. The operator web applies a recommendation only when a recipe-required source is unset, then repeats preflight with those explicit identifiers. A manually selected or restored source always wins. A recommended 2D source must cover every recording in the set; for `two_d_3d`, the recommendation is the newest completed 3D run with a compatible complete 2D lineage.
+
+The Sources step stays dense by default: each recording set is a compact summary row and only one row is expanded at a time. Expanded rows own the editable source selectors, complete diagnostics, and the lightweight 2D/3D point samples already returned by preflight. These samples are previews only; the browser must not hydrate complete result payloads. The synchronous preflight request uses an accessible indeterminate activity bar rather than a synthetic percentage.
+
 ## Range semantics
 
 The base is either the full common usable timeline or merged, clamped training segments. Available frame numbers are intersected across every paired point source and synchronized-video frame counts before optional confidence qualification is applied. It considers confidence threshold, minimum duration, selected-point percentage, minimum 2D cameras, and tolerated present-but-low-quality frames. Missing source frame numbers always break continuity. For `two_d_3d`, the 2D and 3D qualifying sets are intersected and the 3D run must declare lineage to the chosen 2D variant. The reviewed range plan and probed media timing are included in the preflight fingerprint.

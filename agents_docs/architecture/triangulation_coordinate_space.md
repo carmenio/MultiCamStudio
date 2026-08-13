@@ -25,7 +25,7 @@ Runs without this metadata are legacy. They remain viewable with a warning, but 
 
 Viewer transforms are display-only and must be applied identically to skeleton points, the grid, axes, and physical cameras. The active display basis converts world Y to viewer-up while leaving persisted/exported values unchanged.
 
-Default and `Frame Subject` target the midpoint of finite 1st-to-99th percentile bounds computed across the complete body path, with a small margin. This target is fixed while the timeline plays so walking displacement stays visible. `Frame All` expands the fit to include calibrated camera frustums. Neither action moves points.
+Default, `Reset`, and `Frame Subject` target the midpoint of finite 1st-to-99th percentile bounds computed across the complete body path, with a small margin. This target is fixed while the timeline plays so walking displacement stays visible. `Frame All` expands the fit to include calibrated camera frustums. Neither action moves points.
 
 Physical camera centers are `-R^T t` and convert from calibration millimetres to metres. Camera orientation is `R^T`; the OpenCV optical axis is positive camera Z. Camera labels and frustum intrinsics come from the exact calibration referenced by the selected run.
 

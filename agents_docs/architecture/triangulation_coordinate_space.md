@@ -29,6 +29,12 @@ Default, `Reset`, and `Frame Subject` target the midpoint of finite 1st-to-99th 
 
 Physical camera centers are `-R^T t` and convert from calibration millimetres to metres. Camera orientation is `R^T`; the OpenCV optical axis is positive camera Z. Camera labels and frustum intrinsics come from the exact calibration referenced by the selected run.
 
+Filmed-camera viewports join those immutable camera poses to the selected recording set by recording ID. The scene response carries the full intrinsic matrix, distortion coefficients, source dimensions, and nullable recording linkage. Camera names and counts are always data-driven. A missing recording link disables video only; it does not remove the calibrated physical camera or the 3D result.
+
+Selecting a filmed camera applies its physical position and orientation plus an off-axis projection built from `fx`, `fy`, `cx`, and `cy`. The viewport letterboxes to the source aspect ratio and never stretches the image. The full-frame border is the calibrated image extent; the safe-frame guide is centered at 90% width and 90% height. Orbiting, panning, standard presets, `Frame Subject`, or `Frame All` exits the calibrated view and hides its video background immediately.
+
+The optional video layer is a distortion-aware WebGL background behind the 3D scene, not a movable plane. Only the selected camera video is mounted. Playback remains fixed at 1x and uses the recording-set sync offset against one global 3D timeline; video time drives the displayed 3D frame while the layer is playing. Loading or playback failure must leave the skeleton interactive.
+
 ## Projection
 
 Projection converts metre-valued calibration-world points back to millimetres before applying `K[R|t]`. The triangulation convention permits either sign of homogeneous camera depth, so only non-finite or effectively zero absolute depth is degenerate.

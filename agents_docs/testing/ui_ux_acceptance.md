@@ -51,3 +51,11 @@ Validate approximately 375 x 812 and 430 x 932 on rebuilt iOS and Android develo
 - Pending recordings survive restart; interrupted upload resumes without duplication; active uploads cannot be deleted.
 - Historical failures do not replace the newest recording status.
 - Safe areas, Dynamic Type/font scaling, background/foreground transitions, and ten maximum-profile recording stops pass on device.
+## Run Pipeline automatic discovery
+
+- Auto-find is off by default. Enabling it forces Sync and Calibration on while leaving downstream analysis stages configurable.
+- Entering Review scans all recording sets in every represented session and exposes progress, elapsed time, retry, chronological roles, evidence, links, and exact task paths.
+- Completed calibrations and valid links are authoritative; unknown sets use bounded distributed multi-camera board sampling.
+- Partial evidence, unreadable media, insufficient cameras, missing preceding calibration, and stale plans block submission until corrected or rescanned.
+- Calibration sets queue only Sync and Calibration. Analysis sets queue Sync plus enabled downstream stages and depend on the selected calibration's successful completion.
+- Calibration links are absent before success, written before dependents run, and remain absent when calibration fails or is canceled.

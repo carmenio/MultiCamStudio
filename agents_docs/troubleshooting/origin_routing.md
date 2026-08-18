@@ -28,6 +28,24 @@ VITE_API_URL=https://<pc-tailnet-host>:5000
 
 If browser DevTools shows a page loaded from `https://localhost/` making API requests to `https://<pc-tailnet-host>:5000/api/...`, check `VITE_EDGE_MODE` and make sure `VITE_API_URL` is not set in the frontend container. For laptop-edge deployment, recreate the laptop frontend container after changing Vite env values because the dev server reads them at startup.
 
+## Laptop playback media must stay on the laptop origin
+
+Set `PC_RECORDINGS_ORIGIN` to the PC's portless recordings origin, matching the
+PC `PUBLIC_RECORDINGS_BASE_URL` value. The laptop proxy sends `/recordings/`,
+`/synced-recordings/`, `/preview-recordings/`, and `/adaptive-streams/` through
+EdgeRelay, which streams the response from that PC origin while preserving byte
+ranges and media headers.
+
+If a same-origin media request returns the operator app HTML, the playback path
+fell through to the Vite frontend. Verify the laptop nginx prefix route, the
+running EdgeRelay image, and `PC_RECORDINGS_ORIGIN`, then rebuild/recreate the
+laptop stack. A byte-range probe must return `206 Partial Content` and the
+expected media content type, never `200 text/html`:
+
+```powershell
+curl.exe -sS -k -D - -o NUL -H "Range: bytes=0-0" "https://127.0.0.1:9443/preview-recordings/recording-<id>/preview.mp4"
+```
+
 Calibration camera views use Plotly documents at `/calibration-viewers/<calibration-id>.html`. The PC backend generates each document on request from the normalized calibration intrinsics, extrinsics, and recording-map rows; no viewer HTML file is stored. The laptop nginx proxy must route that prefix to EdgeRelay, and EdgeRelay must forward the same path to the PC. If a camera card or expanded viewer displays a nested copy of the operator website, inspect the viewer response for `/@vite/client`; that means the request fell through to the frontend route instead of reaching the database-backed viewer endpoint. A JSON `Calibration viewer data is incomplete` response means the route is correct but the calibration's structured database rows are missing or invalid.
 
 For phone pairing, QR links should use the current laptop page origin when it
